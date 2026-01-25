@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
+#include "athena.h"
+
+BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {  
+  SYM_ENTITY_PTR pentry =  NULL;
+  assert( ppdecl_attr );
+  assert( pvar_attr );
+  
+  *ppdecl_attr = NULL;
+  pentry = find_crnt_scope( symtbl.pcrnt_scope, pvar_attr->ident );
+  if( pentry ) {
+    *ppdecl_attr = &pentry->u.decl;
+    ;
+  } else {
+    SYMTBL_ENTRY_PTR psym = NULL;
+    psym = new_memarea( sizeof(SYMTBL_ENTRY) );
+    if( psym ) {
+      psym->ident = pvar_attr->ident;
+      psym->entity.kind = SYM_DECL;
+      psym->entity.u.decl.ident = pvar_attr->ident;
+      psym->entity.u.decl.kind = DECL_VAR;
+      psym->entity.u.decl.u.var = *pvar_attr;
+      psym->passoc = NULL;
+      psym->pnext = NULL;
+      {
+	SYMTBL_ENTRY_PTR ps = NULL;
+	ps = reg_symbol( psym );
+	if( ps ) {
+	  assert( strcmp( ps->ident, pvar_attr->ident) == 0 );
+	  assert( ps->entity.kind == SYM_DECL );
+	  assert( ps->entity.u.decl.kind =- DECL_VAR );
+	  *ppdecl_attr = &ps->entity.u.decl;
+	}	  
+      }
+    }
+  }
+  if( *ppdecl_attr )
+    assert( strcmp( (*ppdecl_attr)->ident, pvar_attr->ident ) == 0 );
+  return (BOOL)*ppdecl_attr;
+}
