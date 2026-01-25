@@ -31,7 +31,8 @@ int yywrap( void ) {
 
 ([alpha]|'_')([alnum]|'_')* {
   yylloc.first_column += strlen( yytext );
-  strncpy( yylval.str, yytext, MAX_IDENT_LEN );
+  //strncpy( yylval.str, yytext, MAX_IDENT_LEN );
+  yylval.str = yytext;
   return TK_IDENT;
 }
 . {

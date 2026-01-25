@@ -11,6 +11,7 @@ extern SYM_ENTITY_PTR find_crnt_scope ( SYMTBL_SCOPE_PTR psco, const char *ident
 extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern char *find_literal ( char *pname );
 
+extern void err_redef ( DECL_ATTRIB_PTR pdecl_attr, int row, int col );
 extern BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr );
 
 extern STATEMENT_PTR new_stmt ( void );

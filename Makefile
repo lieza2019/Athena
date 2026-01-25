@@ -15,10 +15,12 @@ YFLAGS = -dy -Wconflicts-sr -Wconflicts-rr -Wcounterexamples -Wother
 LEX = flex
 LFLAGS = -l
 
-athena : main.o y.tab.o lex.yy.o decl.o stmt.o symtbl.o mem.o
+athena : main.o misc.o y.tab.o lex.yy.o decl.o stmt.o symtbl.o mem.o
 	$(LD) $(LDFLAGS) -o $@ $^
 
 main.o : main.c athena.h
+	$(CC) $(CFLAGS) $<
+misc.o : misc.c athena.h
 	$(CC) $(CFLAGS) $<
 y.tab.o : y.tab.c
 	$(CC) $(CFLAGS_YACC) $<

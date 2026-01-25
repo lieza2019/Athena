@@ -45,13 +45,12 @@ statement : decl_var SMCL {
       assert( FALSE );
     }
     redef = ! decl_var( &pattr, &var );
-    if( !redef ) {
-      pstmt->kind = STMT_DECL;
-      pstmt->u.pdecl = pattr;
-    } else
-      ;
+    if( redef )
+      err_redef( pattr, @1.first_line, @1.first_column );
+    pstmt->kind = STMT_DECL;
+    pstmt->u.pdecl = pattr;
   } else
-    ;
+    ath_abort( ABORT_MEMLACK, @1.first_line, @1.first_column );
  };
 decl_var : TK_IDENT TK_AS TK_INT {
   char *pident = NULL;;
@@ -64,7 +63,7 @@ decl_var : TK_IDENT TK_AS TK_INT {
     $$.pos.row = @1.first_line;
     $$.pos.col = @1.first_column;
   } else
-    ;
+    ath_abort( ABORT_CANNOT_REG_SYNBOL, @1.first_line, @1.first_column );
 };
 %%
 int yyerror ( const char *s ) {

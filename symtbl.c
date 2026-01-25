@@ -4,15 +4,7 @@
 #include <assert.h>
 #include "athena.h"
 
-#if 0
-static struct {  
-  SYMTBL_SCOPE_PTR pgnd_scope;
-  SYMTBL_SCOPE_PTR pcrnt_scope;
-  SYMTBL_SCOPE_PTR pliteral;
-} symtbl = { NULL, NULL, NULL };
-#else
 SYMTBL symtbl = { NULL, NULL, NULL };
-#endif
 
 static SYMTBL_ENTRY_PTR new_entry ( char *pname ) {
   SYMTBL_ENTRY_PTR pr = NULL;
