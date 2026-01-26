@@ -14,6 +14,7 @@ static SYMTBL_ENTRY_PTR new_entry ( char *pname ) {
     const int len = strlen(pname);
     char *ps = NULL;
     ps = new_memarea( len + 1 );
+    ps = strncpy( ps, pname, len );
     if( ps ) {
       ps[len] = 0;
       pr->ident = ps;
@@ -108,7 +109,7 @@ SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym ) {
       pbuck = &(*pbuck)->pnext;
     assert( pbuck );
     assert( ! *pbuck );
-    (*pbuck)->pnext = psym;
+    *pbuck = psym;
     psym->pnext = NULL;
   }
   return psym;
@@ -174,8 +175,9 @@ static SYMTBL_ENTRY_PTR reg_literal ( char *pname ) {
     pliter = new_entry( pname );
     if( pliter ) {
       pliter->entity.kind = SYM_CONST;
+      pliter->entity.u.constant.kind = CONST_STR;
       pliter->entity.u.constant.pstr = pname;
-      (*pbuck)->pnext = pliter;
+      *pbuck = pliter;
       pliter->pnext = NULL;
     }
   }
@@ -187,7 +189,9 @@ char *find_literal ( char *pname ) {
   SYMTBL_ENTRY_PTR psym = NULL;
   assert( pname );
   
-  if( symtbl.pliteral ) {
+  if( !symtbl.pliteral )
+    goto reg;
+  {
     int h = -1;
     h = symreg_hash( pname );
     assert( (h > -1) && (h < SYMTBL_HASHTBL_ENTRIES) );
@@ -198,6 +202,7 @@ char *find_literal ( char *pname ) {
 	break;
       psym = psym->pnext;
     }
+  reg:
     if( !psym )
       psym = reg_literal( pname );
   }

@@ -17,18 +17,15 @@
   VAR_DECL var_decl;
   STATEMENT stmt;
 }
-%token SMCL
-%token TK_AS
-%token TK_INT
+%token SMCL TK_AS TK_INT
 %token <str> TK_IDENT
 %type <var_decl> decl_var
 %type <stmt> statement
-%start statement
+//%start statement
 %%
 statement : decl_var SMCL {
   BOOL redef = FALSE;
   STATEMENT_PTR pstmt = NULL;
-  
   pstmt = new_stmt();
   if( pstmt ) {
     DECL_ATTRIB_PTR pattr = NULL;
@@ -52,9 +49,10 @@ statement : decl_var SMCL {
   } else
     ath_abort( ABORT_MEMLACK, @1.first_line, @1.first_column );
  };
+
 decl_var : TK_IDENT TK_AS TK_INT {
   char *pident = NULL;;
-  assert( strlen($1) > 1 );
+  assert( strlen($1) >= 1 );
   pident = find_literal( $1 );
   if( pident ) {
     $$.ident = pident;

@@ -12,9 +12,9 @@ int main ( void ) {
   FILE *fp_src = stdin;
   
   if( ! enter_scope() )
-    ath_abort( ABORT_MEMLACK, -1, -1 );
-  yyin = fp_src;
-  r = yyparse();
+    ath_abort( ABORT_MEMLACK, -1, -1 );  
+  yyin = fp_src;  
+  r = yyparse();  
   {
     SYM_ENTITY_PTR psym = NULL;
     psym = find_symbol( "a" );

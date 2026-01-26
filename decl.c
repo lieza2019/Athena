@@ -7,7 +7,7 @@ void err_redef ( DECL_ATTRIB_PTR pdecl_attr, int row, int col ) {
   assert( pdecl_attr );
   assert( row > 1 );
   assert( col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
 }
 
 BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {  
