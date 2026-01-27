@@ -30,10 +30,13 @@ int yywrap( void ) {
   return TK_INT;
 }
 
-([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {  
-  yylloc.first_column += strlen( yytext );
-  //strncpy( yylval.str, yytext, MAX_IDENT_LEN );
-  yylval.str = yytext;
+([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {
+  const int len = strlen( yytext );
+  char *ps = NULL;
+  yylloc.first_column += len;
+  ps = new_memarea( len + 1 );
+  yylval.str = strncpy( ps, yytext, len );
+  assert( yylval.str );
   return TK_IDENT;
 }
 

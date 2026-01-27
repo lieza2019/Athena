@@ -37,7 +37,7 @@ BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {
 	if( ps ) {
 	  assert( strcmp( ps->ident, pvar_attr->ident) == 0 );
 	  assert( ps->entity.kind == SYM_DECL );
-	  assert( ps->entity.u.decl.kind =- DECL_VAR );
+	  assert( ps->entity.u.decl.kind == DECL_VAR );
 	  *ppdecl_attr = &ps->entity.u.decl;
 	}	  
       }

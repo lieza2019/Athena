@@ -21,7 +21,7 @@
 %token <str> TK_IDENT
 %type <var_decl> decl_var
 %type <stmt> statement
-//%start statement
+%start statement
 %%
 statement : decl_var SMCL {
   BOOL redef = FALSE;

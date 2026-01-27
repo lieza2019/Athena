@@ -11,6 +11,7 @@ static SYMTBL_ENTRY_PTR new_entry ( char *pname ) {
   assert( pname );
   pr = new_memarea( sizeof(SYMTBL_ENTRY) );
   if( pr ) {
+#if 0
     const int len = strlen(pname);
     char *ps = NULL;
     ps = new_memarea( len + 1 );
@@ -22,6 +23,11 @@ static SYMTBL_ENTRY_PTR new_entry ( char *pname ) {
       pr->pnext = NULL;
     } else
       pr = NULL;
+#else
+    pr->ident = pname;
+    pr->passoc = NULL;
+    pr->pnext = NULL;
+#endif
   }
   return pr;
 }
@@ -202,8 +208,8 @@ char *find_literal ( char *pname ) {
 	break;
       psym = psym->pnext;
     }
-  reg:
     if( !psym )
+    reg:
       psym = reg_literal( pname );
   }
   if( psym ) {
