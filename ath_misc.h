@@ -2,6 +2,8 @@
 #define TRUE 1
 #define FALSE 0
 
+#define ABORT_CODE 1
+
 typedef enum ath_abort {
   ABORT_MEMLACK = 1,
   ABORT_CANNOT_REG_SYNBOL,

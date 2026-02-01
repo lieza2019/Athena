@@ -17,9 +17,16 @@ int yywrap( void ) {
 %%
 ";" {
   yylloc.first_column += strlen( ";" );
-  return SMCL;
+  return TK_SMCL;
 }
-
+":=" {
+  yylloc.first_column += strlen( ":=" );
+  return TK_ASGN;
+}
+"\"" {
+  yylloc.first_column += strlen( yytext );
+  return TK_DQUOT;
+}
 "as" {
   yylloc.first_column += strlen( yytext );
   return TK_AS;
@@ -29,7 +36,16 @@ int yywrap( void ) {
   yylloc.first_column += strlen( yytext );
   return TK_INT;
 }
+"string" {
+  yylloc.first_column += strlen( yytext );
+  return TK_STRING;
+}
 
+"-"*[0-9]+ {
+  yylloc.first_column += strlen( yytext );
+  yylval.nat = atoi( yytext );
+  return TK_INT_LITERAL;
+}
 ([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {
   const int len = strlen( yytext );
   char *ps = NULL;
