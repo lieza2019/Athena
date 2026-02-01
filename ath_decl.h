@@ -1,5 +1,6 @@
 typedef enum type_cons {
-  TY_INT = 1
+  TY_INT = 1,
+  TY_STRING,
 } TYPE_CONS;
 
 typedef enum decl_kind {
