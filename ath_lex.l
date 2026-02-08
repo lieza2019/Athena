@@ -55,6 +55,10 @@ int yywrap( void ) {
   assert( yylval.str );
   return TK_IDENT;
 }
+\".+\" {
+  printf( "TK_STR_LITERAL: %s\n", yytext );
+  return TK_STR_LITERAL;
+}
 
 [ \t] { yylloc.first_column++; }
 "\n" { yylloc.first_line++; yylloc.first_column = 1; }

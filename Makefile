@@ -7,7 +7,7 @@ MAKE = make
 CC = /usr/bin/gcc
 CFLAGS = -Wall -g -c
 CFLAGS_YACC = -g -c
-LD = gcc
+LD = /usr/bin/gcc
 LDFLAGS =
 
 YACC = bison

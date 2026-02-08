@@ -15,3 +15,4 @@ extern void err_redef ( DECL_ATTRIB_PTR pdecl_attr, int row, int col );
 extern BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr );
 
 extern STATEMENT_PTR new_stmt ( void );
+extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_DECL_PTR pvar_decl, int row, int col );

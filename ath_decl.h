@@ -16,6 +16,7 @@ typedef struct var_decl {
   union {
     struct {
       int nat;
+      char *str;
     } var_int;
   } u;  
 } VAR_DECL, *VAR_DECL_PTR;
