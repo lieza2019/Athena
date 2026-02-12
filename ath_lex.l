@@ -27,11 +27,11 @@ int yywrap( void ) {
   yylloc.first_column += strlen( yytext );
   return TK_DQUOT;
 }
+
 "as" {
   yylloc.first_column += strlen( yytext );
   return TK_AS;
 }
-
 "int" {
   yylloc.first_column += strlen( yytext );
   return TK_INT;
@@ -46,6 +46,7 @@ int yywrap( void ) {
   yylval.nat = atoi( yytext );
   return TK_INT_LITERAL;
 }
+
 ([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {
   const int len = strlen( yytext );
   char *ps = NULL;
@@ -55,8 +56,11 @@ int yywrap( void ) {
   assert( yylval.str );
   return TK_IDENT;
 }
+
 \".+\" {
-  printf( "TK_STR_LITERAL: %s\n", yytext );
+  yylloc.first_column += strlen( yytext );
+  yylval.str = yytext;
+  printf( "TK_STR_LITERAL: %s\n", yylval.str );
   return TK_STR_LITERAL;
 }
 
