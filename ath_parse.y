@@ -63,21 +63,21 @@ static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
 statement : decl_var_string {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1, pos );
+  stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
  }
 | decl_var_int {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1, pos );
+  stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
  }
 | decl_var_list {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1, pos );
+  stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
  };

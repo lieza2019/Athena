@@ -8,6 +8,7 @@ typedef enum ath_abort {
   ABORT_MEMLACK = 1,
   ABORT_CANNOT_CREATE_SCOPE,
   ABORT_CANNOT_REG_SYNBOL,
+  INTERNALERR_TYPE_CONS,
   END_OF_ATH_ABORT
 } ATH_ABORT;
 extern char *ath_abort_str[];

@@ -3,14 +3,18 @@
 #include <assert.h>
 #include "athena.h"
 
-void err_redef ( DECL_ATTRIB_PTR pdecl_attr, SRC_POS_C pos ) {
+void err_redef ( DECL_ATTRIB_PTR pdecl_attr ) {
+  int row;
+  int col;
   assert( pdecl_attr );
-  assert( pos.row > 1 );
-  assert( pos.col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
+  row = pdecl_attr->u.var.pos.row;
+  col = pdecl_attr->u.var.pos.col;
+  assert( row > 1 );
+  assert( col > 1 );
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
 }
 
-BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_C pos ) {
+BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {
   SYM_ENTITY_PTR pentry =  NULL;
   BOOL redef = FALSE;
   assert( ppdecl_attr );
@@ -42,7 +46,7 @@ BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_C 
 	*ppdecl_attr = &ps->entity.u.decl;
       }
     } else
-      ath_abort( ABORT_MEMLACK, pos );
+      ath_abort( ABORT_MEMLACK, pvar_attr->pos );
   }
   if( *ppdecl_attr )
     assert( strcmp( (*ppdecl_attr)->ident, pvar_attr->ident ) == 0 );

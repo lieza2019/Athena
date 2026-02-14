@@ -12,7 +12,7 @@ char *ath_type_name[] = {
   "END_OF_TYPE_CODE" // END_OF_TYPE_CODE  
 };
 
-static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C  pty_cons ) {
+static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
   SRC_POS pos;
   char *ps = NULL;
   assert( sbuf );
@@ -30,7 +30,7 @@ static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C  pty_cons ) {
       ps = show_list_type( ps, pty_cons->u.list.pty_elem );
       ps = strcat( ps, "]" );
     } else
-      ;
+      ath_abort( INTERNALERR_TYPE_CONS, pty_cons->pos );
     break;
   case END_OF_TYPE_CODE:
     /* fall thru. */
@@ -55,10 +55,10 @@ char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
     ps = strcpy( ps, "string" );
     break;
   case TY_LIST:
-    if( pvar_decl->u.var_list.pty ) {
+    if( pvar_decl->u.var_list.pty )
       ps = show_list_type( ps, pvar_decl->u.var_list.pty );
-    } else
-      ;
+    else
+      ath_abort( INTERNALERR_TYPE_CONS, pvar_decl->pos );
     break;
   case TY_POLY:
     ps = strcpy( ps, "poly" );

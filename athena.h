@@ -18,8 +18,8 @@ extern char *find_literal ( char *pname );
 
 extern char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl );
 
-extern void err_redef ( DECL_ATTRIB_PTR pdecl_attr, SRC_POS_C pos );
-extern BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_C pos );
+extern void err_redef ( DECL_ATTRIB_PTR pdecl_attr );
+extern BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr );
 
 extern STATEMENT_PTR new_stmt ( void );
-extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_DECL_PTR pvar_decl, SRC_POS_C pos );
+extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_DECL_PTR pvar_decl );

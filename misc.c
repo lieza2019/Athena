@@ -9,6 +9,7 @@ char *ath_abort_str[] = {
   "ABORT_MEMLACK",
   "ABORT_CANNOT_CREATE_SCOPE",
   "ABORT_CANNOT_REG_SYNBOL",
+  "INTERNALERR_TYPE_CONS",
   "END_OF_ATH_ABORT"
 };
 
