@@ -19,13 +19,21 @@ int yywrap( void ) {
   yylloc.first_column += strlen( ";" );
   return TK_SMCL;
 }
+"\"" {
+  yylloc.first_column += strlen( "\"" );
+  return TK_DQUOT;
+}
+"[" {
+  yylloc.first_column += strlen( "[" );
+  return TK_LSQBL;
+}
+"]" {
+  yylloc.first_column += strlen( "]" );
+  return TK_RSQBL;
+}
 ":=" {
   yylloc.first_column += strlen( ":=" );
   return TK_ASGN;
-}
-"\"" {
-  yylloc.first_column += strlen( yytext );
-  return TK_DQUOT;
 }
 
 "as" {

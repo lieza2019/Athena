@@ -3,23 +3,26 @@
 #include <assert.h>
 #include "athena.h"
 
-void err_redef ( DECL_ATTRIB_PTR pdecl_attr, int row, int col ) {
+void err_redef ( DECL_ATTRIB_PTR pdecl_attr, SRC_POS_PTR_C ppos ) {
   assert( pdecl_attr );
-  assert( row > 1 );
-  assert( col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
+  assert( ppos );
+  assert( ppos->row > 1 );
+  assert( ppos->col > 1 );
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", ppos->row, ppos->col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
 }
 
-BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {  
+BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_PTR_C ppos ) {
   SYM_ENTITY_PTR pentry =  NULL;
+  BOOL redef = FALSE;
   assert( ppdecl_attr );
   assert( pvar_attr );
+  assert( ppos );  
   
   *ppdecl_attr = NULL;
   pentry = find_crnt_scope( symtbl.pcrnt_scope, pvar_attr->ident );
   if( pentry ) {
     *ppdecl_attr = &pentry->u.decl;
-    ;
+    redef = TRUE;
   } else {
     SYMTBL_ENTRY_PTR psym = NULL;
     psym = new_memarea( sizeof(SYMTBL_ENTRY) );
@@ -34,16 +37,16 @@ BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {
       {
 	SYMTBL_ENTRY_PTR ps = NULL;
 	ps = reg_symbol( psym );
-	if( ps ) {
-	  assert( strcmp( ps->ident, pvar_attr->ident) == 0 );
-	  assert( ps->entity.kind == SYM_DECL );
-	  assert( ps->entity.u.decl.kind == DECL_VAR );
-	  *ppdecl_attr = &ps->entity.u.decl;
-	}	  
+	assert( ps );
+	assert( strcmp( ps->ident, pvar_attr->ident) == 0 );
+	assert( ps->entity.kind == SYM_DECL );
+	assert( ps->entity.u.decl.kind == DECL_VAR );
+	*ppdecl_attr = &ps->entity.u.decl;
       }
-    }
+    } else
+      ath_abort( ABORT_MEMLACK, ppos->row, ppos->col );
   }
   if( *ppdecl_attr )
     assert( strcmp( (*ppdecl_attr)->ident, pvar_attr->ident ) == 0 );
-  return (BOOL)*ppdecl_attr;
+  return redef;
 }

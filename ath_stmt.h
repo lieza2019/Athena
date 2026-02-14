@@ -12,6 +12,9 @@ typedef struct statement {
     DECL_ATTRIB_PTR pdecl;
   } u;
 } STATEMENT, *STATEMENT_PTR;
+typedef const struct statement STATEMENT_C;
+typedef struct statement *STATEMENT_PTR_C;
+
 typedef struct statements{
   int nstmts;
   STATEMENT stmts_buf[MAX_STATEMENTS];  
