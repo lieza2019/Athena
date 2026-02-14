@@ -6,9 +6,11 @@
 
 typedef enum ath_abort {
   ABORT_MEMLACK = 1,
+  ABORT_CANNOT_CREATE_SCOPE,
   ABORT_CANNOT_REG_SYNBOL,
   END_OF_ATH_ABORT
 } ATH_ABORT;
+extern char *ath_abort_str[];
 
 typedef struct src_pos {
   int row;
@@ -17,4 +19,4 @@ typedef struct src_pos {
 typedef const struct src_pos SRC_POS_C;
 typedef struct src_pos const *SRC_POS_PTR_C;
 
-extern void ath_abort ( const ATH_ABORT reason, const int row, const int col );
+extern void ath_abort ( const ATH_ABORT reason, SRC_POS_C pos );

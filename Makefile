@@ -15,13 +15,16 @@ YFLAGS = -dy -Wconflicts-sr -Wconflicts-rr -Wcounterexamples -Wother
 LEX = flex
 LFLAGS = -l
 
-athena : main.o misc.o y.tab.o lex.yy.o decl.o stmt.o symtbl.o mem.o
-#athena : main.o y.tab.o lex.yy.o decl.o stmt.o symtbl.o mem.o
+athena : main.o mem.o misc.o symtbl.o y.tab.o lex.yy.o type.o stmt.o decl.o
 	$(LD) $(LDFLAGS) -o $@ $^
 
 main.o : main.c athena.h
 	$(CC) $(CFLAGS) $<
+mem.o : mem.c ath_mem.h
+	$(CC) $(CFLAGS) $<
 misc.o : misc.c athena.h
+	$(CC) $(CFLAGS) $<
+symtbl.o : symtbl.c athena.h
 	$(CC) $(CFLAGS) $<
 y.tab.o : y.tab.c
 	$(CC) $(CFLAGS_YACC) $<
@@ -31,16 +34,14 @@ lex.yy.o : lex.yy.c athena.h
 	$(CC) $(CFLAGS_YACC) $<
 lex.yy.c : ath_lex.l
 	$(LEX) $(LFLAGS) $<
-stmt.o : stmt.c athena.h
+type.o: type.c athena.h
 	$(CC) $(CFLAGS) $<
 decl.o : decl.c athena.h
 	$(CC) $(CFLAGS) $<
-symtbl.o : symtbl.c athena.h
-	$(CC) $(CFLAGS) $<
-mem.o : mem.c ath_mem.h
+stmt.o : stmt.c athena.h
 	$(CC) $(CFLAGS) $<
 
-athena.h : ath_misc.h ath_mem.h ath_decl.h ath_stmt.h ath_symtbl.h
+athena.h : ath_misc.h ath_mem.h ath_type.h ath_decl.h ath_stmt.h ath_symtbl.h
 	$(TOUCH) $@
 
 .PHONY : clean

@@ -10,7 +10,7 @@
 #include "athena.h"
 
 #define YYDEBUG 1
-static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, const int row, const int col ) {
+static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
   assert( (ty > 0) && (ty < END_OF_TYPE_CODE) );
   TYPE_CONS_PTR r = NULL;
   TYPE_CONS_PTR pty_cons = NULL;
@@ -23,12 +23,14 @@ static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, const int row, cons
       pty_elem->type = ty;
       pty_cons->type = TY_LIST;
       pty_cons->u.list.pty_elem = pty_elem;
+      pty_cons->pos.row = pos.row;
+      pty_cons->pos.col = pos.col;
       r = pty_cons;
     } else
       goto err;
   } else
   err:
-    ath_abort( ABORT_MEMLACK, row, col );
+    ath_abort( ABORT_MEMLACK, pos );
   return r;
 }
 %}
@@ -61,21 +63,21 @@ static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, const int row, cons
 statement : decl_var_string {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1, &pos );
+  stmt_decl_var( &pstmt, &$1, pos );
   assert( pstmt );
   $$ = *pstmt;
  }
 | decl_var_int {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1, &pos );
+  stmt_decl_var( &pstmt, &$1, pos );
   assert( pstmt );
   $$ = *pstmt;
  }
 | decl_var_list {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1, &pos );
+  stmt_decl_var( &pstmt, &$1, pos );
   assert( pstmt );
   $$ = *pstmt;
  };
@@ -90,8 +92,10 @@ decl_var_int : TK_IDENT TK_AS TK_INT decl_int_init {
     $$.u.var_int.init_n = $4;
     $$.pos.row = @1.first_line;
     $$.pos.col = @1.first_column;
-  } else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, @1.first_line, @1.first_column );
+  } else {
+    SRC_POS_C pos = { @1.first_line, @1.first_column };
+    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+  }
  };
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   $$ = (int)$2;
@@ -109,17 +113,21 @@ decl_var_string : TK_IDENT TK_AS TK_STRING decl_string_init {
     $$.u.var_str.init_s = $4;
     $$.pos.row = @1.first_line;
     $$.pos.col = @1.first_column;
-  } else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, @1.first_line, @1.first_column );
+  } else {
+    SRC_POS_C pos = { @1.first_line, @1.first_column };
+    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+  }
  };
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   char *pident = NULL;
   pident = find_literal( $2 );
   if( pident )
     $$ = pident;
-  else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, @2.first_line, @2.first_column );
+  else {
+    SRC_POS_C pos = { @2.first_line, @2.first_column };
+    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
   $$ = $2;
+  }
  }
 | TK_SMCL {
   $$ = "";
@@ -131,21 +139,26 @@ decl_var_list : TK_IDENT TK_AS list_elem_type {
   pident = find_literal( $1 );
   if( pident ) {
     $$.ident = pident;
-    $$.type = TY_POLY;
+    $$.type = TY_LIST;
     $$.u.var_list.pty = $3;
     $$.pos.row = @1.first_line;
     $$.pos.col = @1.first_column;
-  } else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, @1.first_line, @1.first_column );
+  } else {
+    SRC_POS_C pos = { @1.first_line, @1.first_column };
+    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+  }
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
-  $$ = cons_list_elem_basetype( TY_POLY, @1.first_line, @1.first_column );
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = cons_list_elem_basetype( TY_POLY, pos );;
  }
 | TK_LSQBL TK_INT TK_RSQBL {
-  $$ = cons_list_elem_basetype( TK_INT, @1.first_line, @1.first_column );
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = cons_list_elem_basetype( TY_INT, pos );
  }
 | TK_LSQBL TK_STRING TK_RSQBL {
-  $$ = cons_list_elem_basetype( TK_STRING, @1.first_line, @1.first_column );
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = cons_list_elem_basetype( TY_STRING, pos );
  }
 | TK_LSQBL list_elem_type TK_RSQBL {
   TYPE_CONS_PTR pty_cons = NULL;
@@ -153,9 +166,13 @@ list_elem_type : TK_LSQBL TK_RSQBL {
   if( pty_cons ) {
     pty_cons->type = TY_LIST;
     pty_cons->u.list.pty_elem = $2;
+    pty_cons->pos.row = @1.first_line;
+    pty_cons->pos.col = @1.first_column;
     $$ = pty_cons;
-  } else
-    ath_abort( ABORT_MEMLACK, @1.first_line, @1.first_column );
+  } else {
+    SRC_POS_C pos = { @1.first_line, @1.first_column };
+    ath_abort( ABORT_MEMLACK, pos );
+  }
  };
 %%
 int yyerror ( const char *s ) {

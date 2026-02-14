@@ -3,20 +3,18 @@
 #include <assert.h>
 #include "athena.h"
 
-void err_redef ( DECL_ATTRIB_PTR pdecl_attr, SRC_POS_PTR_C ppos ) {
+void err_redef ( DECL_ATTRIB_PTR pdecl_attr, SRC_POS_C pos ) {
   assert( pdecl_attr );
-  assert( ppos );
-  assert( ppos->row > 1 );
-  assert( ppos->col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", ppos->row, ppos->col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
+  assert( pos.row > 1 );
+  assert( pos.col > 1 );
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col, pdecl_attr->ident, pdecl_attr->u.var.pos.row, pdecl_attr->u.var.pos.col );  
 }
 
-BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_PTR_C ppos ) {
+BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_C pos ) {
   SYM_ENTITY_PTR pentry =  NULL;
   BOOL redef = FALSE;
   assert( ppdecl_attr );
   assert( pvar_attr );
-  assert( ppos );  
   
   *ppdecl_attr = NULL;
   pentry = find_crnt_scope( symtbl.pcrnt_scope, pvar_attr->ident );
@@ -44,7 +42,7 @@ BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr, SRC_POS_PT
 	*ppdecl_attr = &ps->entity.u.decl;
       }
     } else
-      ath_abort( ABORT_MEMLACK, ppos->row, ppos->col );
+      ath_abort( ABORT_MEMLACK, pos );
   }
   if( *ppdecl_attr )
     assert( strcmp( (*ppdecl_attr)->ident, pvar_attr->ident ) == 0 );
