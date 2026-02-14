@@ -48,6 +48,10 @@ int yywrap( void ) {
   yylloc.first_column += strlen( yytext );
   return TK_STRING;
 }
+"poly" {
+  yylloc.first_column += strlen( yytext );
+  return TK_POLY;
+}
 
 "-"*[0-9]+ {
   yylloc.first_column += strlen( yytext );

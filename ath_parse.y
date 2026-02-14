@@ -10,29 +10,6 @@
 #include "athena.h"
 
 #define YYDEBUG 1
-static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
-  assert( (ty > 0) && (ty < END_OF_TYPE_CODE) );
-  TYPE_CONS_PTR r = NULL;
-  TYPE_CONS_PTR pty_cons = NULL;
-  pty_cons = new_memarea( sizeof(TYPE_CONS) );
-  if( pty_cons ) {
-    TYPE_CONS_PTR pty_elem = NULL;
-    pty_elem = new_memarea( sizeof(TYPE_CONS) );
-    if( pty_elem ) {
-      assert( pty_cons );
-      pty_elem->type = ty;
-      pty_cons->type = TY_LIST;
-      pty_cons->u.list.pty_elem = pty_elem;
-      pty_cons->pos.row = pos.row;
-      pty_cons->pos.col = pos.col;
-      r = pty_cons;
-    } else
-      goto err;
-  } else
-  err:
-    ath_abort( ABORT_MEMLACK, pos );
-  return r;
-}
 %}
 %union {
   int nat;
@@ -48,10 +25,12 @@ static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
 %token TK_AS
 %token TK_INT
 %token TK_STRING
+%token TK_POLY
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
 %type <ptype_cons> list_elem_type
+%type <var_decl> decl_var_poly
 %type <var_decl> decl_var_int
 %type <nat> decl_int_init
 %type <var_decl> decl_var_string
@@ -60,49 +39,51 @@ static TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
 %type <stmt> statement
 %start statement
 %%
-statement : decl_var_string {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
+statement : decl_var_poly {
+  STATEMENT_PTR pstmt = NULL;
+  stmt_decl_var( &pstmt, &$1 );
+  assert( pstmt );
+  $$ = *pstmt;
+ }
+| decl_var_string {
   STATEMENT_PTR pstmt = NULL;
   stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
  }
 | decl_var_int {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
  }
 | decl_var_list {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
  };
 
-decl_var_int : TK_IDENT TK_AS TK_INT decl_int_init {
-  char *pident = NULL;
-  assert( strlen($1) >= 1 );
-  pident = find_literal( $1 );
-  if( pident ) {
-    $$.ident = pident;
-    $$.type = TY_INT;
-    $$.u.var_int.init_n = $4;
-    $$.pos.row = @1.first_line;
-    $$.pos.col = @1.first_column;
-  } else {
-    SRC_POS_C pos = { @1.first_line, @1.first_column };
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
-  }
+decl_var_poly : TK_IDENT TK_AS TK_POLY TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  poly_var_attrib( &$$, $1, pos );
  };
+
+decl_var_int : TK_IDENT TK_AS TK_INT decl_int_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  int_var_attrib( &$$, $1, $4, pos );
+ }
+| TK_IDENT TK_AS TK_POLY decl_int_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  int_var_attrib( &$$, $1, $4, pos );
+ }
+| TK_IDENT TK_AS TK_INT TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  int_var_attrib( &$$, $1, 0, pos );
+ }
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   $$ = (int)$2;
  };
-| TK_SMCL {
-  $$ = 0;
-  };
 
 decl_var_string : TK_IDENT TK_AS TK_STRING decl_string_init {
   char *pident = NULL;
