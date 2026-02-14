@@ -18,5 +18,3 @@ typedef struct src_pos {
 } SRC_POS, *SRC_POS_PTR;
 typedef const struct src_pos SRC_POS_C;
 typedef struct src_pos const *SRC_POS_PTR_C;
-
-extern void ath_abort ( const ATH_ABORT reason, SRC_POS_C pos );

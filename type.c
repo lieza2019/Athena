@@ -12,11 +12,13 @@ char *ath_type_name[] = {
   "END_OF_TYPE_CODE" // END_OF_TYPE_CODE  
 };
 
-static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
+static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C  pty_cons ) {
+  SRC_POS pos;
   char *ps = NULL;
   assert( sbuf );
   assert( pty_cons );
-  
+
+  pos = pty_cons->pos;
   ps = sbuf;
   switch( pty_cons->type ) {
   case TY_INT: case TY_STRING: case TY_POLY:
@@ -38,10 +40,12 @@ static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
   return ps;
 }
 char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
-  char *ps = NULL;
+  SRC_POS pos;
+  char *ps = NULL;  
   assert( sbuf );
   assert( pvar_decl );
-  
+
+  pos = pvar_decl->pos;
   ps = sbuf;
   switch( pvar_decl->type ) {
   case TY_INT:

@@ -8,5 +8,3 @@ typedef struct ath_memchunk {
 } ATH_MEMCHUNK, *ATH_MEMCHUNK_PTR;
 typedef const struct ath_memchunk ATH_MEMCHUNK_C;
 typedef struct ath_memchunk const *ATH_MEMCHUNK_PTR_C;
-
-extern void *new_memarea ( int size );

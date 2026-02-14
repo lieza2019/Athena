@@ -5,6 +5,10 @@
 #include "ath_stmt.h"
 #include "ath_symtbl.h"
 
+extern void ath_abort ( const ATH_ABORT reason, SRC_POS_C pos );
+
+extern void *new_memarea ( int size );
+
 extern SYMTBL_SCOPE_PTR enter_scope ( void );
 extern SYMTBL_SCOPE_PTR leave_scope ( void );
 extern SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym );
