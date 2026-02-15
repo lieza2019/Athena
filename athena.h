@@ -26,4 +26,5 @@ extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_DECL_PTR pvar_decl );
 
 extern void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos );
 extern void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pident, const int n_init, SRC_POS_C pos );
+extern void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos );
 extern TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos );

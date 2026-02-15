@@ -13,7 +13,7 @@ typedef struct var_decl {
       int init_n;
     } var_int;
     struct {
-      char *init_s;
+      char const *init_s;
     } var_str;
     struct {
       TYPE_CONS_PTR pty;

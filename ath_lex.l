@@ -60,18 +60,22 @@ int yywrap( void ) {
 }
 
 ([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {
+#if 0
   const int len = strlen( yytext );
   char *ps = NULL;
   yylloc.first_column += len;
   ps = new_memarea( len + 1 );
   yylval.str = strncpy( ps, yytext, len );
-  assert( yylval.str );
+#else
+  yylloc.first_column += strlen( yytext );
+  yylval.str = find_literal( yytext );
+#endif
   return TK_IDENT;
 }
 
 \".+\" {
   yylloc.first_column += strlen( yytext );
-  yylval.str = yytext;
+  yylval.str = find_literal( yytext );
   printf( "TK_STR_LITERAL: %s\n", yylval.str );
   return TK_STR_LITERAL;
 }

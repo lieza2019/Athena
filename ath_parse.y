@@ -82,36 +82,23 @@ decl_var_int : TK_IDENT TK_AS TK_INT decl_int_init {
   int_var_attrib( &$$, $1, 0, pos );
  }
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
-  $$ = (int)$2;
+  $$ = $2;
  };
 
 decl_var_string : TK_IDENT TK_AS TK_STRING decl_string_init {
-  char *pident = NULL;
-  pident = find_literal( $1 );
-  if( pident ) {
-    $$.ident = pident;
-    $$.type = TY_STRING;
-    $$.u.var_str.init_s = $4;
-    $$.pos.row = @1.first_line;
-    $$.pos.col = @1.first_column;
-  } else {
-    SRC_POS_C pos = { @1.first_line, @1.first_column };
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
-  }
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  string_var_attrib( &$$, $1, $4, pos );
+ }
+| TK_IDENT TK_AS TK_POLY decl_string_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  string_var_attrib( &$$, $1, $4, pos );
+ }
+| TK_IDENT TK_AS TK_STRING TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  string_var_attrib( &$$, $1, NULL, pos );
  };
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
-  char *pident = NULL;
-  pident = find_literal( $2 );
-  if( pident )
-    $$ = pident;
-  else {
-    SRC_POS_C pos = { @2.first_line, @2.first_column };
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
   $$ = $2;
-  }
- }
-| TK_SMCL {
-  $$ = "";
  };
 
 decl_var_list : TK_IDENT TK_AS list_elem_type {
