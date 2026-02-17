@@ -60,16 +60,8 @@ int yywrap( void ) {
 }
 
 ([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {
-#if 0
-  const int len = strlen( yytext );
-  char *ps = NULL;
-  yylloc.first_column += len;
-  ps = new_memarea( len + 1 );
-  yylval.str = strncpy( ps, yytext, len );
-#else
   yylloc.first_column += strlen( yytext );
   yylval.str = find_literal( yytext );
-#endif
   return TK_IDENT;
 }
 
