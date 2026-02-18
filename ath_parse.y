@@ -133,7 +133,7 @@ list_elem_type : TK_LSQBL TK_RSQBL {
   pty_cons = new_memarea( sizeof(TYPE_CONS) );
   if( pty_cons ) {
     pty_cons->type = TY_LIST;
-    pty_cons->u.list.pty_elem = $2;
+    pty_cons->u.list.cdr = $2;
     pty_cons->pos.row = @1.first_line;
     pty_cons->pos.col = @1.first_column;
     $$ = pty_cons;

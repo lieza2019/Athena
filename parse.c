@@ -74,7 +74,7 @@ TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
       assert( pty_cons );
       pty_elem->type = ty;
       pty_cons->type = TY_LIST;
-      pty_cons->u.list.pty_elem = pty_elem;
+      pty_cons->u.list.cdr = pty_elem;
       pty_cons->pos.row = pos.row;
       pty_cons->pos.col = pos.col;
       r = pty_cons;

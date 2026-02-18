@@ -12,7 +12,7 @@ typedef struct type_cons {
   TYPE_CODE type;
   union {
     struct {
-      struct type_cons *pty_elem;
+      struct type_cons *cdr;
     } list;
   } u;
 } TYPE_CONS, *TYPE_CONS_PTR;

@@ -25,9 +25,9 @@ static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
     ps = strcat( ps, ath_type_name[pty_cons->type] );
     break;
   case TY_LIST:
-    if( pty_cons->u.list.pty_elem ) {
+    if( pty_cons->u.list.cdr ) {
       ps = strcat( ps, "[" );
-      ps = show_list_type( ps, pty_cons->u.list.pty_elem );
+      ps = show_list_type( ps, pty_cons->u.list.cdr );
       ps = strcat( ps, "]" );
     } else
       ath_abort( INTERNALERR_TYPE_CONS, pty_cons->pos );
