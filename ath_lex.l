@@ -19,6 +19,10 @@ int yywrap( void ) {
   yylloc.first_column += strlen( ";" );
   return TK_SMCL;
 }
+',' {
+  yylloc.first_column += strlen( "," );
+  return TK_COMMA;
+}
 "\"" {
   yylloc.first_column += strlen( "\"" );
   return TK_DQUOT;
@@ -38,15 +42,15 @@ int yywrap( void ) {
 
 "as" {
   yylloc.first_column += strlen( yytext );
-  return TK_AS;
+  return TK_KEYWORD_AS;
 }
 "int" {
   yylloc.first_column += strlen( yytext );
-  return TK_INT;
+  return TK_KEYWORD_INT;
 }
 "string" {
   yylloc.first_column += strlen( yytext );
-  return TK_STRING;
+  return TK_KEYWORD_STRING;
 }
 "poly" {
   yylloc.first_column += strlen( yytext );

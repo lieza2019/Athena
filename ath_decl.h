@@ -17,6 +17,7 @@ typedef struct var_decl {
     } var_str;
     struct {
       TYPE_CONS_PTR pty;
+      TYPE_CONS_PTR init_l;
     } var_list;
   } u;
 } VAR_DECL, *VAR_DECL_PTR;

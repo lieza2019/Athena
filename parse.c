@@ -76,12 +76,22 @@ TYPE_CONS_PTR cons_list_elem_basetype ( TYPE_CODE ty, SRC_POS_C pos ) {
       pty_cons->type = TY_LIST;
       pty_cons->u.list.cdr = pty_elem;
       pty_cons->pos.row = pos.row;
-      pty_cons->pos.col = pos.col;
+      pty_cons->pos.col = pos.col;      
       r = pty_cons;
     } else
       goto err;
   } else
   err:
     ath_abort( ABORT_MEMLACK, pos );
+  return r;
+}
+
+BOOL list_is_nill ( TYPE_CONS_PTR pcons_list ) {
+  BOOL r = FALSE;
+  
+  assert( pcons_list );
+  if( pcons_list->type == TY_LIST ) {
+    r = !(pcons_list->u.list.cdr) && !(pcons_list->u.list.car);
+  }
   return r;
 }
