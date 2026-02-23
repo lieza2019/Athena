@@ -44,7 +44,7 @@
 %type <nat> decl_int_init
 %type <var_decl> decl_var_list
 %type <ptype_cons> list_elem_type
-%type <plist_init> decl_list_init decl_list_init_elems
+%type <plist_init> decl_list_init decl_list_init_elems decl_list_init_elems_
 %type <stmt> statement
 %start statement
 %%
@@ -126,6 +126,7 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
     $$.pos.col = @1.first_column;
   } else   
     ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+  assert( FALSE );
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -154,9 +155,10 @@ list_elem_type : TK_LSQBL TK_RSQBL {
  }
 
 decl_list_init : TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
+  assert( FALSE );
   $$ = $3;
- }
-decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems {
+ };;
+decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_ {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   LIST_CELL_PTR pnew = NULL;
   pnew = alloc_list_cell( pos );
@@ -170,7 +172,7 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems {
   } else
     ath_abort( ABORT_MEMLACK, pos );
  }
-| TK_STR_LITERAL decl_list_init_elems {
+| TK_STR_LITERAL decl_list_init_elems_ {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   LIST_CELL_PTR pnew = NULL;
   assert( $2 );
@@ -183,10 +185,10 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems {
     $$ = pnew;
   } else
     ath_abort( ABORT_MEMLACK, pos );
- }
-| TK_COMMA decl_list_init_elems {
+ };
+decl_list_init_elems_ : TK_COMMA decl_list_init_elems {
   $$ = $2;
- }
+}
 | TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   LIST_CELL_PTR pnew = NULL;
