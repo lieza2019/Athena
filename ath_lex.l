@@ -17,9 +17,10 @@ int yywrap( void ) {
 %%
 ";" {
   yylloc.first_column += strlen( ";" );
+  yylval.tk_chr = ';';
   return TK_SMCL;
 }
-',' {
+"," {
   yylloc.first_column += strlen( "," );
   return TK_COMMA;
 }
