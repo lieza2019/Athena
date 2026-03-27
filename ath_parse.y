@@ -137,7 +137,7 @@ list_elem_type : TK_LSQBL TK_RSQBL {
     //$$ = cons_list_elem_basetype( TY_INT, pos );
     ;
   } else
-    ath_abort( ABORT_CANNOT_CREATE_OBJ, pos );
+    ath_abort( ABORT_CANNOT_CREAT_OBJ, pos );
  }
 | TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };

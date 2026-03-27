@@ -86,40 +86,82 @@ LIST_CELL_PTR creat_nil_list ( SRC_POS_C pos ) {
   return pl_nil;
 }
 
-LIST_CELL_PTR cons_list_elem_basetype ( LIST_CELL_PTR plist, TYPE_CODE ty, SRC_POS_C pos ) {
+LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
-  LIST_CELL_PTR pelem = NULL;
+  LIST_CELL_PTR pcons_elem = NULL;
   
   assert( plist );
   assert( plist->type == TY_LIST );
   assert( ! plist->pnext );
   assert( ! plist->pprev );
-  pelem = alloc_list_cell( pos );
-  if( pelem ) {
-    pelem->pos = pos;
-    pelem->type = ty;    
+  pcons_elem = alloc_list_cell( pos );
+  if( pcons_elem ) {
+    pcons_elem->pos = pos;
+    pcons_elem->type = cons_ty;
     if( plist->u.list.car ) {
-      LIST_CELL_PTR pnode = NULL;
+      LIST_CELL_PTR pcons_node = NULL;
       assert( plist->u.list.plast );
-      pnode = alloc_list_cell( pos );
-      if( pnode ) {
-	pnode->pos = pos;
-	pnode->type = TY_LIST;
-	pnode->u.list.car = pelem;
-	pnode->u.list.cdr = plist;
-	pnode->u.list.plast = plist->u.list.plast;
-	r = pnode;
+      pcons_node = alloc_list_cell( pos );
+      if( pcons_node ) {
+	pcons_node->pos = pos;
+	pcons_node->type = TY_LIST;
+	pcons_node->u.list.car = pcons_elem;
+	pcons_node->u.list.cdr = plist;
+	pcons_node->u.list.plast = plist->u.list.plast;
+	r = pcons_node;
       } else
 	goto err_creat_objs;
     } else {
       assert( ! plist->u.list.cdr );
       assert( ! plist->u.list.plast );
-      plist->u.list.car = pelem;
+      plist->u.list.car = pcons_elem;
       plist->u.list.plast = plist;
       r = plist;
     }
   } else
   err_creat_objs:
-    ath_abort( ABORT_CANNOT_CREATE_OBJ, pos );
+    ath_abort( ABORT_CANNOT_CREAT_OBJ, pos );
+  return r;
+}
+
+LIST_CELL_PTR cons_list1 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
+  LIST_CELL_PTR r = NULL;
+  LIST_CELL_PTR pcons_elem = NULL;
+  
+  assert( plist );
+  assert( plist->type == TY_LIST );
+  assert( ! plist->pnext );
+  assert( ! plist->pprev );
+  assert( pcons_ty );
+  
+  pcons_elem = alloc_list_cell( pos );
+  if( pcons_elem ) {
+    pcons_elem->pos = pos;
+#if 0
+    pcons_elem->type = cons_ty;
+#endif
+    if( plist->u.list.car ) {
+      LIST_CELL_PTR pcons_node = NULL;
+      assert( plist->u.list.plast );
+      pcons_node = alloc_list_cell( pos );
+      if( pcons_node ) {
+	pcons_node->pos = pos;
+	pcons_node->type = TY_LIST;
+	pcons_node->u.list.car = pcons_elem;
+	pcons_node->u.list.cdr = plist;
+	pcons_node->u.list.plast = plist->u.list.plast;
+	r = pcons_node;
+      } else
+	goto err_creat_objs;
+    } else {
+      assert( ! plist->u.list.cdr );
+      assert( ! plist->u.list.plast );
+      plist->u.list.car = pcons_elem;
+      plist->u.list.plast = plist;
+      r = plist;
+    }
+  } else
+  err_creat_objs:
+    ath_abort( ABORT_CANNOT_CREAT_OBJ, pos );
   return r;
 }

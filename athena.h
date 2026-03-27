@@ -27,7 +27,7 @@ extern LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos );
 extern void free_list_cell ( LIST_CELL_PTR pcell );
 extern BOOL list_is_nil ( TYPE_CONS_PTR pcons_list );
 extern LIST_CELL_PTR creat_nil_list ( SRC_POS_C pos );
-extern LIST_CELL_PTR cons_list_elem_basetype ( LIST_CELL_PTR plist, TYPE_CODE ty, SRC_POS_C pos );
+extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos );
 
 extern void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos );
 extern void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pident, const int n_init, SRC_POS_C pos );
