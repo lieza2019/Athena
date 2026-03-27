@@ -7,6 +7,12 @@ typedef enum type_code {
 } TYPE_CODE;
 extern char *ath_type_name[];
 
+#if 0
+struct {
+  TYPE_CODE ty;
+  void val
+}
+#endif
 typedef struct type_cons {
   SRC_POS pos;
   TYPE_CODE type;
@@ -23,6 +29,7 @@ typedef struct type_cons {
     struct {
       struct type_cons *car;
       struct type_cons *cdr;
+      struct type_cons *plast;
     } list;
   } u;
   struct type_cons *pnext;

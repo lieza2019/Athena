@@ -10,8 +10,6 @@
 #include "athena.h"
 
 #define YYDEBUG 1
-  /* %type <plcell> decl_list_init_elems decl_list_init_elemsclosing decl_list_init */
-  /* %type <TYPE_CONS_PTR> decl_list_init decl_list_init_elems */
 %}
 %union {
   char tk_chr;
@@ -33,7 +31,6 @@
 %token TK_KEYWORD_INT
 %token TK_KEYWORD_STRING
 %token TK_POLY
- //%type <tk_chr> tk_right_lblacket
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
@@ -69,7 +66,7 @@ statement : decl_var_poly {
 | decl_var_list {
   STATEMENT_PTR pstmt = NULL;
   {
-    printf( "NULL list: %s.", (list_is_nill( $1.u.var_list.pty ) ? "TRUE" : "FALSE") );
+    printf( "NULL list: %s.", (list_is_nil( $1.u.var_list.pty ) ? "TRUE" : "FALSE") );
   }
   stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
@@ -130,15 +127,21 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = cons_list_elem_basetype( TY_POLY, pos );;
+  $$ = (TYPE_CONS_PTR)creat_nil_list( pos );
  }
 | TK_LSQBL TK_KEYWORD_INT TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = cons_list_elem_basetype( TY_INT, pos );
+  LIST_CELL_PTR pl = NULL;
+  pl = creat_nil_list( pos );
+  if( pl ) {
+    //$$ = cons_list_elem_basetype( TY_INT, pos );
+    ;
+  } else
+    ath_abort( ABORT_CANNOT_CREATE_OBJ, pos );
  }
 | TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = cons_list_elem_basetype( TY_STRING, pos );
+  //$$ = cons_list_elem_basetype( TY_STRING, pos );
  }
 | TK_LSQBL list_elem_type TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
