@@ -20,3 +20,10 @@ typedef struct src_pos {
 } SRC_POS, *SRC_POS_PTR;
 typedef const struct src_pos SRC_POS_C;
 typedef struct src_pos const *SRC_POS_PTR_C;
+
+#ifndef ath_printf
+#define ath_printf( pos, args_printf ) {		\
+  printf( "(%d, %d): ", (pos).row, (pos).col );		\
+  printf( "%s.\n", (args_printf) );		\
+  }
+#endif // ath_printf

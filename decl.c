@@ -43,7 +43,7 @@ BOOL decl_var ( DECL_ATTRIB_PTR *ppdecl_attr, VAR_DECL_PTR pvar_attr ) {
       *ppdecl_attr = &ps->entity.u.decl;
     }
   } else
-    ath_abort( ABORT_MEMLACK, pvar_attr->pos );
+    ath_abort( pvar_attr->pos, ABORT_MEMLACK );
   if( *ppdecl_attr )
     assert( strcmp( (*ppdecl_attr)->ident, pvar_attr->ident ) == 0 );
   return redef;

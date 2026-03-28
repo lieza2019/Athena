@@ -13,7 +13,7 @@ int main ( void ) {
   
   if( ! enter_scope() ) {
     SRC_POS_C pos = { -1, -1 };
-    ath_abort( ABORT_CANNOT_CREAT_SCOPE, pos );
+    ath_abort( pos, ABORT_CANNOT_CREAT_SCOPE );
   }
   yyin = fp_src;  
   r = yyparse();  

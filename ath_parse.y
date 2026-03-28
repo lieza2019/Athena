@@ -122,7 +122,7 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
     $$.pos.row = @1.first_line;
     $$.pos.col = @1.first_column;
   } else   
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
   assert( FALSE );
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
@@ -137,7 +137,7 @@ list_elem_type : TK_LSQBL TK_RSQBL {
     //$$ = cons_list_elem_basetype( TY_INT, pos );
     ;
   } else
-    ath_abort( ABORT_CANNOT_CREAT_OBJ, pos );
+    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
  }
 | TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -154,7 +154,7 @@ list_elem_type : TK_LSQBL TK_RSQBL {
     pty_cons->pos.col = @1.first_column;
     $$ = pty_cons;
   } else
-    ath_abort( ABORT_MEMLACK, pos );
+    ath_abort( pos, ABORT_MEMLACK );
  }
 
 decl_list_init : TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
@@ -173,7 +173,7 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_ {
     pnew->u.list.cdr = $2;
     $$ = pnew;
   } else
-    ath_abort( ABORT_MEMLACK, pos );
+    ath_abort( pos, ABORT_MEMLACK );
  }
 | TK_STR_LITERAL decl_list_init_elems_ {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -187,7 +187,7 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_ {
     pnew->u.list.cdr = $2;
     $$ = pnew;
   } else
-    ath_abort( ABORT_MEMLACK, pos );
+    ath_abort( pos, ABORT_MEMLACK );
  };
 decl_list_init_elems_ : TK_COMMA decl_list_init_elems {
   $$ = $2;
@@ -202,7 +202,7 @@ decl_list_init_elems_ : TK_COMMA decl_list_init_elems {
     pnew->u.list.cdr = NULL;
     $$ = pnew;
   } else
-    ath_abort( ABORT_MEMLACK, pos );
+    ath_abort( pos, ABORT_MEMLACK );
  };
 %%
 int yyerror ( const char *s ) {

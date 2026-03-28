@@ -30,7 +30,7 @@ static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
       ps = show_list_type( ps, pty_cons->u.list.cdr );
       ps = strcat( ps, "]" );
     } else
-      ath_abort( INTERNALERR_TYPE_CONS, pty_cons->pos );
+      ath_abort( pty_cons->pos, INTERNALERR_TYPE_CONS );
     break;
   case END_OF_TYPE_CODE:
     /* fall thru. */
@@ -58,7 +58,7 @@ char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
     if( pvar_decl->u.var_list.pty )
       ps = show_list_type( ps, pvar_decl->u.var_list.pty );
     else
-      ath_abort( INTERNALERR_TYPE_CONS, pvar_decl->pos );
+      ath_abort( pvar_decl->pos, INTERNALERR_TYPE_CONS );
     break;
   case TY_POLY:
     ps = strcpy( ps, "poly" );

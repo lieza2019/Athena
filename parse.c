@@ -16,7 +16,7 @@ void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) 
     pvar_attr->type = TY_POLY;
     pvar_attr->pos = pos;
   } else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
 void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const int n_init, SRC_POS_C pos ) {
@@ -33,7 +33,7 @@ void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const int n_init,
     pvar_attr->u.var_int.init_n = n_init;
     pvar_attr->pos = pos;
   } else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
 void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos ) {
@@ -53,13 +53,13 @@ void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const char *s_
 	*pc = 0;
 	s_init = pc;
       } else
-	ath_abort( ABORT_MEMLACK, pos );
+	ath_abort( pos, ABORT_MEMLACK );
     }
     assert( s_init );
     pvar_attr->u.var_str.init_s = s_init;
     pvar_attr->pos = pos;
   } else
-    ath_abort( ABORT_CANNOT_REG_SYNBOL, pos );
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
 #if 0
@@ -103,7 +103,7 @@ TYPE_CONS_PTR list_var_attrib ( TYPE_CODE ty, SRC_POS_C pos ) {
       goto err;
   } else
   err:
-    ath_abort( ABORT_MEMLACK, pos );
+    ath_abort( pos, ABORT_MEMLACK );
   return r;
 }
 

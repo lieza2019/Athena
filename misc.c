@@ -13,7 +13,7 @@ char *ath_abort_str[] = {
   "END_OF_ATH_ABORT"
 };
 
-void ath_abort ( const ATH_ABORT reason, SRC_POS_C pos ) {
+void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason ) {
   const char *pmsg = ath_abort_str[reason];
   assert( (pos.row > 0) && (pos.col > 0) );
   assert( reason < END_OF_ATH_ABORT );
