@@ -127,12 +127,12 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = (TYPE_CONS_PTR)creat_nil_list( pos );
+  $$ = (TYPE_CONS_PTR)list_creat_nil( pos );
  }
 | TK_LSQBL TK_KEYWORD_INT TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   LIST_CELL_PTR pl = NULL;
-  pl = creat_nil_list( pos );
+  pl = list_creat_nil( pos );
   if( pl ) {
     //$$ = cons_list_elem_basetype( TY_INT, pos );
     ;
@@ -182,7 +182,7 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_ {
   pnew = alloc_list_cell( pos );
   if( pnew ) {
     pnew->type = TY_STRING;
-    pnew->u.string.pstr = $1;
+    pnew->u.string.ps = $1;
     pnew->u.list.car = NULL;
     pnew->u.list.cdr = $2;
     $$ = pnew;

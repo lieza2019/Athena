@@ -1,5 +1,6 @@
 typedef enum type_code {
   TY_INT = 1,
+  TY_CHAR,
   TY_STRING,
   TY_LIST,
   TY_POLY,
@@ -7,12 +8,6 @@ typedef enum type_code {
 } TYPE_CODE;
 extern char *ath_type_name[];
 
-#if 0
-struct {
-  TYPE_CODE ty;
-  void val
-}
-#endif
 typedef struct type_cons {
   SRC_POS pos;
   TYPE_CODE type;
@@ -24,9 +19,10 @@ typedef struct type_cons {
       char c;
     } character;
     struct {
-      char *pstr;
+      char *ps;
     } string;
     struct {
+      struct type_cons *pty_elem;
       struct type_cons *car;
       struct type_cons *cdr;
       struct type_cons *plast;

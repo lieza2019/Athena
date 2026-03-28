@@ -63,17 +63,77 @@ void free_list_cell ( LIST_CELL_PTR pcell ) {
   cells_manage.pavail = pcell;  
 }
 
+TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos ) {
+  assert( ppdup );
+  assert( porg );
+  *ppdup = alloc_list_cell( pos );
+  if( *ppdup ) {
+    (*ppdup)->pos = pos;
+    (*ppdup)->type = porg->type;
+    if( (*ppdup)->type == TY_LIST ) {
+      (*ppdup)->u.list.pty_elem = NULL;
+      (*ppdup)->u.list.car = NULL;
+      (*ppdup)->u.list.cdr = NULL;
+      (*ppdup)->u.list.plast = NULL;      
+      list_dup( &(*ppdup)->u.list.pty_elem, porg->u.list.pty_elem, pos );
+      if( (*ppdup)->u.list.pty_elem ) {
+	TYPE_CONS_PTR pcrnt = *ppdup;
+	if( porg->u.list.car ) {
+	  TYPE_CONS_PTR pnext = porg->u.list.cdr;
+	  list_dup( &pcrnt->u.list.car, porg->u.list.car, pos );
+	  if( pcrnt->u.list.car ) {
+	    while( pnext ) {
+	      list_dup( &pcrnt->u.list.cdr, pnext, pos );
+	      if( pcrnt->u.list.cdr ) {
+		pcrnt = pcrnt->u.list.cdr;
+		pcrnt->u.list.cdr = NULL;
+		pnext = pnext->u.list.cdr;
+	      } else
+		ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+	    }
+	    (*ppdup)->u.list.plast = pcrnt;
+	  } else
+	    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+	}
+      } else
+	ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+    } else {
+      assert( (*ppdup)->type != TY_LIST );
+      switch( (*ppdup)->type ) {
+      case TY_INT:
+	(*ppdup)->u.integer.n = porg->u.integer.n;
+	break;
+      case TY_CHAR:
+	(*ppdup)->u.character.c = porg->u.character.c;
+	break;
+      case TY_STRING:
+	(*ppdup)->u.string.ps = porg->u.string.ps;
+	break;
+      default:
+	assert( FALSE );
+      }
+    }
+  } else
+    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  return *ppdup;
+}
+
 BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list ) {
   BOOL r = FALSE;
   
   assert( pcons_list );
   if( pcons_list->type == TY_LIST ) {
+#if 0
     r = !(pcons_list->u.list.car) && !(pcons_list->u.list.cdr);
+#else
+    r = (pcons_list->u.list.car == NULL);
+    assert( r ? ((! pcons_list->u.list.cdr) && (! pcons_list->u.list.plast)) : (pcons_list->u.list.plast != NULL) );
+#endif
   }
   return r;
 }
 
-LIST_CELL_PTR creat_nil_list ( SRC_POS_C pos ) {
+LIST_CELL_PTR list_creat_nil ( SRC_POS_C pos ) {
   LIST_CELL_PTR pl_nil = NULL;
   pl_nil = alloc_list_cell( pos );
   if( pl_nil ) {
@@ -85,6 +145,23 @@ LIST_CELL_PTR creat_nil_list ( SRC_POS_C pos ) {
   }
   return pl_nil;
 }
+
+LIST_CELL_PTR list_creat_nil1( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+  TYPE_CONS_PTR pl_nil = NULL;
+  assert( pty );
+  pl_nil = alloc_list_cell( pos );
+  if( pl_nil ) {
+    list_dup( &pl_nil->u.list.pty_elem, pty, pos );
+    pl_nil->pos = pos;
+    pl_nil->type = TY_LIST;
+    pl_nil->u.list.car = NULL;
+    pl_nil->u.list.cdr = NULL;
+    pl_nil->u.list.plast = NULL;
+  } else
+    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  return pl_nil;
+}
+
 
 LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
@@ -119,38 +196,6 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos 
   } else
   err_creat_objs:
     ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
-  return r;
-}
-
-BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
-  BOOL r = FALSE;
-  
-  assert( pty1 );
-  assert( pty2 );
-  if( pty1->type == TY_LIST ) {
-    if( pty2->type == TY_LIST ) {
-      if( list_is_nil( pty2 ) )
-	r = TRUE;
-      else {
-	assert( pty2->u.list.car );
-	assert( pty2->u.list.plast );
-	if( ! list_is_nil( pty1 ) ) {
-	  assert( pty1->u.list.car );
-	  assert( pty1->u.list.plast );
-	  r = typecheck( pty1->u.list.car, pty2->u.list.car );
-	}
-      }
-    }
-  } else {
-    assert( pty1->type != TY_LIST );
-    switch( pty1->type ) {
-    case TY_INT: case TY_STRING:
-      r = (pty1->type == pty2->type);
-      break;
-    default:
-      assert( FALSE );
-    }
-  }
   return r;
 }
 
