@@ -36,5 +36,5 @@ typedef struct type_cons const *TYPE_CONS_PTR_C;
 
 typedef TYPE_CONS LIST_CELL;
 typedef LIST_CELL *LIST_CELL_PTR;
-typedef const LIST_CELL TYPE_CONS_C;
+typedef const LIST_CELL LIST_CELL_C;
 typedef LIST_CELL const *LIST_CELL_PTR_C;

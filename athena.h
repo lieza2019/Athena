@@ -32,6 +32,7 @@ extern BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list );
 extern LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos );
 
+extern TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos );
 extern void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos );
 extern void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pident, const int n_init, SRC_POS_C pos );
 extern void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos );

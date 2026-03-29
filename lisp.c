@@ -38,6 +38,12 @@ LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
     r->pnext = cells_manage.palive;
   }
   cells_manage.palive = r;
+  if( r ) {
+    r->u.list.pty_elem = NULL;
+    r->u.list.car = NULL;
+    r->u.list.cdr = NULL;
+    r->u.list.plast = NULL;
+  }
   return r;
 }
 
@@ -76,10 +82,6 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
     (*ppdup)->pos = pos;
     (*ppdup)->type = porg->type;
     if( (*ppdup)->type == TY_LIST ) {
-      (*ppdup)->u.list.pty_elem = NULL;
-      (*ppdup)->u.list.car = NULL;
-      (*ppdup)->u.list.cdr = NULL;
-      (*ppdup)->u.list.plast = NULL;      
       list_dup( &(*ppdup)->u.list.pty_elem, porg->u.list.pty_elem, pos );
       if( (*ppdup)->u.list.pty_elem ) {
 	TYPE_CONS_PTR pcrnt = *ppdup;
@@ -155,12 +157,12 @@ LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   assert( pty );
   pl_nil = alloc_list_cell( pos );
   if( pl_nil ) {
-    list_dup( &pl_nil->u.list.pty_elem, pty, pos );
     pl_nil->pos = pos;
     pl_nil->type = TY_LIST;
-    pl_nil->u.list.car = NULL;
-    pl_nil->u.list.cdr = NULL;
-    pl_nil->u.list.plast = NULL;
+    pl_nil->u.list.pty_elem = pty;
+    assert( pl_nil->u.list.car == NULL );
+    assert( pl_nil->u.list.cdr == NULL );
+    assert( pl_nil->u.list.plast == NULL );
   } else
     ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
   return pl_nil;
@@ -187,7 +189,7 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C
 	pcons_node->u.list.cdr = plist;
 	pcons_node->u.list.plast = plist->u.list.plast;
       } else {
-	pcons_node->u.list.cdr =NULL;
+	pcons_node->u.list.cdr = NULL;
 	pcons_node->u.list.plast = plist;
       }
       r = pcons_node;
