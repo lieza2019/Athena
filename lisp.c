@@ -144,12 +144,8 @@ BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list ) {
   
   assert( pcons_list );
   if( pcons_list->type == TY_LIST ) {
-#if 0
-    r = !(pcons_list->u.list.car) && !(pcons_list->u.list.cdr);
-#else
     r = (pcons_list->u.list.car == NULL);
     assert( r ? ((! pcons_list->u.list.cdr) && (! pcons_list->u.list.plast)) : (pcons_list->u.list.plast != NULL) );
-#endif
   }
   return r;
 }
@@ -170,123 +166,6 @@ LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   return pl_nil;
 }
 
-#if 0
-LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos ) {
-  LIST_CELL_PTR r = NULL;
-  LIST_CELL_PTR pcons_elem = NULL;
-  
-  assert( plist );
-  assert( plist->type == TY_LIST );
-  pcons_elem = alloc_list_cell( pos );
-  if( pcons_elem ) {
-    pcons_elem->pos = pos;
-    pcons_elem->type = cons_ty;
-    if( plist->u.list.car ) {
-      LIST_CELL_PTR pcons_node = NULL;
-      assert( plist->u.list.plast );
-      pcons_node = alloc_list_cell( pos );
-      if( pcons_node ) {
-	pcons_node->pos = pos;
-	pcons_node->type = TY_LIST;
-	pcons_node->u.list.car = pcons_elem;
-	pcons_node->u.list.cdr = plist;
-	pcons_node->u.list.plast = plist->u.list.plast;
-	r = pcons_node;
-      } else
-	goto err_creat_objs;
-    } else {
-      assert( ! plist->u.list.cdr );
-      assert( ! plist->u.list.plast );
-      plist->u.list.car = pcons_elem;
-      plist->u.list.plast = plist;
-      r = plist;
-    }
-  } else
-  err_creat_objs:
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
-  return r;
-}
-
-LIST_CELL_PTR cons_list1 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
-  LIST_CELL_PTR r = NULL;
-  LIST_CELL_PTR pcons_elem = NULL;
-  
-  assert( plist );
-  assert( plist->type == TY_LIST );
-  assert( pcons_ty );
-  pcons_elem = alloc_list_cell( pos );
-  if( pcons_elem ) {
-    pcons_elem->pos = pos;
-#if 0
-    pcons_elem->type = cons_ty;
-#endif
-    if( list_is_nil( plist ) ) {
-      assert( ! plist->u.list.car );
-      assert( ! plist->u.list.cdr );
-      assert( ! plist->u.list.plast );
-      plist->u.list.car = pcons_elem;
-      plist->u.list.plast = plist;
-      r = plist;
-    } else {      
-      assert( plist->u.list.car );
-      assert( plist->u.list.plast );
-      if( typecheck( (TYPE_CONS_PTR)plist->u.list.car, pcons_ty ) ) {
-	LIST_CELL_PTR pcons_node = NULL;
-	pcons_node = alloc_list_cell( pos );
-	if( pcons_node ) {
-	  pcons_node->pos = pos;
-	  pcons_node->type = TY_LIST;
-	  pcons_node->u.list.car = pcons_elem;
-	  pcons_node->u.list.cdr = plist;
-	  pcons_node->u.list.plast = plist->u.list.plast;
-	  r = pcons_node;
-	} else
-	  goto err_creat_objs;
-      } else {
-	ath_printf( pos, "type mismatched on list concatination, ignored." );
-      }	
-    }
-  } else
-  err_creat_objs:
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
-  return r;
-}
-
-LIST_CELL_PTR cons_list2 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
-  LIST_CELL_PTR r = NULL;
-  
-  assert( plist );
-  assert( plist->type == TY_LIST );
-  assert( pcons_ty );
-  pcons_ty->pos = pos;
-  if( list_is_nil( plist ) ) {
-    assert( ! plist->u.list.car );
-    assert( ! plist->u.list.cdr );
-    assert( ! plist->u.list.plast );
-    plist->u.list.car = pcons_ty;
-    plist->u.list.plast = plist;
-    r = plist;
-  } else {
-    assert( plist->u.list.car );
-    assert( plist->u.list.plast );
-    if( typecheck( (TYPE_CONS_PTR)plist->u.list.car, pcons_ty ) ) {
-      LIST_CELL_PTR pcons_node = NULL;
-      pcons_node = alloc_list_cell( pos );
-      if( pcons_node ) {
-	pcons_node->pos = pos;
-	pcons_node->type = TY_LIST;
-	pcons_node->u.list.car = pcons_ty;
-	pcons_node->u.list.cdr = plist;
-	pcons_node->u.list.plast = plist->u.list.plast;
-	r = pcons_node;
-      } else
-	ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
-    } else
-      ath_printf( pos, "type mismatched on list concatination, ignored." );
-  }
-  return r;
-}
-#else
 LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
   
@@ -317,4 +196,3 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C
   }
   return r;
 }
-#endif
