@@ -162,7 +162,6 @@ LIST_CELL_PTR list_creat_nil1( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   return pl_nil;
 }
 
-
 LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
   LIST_CELL_PTR pcons_elem = NULL;
@@ -275,6 +274,37 @@ LIST_CELL_PTR cons_list2 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_
 	ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
     } else
       ath_printf( pos, "type mismatched on list concatination, ignored." );
+  }
+  return r;
+}
+
+LIST_CELL_PTR cons_list3 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
+  LIST_CELL_PTR r = NULL;
+  
+  assert( plist );
+  assert( plist->type == TY_LIST );
+  assert( pcons_ty );
+  if( typecheck( (TYPE_CONS_PTR)plist->u.list.pty_elem, pcons_ty ) ) {
+    LIST_CELL_PTR pcons_node = NULL;
+    if( list_is_nil( plist ) )
+      pcons_node = plist;
+    else
+      pcons_node = alloc_list_cell( pos );
+    if( pcons_node ) {
+      pcons_node->pos = pos;
+      pcons_node->type = TY_LIST;
+      pcons_node->u.list.pty_elem = plist->u.list.pty_elem;
+      pcons_node->u.list.car = pcons_ty;
+      if( pcons_node != plist ) {
+	pcons_node->u.list.cdr = plist;
+	pcons_node->u.list.plast = plist->u.list.plast;
+      } else {
+	pcons_node->u.list.cdr =NULL;
+	pcons_node->u.list.plast = plist;
+      }
+      r = pcons_node;
+    } else
+      ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
   }
   return r;
 }

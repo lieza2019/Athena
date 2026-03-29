@@ -73,27 +73,20 @@ char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
 
 BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
   BOOL r = FALSE;
-  
+
   assert( pty1 );
   assert( pty2 );
   if( pty1->type == TY_LIST ) {
     if( pty2->type == TY_LIST ) {
-      if( list_is_nil( pty2 ) )
-	r = TRUE;
-      else {
-	assert( pty2->u.list.car );
-	assert( pty2->u.list.plast );
-	if( ! list_is_nil( pty1 ) ) {
-	  assert( pty1->u.list.car );
-	  assert( pty1->u.list.plast );
-	  r = typecheck( pty1->u.list.car, pty2->u.list.car );
-	}
-      }
+      assert( pty1->u.list.pty_elem );
+      assert( pty2->u.list.pty_elem );
+      r = typecheck( pty1->u.list.pty_elem, pty2->u.list.pty_elem );
     }
   } else {
     assert( pty1->type != TY_LIST );
     switch( pty1->type ) {
-    case TY_INT: case TY_STRING:
+    case TY_INT:
+    case TY_STRING:
       r = (pty1->type == pty2->type);
       break;
     default:
