@@ -63,6 +63,11 @@ void free_list_cell ( LIST_CELL_PTR pcell ) {
   cells_manage.pavail = pcell;  
 }
 
+void destroy_list ( LIST_CELL_PTR plist ) {
+  assert( plist );
+  free_list_cell( plist );
+}
+
 TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos ) {
   assert( ppdup );
   assert( porg );
@@ -97,6 +102,22 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
 	}
       } else
 	ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+#ifdef RUNTIME_CONSITENCY_CHECK
+      assert( ppdup );
+      assert( *ppdup );
+      if( (*ppdup)->u.list.car ) {
+	TYPE_CONS_PTR *ppnode = ppdup;
+	while( *ppnode ) {
+	  if( ! (*ppnode)->u.list.cdr )
+	    break;
+	  ppnode = &(*ppnode)->u.list.cdr;	  
+	}
+	assert( (*ppdup)->u.list.plast == *ppnode );
+      } else {
+	assert( (*ppdup)->u.list.cdr == NULL );
+	assert( (*ppdup)->u.list.plast == NULL );
+      }
+#endif // RUNTIME_CONSITENCY_CHECK
     } else {
       assert( (*ppdup)->type != TY_LIST );
       switch( (*ppdup)->type ) {
@@ -133,20 +154,7 @@ BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list ) {
   return r;
 }
 
-LIST_CELL_PTR list_creat_nil ( SRC_POS_C pos ) {
-  LIST_CELL_PTR pl_nil = NULL;
-  pl_nil = alloc_list_cell( pos );
-  if( pl_nil ) {
-    pl_nil->pos = pos;
-    pl_nil->type = TY_LIST;
-    pl_nil->u.list.car = NULL;
-    pl_nil->u.list.cdr = NULL;
-    pl_nil->u.list.plast = NULL;
-  }
-  return pl_nil;
-}
-
-LIST_CELL_PTR list_creat_nil1( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYPE_CONS_PTR pl_nil = NULL;
   assert( pty );
   pl_nil = alloc_list_cell( pos );
@@ -162,6 +170,7 @@ LIST_CELL_PTR list_creat_nil1( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   return pl_nil;
 }
 
+#if 0
 LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
   LIST_CELL_PTR pcons_elem = NULL;
@@ -277,8 +286,8 @@ LIST_CELL_PTR cons_list2 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_
   }
   return r;
 }
-
-LIST_CELL_PTR cons_list3 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
+#else
+LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
   
   assert( plist );
@@ -308,3 +317,4 @@ LIST_CELL_PTR cons_list3 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_
   }
   return r;
 }
+#endif

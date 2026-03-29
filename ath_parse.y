@@ -112,6 +112,7 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL{
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   char *pident = NULL;
+  assert( $3 );
   assert( strlen($1) >= 1 );
   pident = find_literal( $1 );
   if( pident ) {
@@ -121,40 +122,89 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
     $$.u.var_list.init_l = $4;
     $$.pos.row = @1.first_line;
     $$.pos.col = @1.first_column;
-  } else   
+  } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
   assert( FALSE );
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = (TYPE_CONS_PTR)list_creat_nil( pos );
+  LIST_CELL_PTR pty_desc = NULL;
+  pty_desc = alloc_list_cell( pos );
+  if( pty_desc ) {
+    pty_desc->pos = pos;
+    pty_desc->type = TY_POLY;
+    $$ = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
+    destroy_list( pty_desc );
+  } else
+    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  assert( $$ );
+  assert( ($$)->type == TY_LIST );
+  assert( ! ($$)->u.list.car );
+  assert( ! ($$)->u.list.cdr );
+  assert( ! ($$)->u.list.plast );
+  assert( ($$)->u.list.pty_elem );
+  assert( (($$)->u.list.pty_elem)->type == TY_POLY );
  }
 | TK_LSQBL TK_KEYWORD_INT TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  LIST_CELL_PTR pl = NULL;
-  pl = list_creat_nil( pos );
-  if( pl ) {
-    //$$ = cons_list_elem_basetype( TY_INT, pos );
-    ;
+  LIST_CELL_PTR pty_desc = NULL;
+  pty_desc = alloc_list_cell( pos );
+  if( pty_desc ) {
+    pty_desc->pos = pos;
+    pty_desc->type = TY_INT;
+    $$ = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
+    destroy_list( pty_desc );
   } else
     ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  assert( $$ );
+  assert( ($$)->type == TY_LIST );
+  assert( ! ($$)->u.list.car );
+  assert( ! ($$)->u.list.cdr );
+  assert( ! ($$)->u.list.plast );
+  assert( ($$)->u.list.pty_elem );
+  assert( (($$)->u.list.pty_elem)->type == TY_INT );
  }
 | TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  //$$ = cons_list_elem_basetype( TY_STRING, pos );
+  LIST_CELL_PTR pty_desc = NULL;
+  pty_desc = alloc_list_cell( pos );
+  if( pty_desc ) {
+    pty_desc->pos = pos;
+    pty_desc->type = TY_STRING;
+    $$ = list_creat_nil( pty_desc, pos );
+    destroy_list( pty_desc );
+  } else
+    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  assert( $$ );
+  assert( ($$)->type == TY_LIST );
+  assert( ! ($$)->u.list.car );
+  assert( ! ($$)->u.list.cdr );
+  assert( ! ($$)->u.list.plast );
+  assert( ($$)->u.list.pty_elem );
+  assert( (($$)->u.list.pty_elem)->type == TY_STRING );
  }
 | TK_LSQBL list_elem_type TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pty_cons = NULL;
-  pty_cons = new_memarea( sizeof(TYPE_CONS) );
-  if( pty_cons ) {
-    pty_cons->type = TY_LIST;
-    pty_cons->u.list.cdr = $2;
-    pty_cons->pos.row = @1.first_line;
-    pty_cons->pos.col = @1.first_column;
-    $$ = pty_cons;
+  TYPE_CONS_PTR pcell = NULL;
+  assert( $2 );
+  pcell = alloc_list_cell( pos );
+  if( pcell ) {
+    pcell->pos = pos;
+    pcell->type = TY_LIST;
+    pcell->u.list.pty_elem = $2;
+    pcell->u.list.car = NULL;
+    pcell->u.list.cdr = NULL;
+    pcell->u.list.plast = NULL;
+    $$ = pcell;
   } else
     ath_abort( pos, ABORT_MEMLACK );
+  assert( $$ );
+  assert( ($$)->type == TY_LIST );
+  assert( ! ($$)->u.list.car );
+  assert( ! ($$)->u.list.cdr );
+  assert( ! ($$)->u.list.plast );
+  assert( ($$)->u.list.pty_elem );
+  assert( (($$)->u.list.pty_elem)->type == TY_LIST );
  }
 
 decl_list_init : TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {

@@ -26,11 +26,11 @@ extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_DECL_PTR pvar_decl );
 
 extern LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos );
 extern void free_list_cell ( LIST_CELL_PTR pcell );
+extern void destroy_list ( LIST_CELL_PTR plist );
 extern TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos );
 extern BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list );
-extern LIST_CELL_PTR list_creat_nil ( SRC_POS_C pos );
-extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CODE cons_ty, SRC_POS_C pos );
-extern LIST_CELL_PTR cons_list2 ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos );
+extern LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos );
+extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos );
 
 extern void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos );
 extern void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pident, const int n_init, SRC_POS_C pos );

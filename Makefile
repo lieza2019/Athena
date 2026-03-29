@@ -5,7 +5,7 @@ TOUCH = touch
 MAKE = make
 
 CC = /usr/bin/gcc
-CFLAGS = -Wall -g -c
+CFLAGS = -Wall -g -c -DRUNTIME_CONSITENCY_CHECK
 CFLAGS_YACC = -g -c
 LD = /usr/bin/gcc
 LDFLAGS =

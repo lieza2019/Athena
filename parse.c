@@ -83,6 +83,7 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
 }
 #endif
 
+#if 0
 TYPE_CONS_PTR list_var_attrib ( TYPE_CODE ty, SRC_POS_C pos ) {
   assert( (ty > 0) && (ty < END_OF_TYPE_CODE) );
   TYPE_CONS_PTR r = NULL;
@@ -106,16 +107,7 @@ TYPE_CONS_PTR list_var_attrib ( TYPE_CODE ty, SRC_POS_C pos ) {
     ath_abort( pos, ABORT_MEMLACK );
   return r;
 }
-
-#if 0
-BOOL list_is_nill ( TYPE_CONS_PTR pcons_list ) {
-  BOOL r = FALSE;
-  
-  assert( pcons_list );
-  if( pcons_list->type == TY_LIST ) {
-    r = !(pcons_list->u.list.cdr) && !(pcons_list->u.list.car);
-  }
-  return r;
+#else
+TYPE_CONS_PTR list_var_attrib ( TYPE_CODE ty, SRC_POS_C pos ) {
 }
 #endif
-
