@@ -6,6 +6,7 @@
 char *ath_type_name[] = {
   "UNASSIGNED", 
   "int", // TY_INT = 1,
+  "char", // TY_CHAR
   "string", // TY_STRING
   "[]", // TY_LIST
   "poly", // TY_POLY
@@ -25,9 +26,9 @@ static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
     ps = strcat( ps, ath_type_name[pty_cons->type] );
     break;
   case TY_LIST:
-    if( pty_cons->u.list.cdr ) {
+    if( pty_cons->u.list.pty_elem ) {
       ps = strcat( ps, "[" );
-      ps = show_list_type( ps, pty_cons->u.list.cdr );
+      ps = show_list_type( ps, pty_cons->u.list.pty_elem );
       ps = strcat( ps, "]" );
     } else
       ath_abort( pty_cons->pos, INTERNALERR_TYPE_CONS );
@@ -44,7 +45,7 @@ char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
   char *ps = NULL;  
   assert( sbuf );
   assert( pvar_decl );
-
+  
   pos = pvar_decl->pos;
   ps = sbuf;
   switch( pvar_decl->type ) {
@@ -73,7 +74,7 @@ char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
 
 BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
   BOOL r = FALSE;
-
+  
   assert( pty1 );
   assert( pty2 );
   if( pty1->type == TY_LIST ) {

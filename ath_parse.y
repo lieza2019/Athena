@@ -65,9 +65,11 @@ statement : decl_var_poly {
  };
 | decl_var_list {
   STATEMENT_PTR pstmt = NULL;
+#if 1
   {
     printf( "NULL list: %s.", (list_is_nil( $1.u.var_list.pty ) ? "TRUE" : "FALSE") );
   }
+#endif
   stmt_decl_var( &pstmt, &$1 );
   assert( pstmt );
   $$ = *pstmt;
@@ -77,23 +79,28 @@ decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   poly_var_attrib( &$$, $1, pos );
  }
-decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_int_init {
+
+decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  int_var_attrib( &$$, $1, 0, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   int_var_attrib( &$$, $1, $4, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_POLY decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   int_var_attrib( &$$, $1, $4, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  int_var_attrib( &$$, $1, 0, pos );
- }
+ };
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   $$ = $2;
  };
 
-decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
+decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  string_var_attrib( &$$, $1, NULL, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   string_var_attrib( &$$, $1, $4, pos );
  }
@@ -101,10 +108,6 @@ decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   string_var_attrib( &$$, $1, $4, pos );
  }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  string_var_attrib( &$$, $1, NULL, pos );
- };
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   $$ = $2;
  };
@@ -203,33 +206,40 @@ list_elem_type : TK_LSQBL TK_RSQBL {
   assert( ! ($$)->u.list.plast );  
  };
 
-decl_list_init : TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
+decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
+  $$ = NULL;
+ }
+| TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
   $$ = $3;
  };
 
 decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   LIST_CELL_PTR pcell = NULL;
+  $$ = NULL;
   pcell = alloc_list_cell( pos );
   if( pcell ) {
-    LIST_CELL_PTR pelem = NULL;   
-    pelem = alloc_list_cell( pos );
+    LIST_CELL_PTR pelem = NULL;    
     pcell->pos = pos;
     pcell->type = TY_LIST;
-    pcell->u.list.plast = NULL;
+    pelem = alloc_list_cell( pos );
     if( pelem ) {
       TYPE_CONS_PTR pty_desc = NULL;
       pelem->type = TY_INT;
       pelem->u.integer.n = $1;
       pty_desc = alloc_tycons_node( pos );
-      ;
+      assert( pty_desc );
+      pty_desc->pos = pos;
+      pty_desc->type = TY_INT;
+      pcell->u.list.pty_elem = pty_desc;
       pcell->u.list.car = pelem;
+      // and then, typecheck pcell with $2.      
       pcell->u.list.cdr = $2;
-      if( $2 )
-	pcell->u.list.plast = $2->u.list.plast;
+      if( pcell->u.list.cdr )
+	pcell->u.list.plast = (pcell->u.list.cdr)->u.list.plast;
       else
 	pcell->u.list.plast = pcell;
-      //pcell->u.list.pty_elem = ;
+      $$ = pcell;
     } else
       ath_abort( pos, ABORT_MEMLACK );
   } else
@@ -237,32 +247,109 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
  }
 | TK_STR_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  LIST_CELL_PTR pnew = NULL;
-  assert( $2 );
-  pnew = alloc_list_cell( pos );
-  if( pnew ) {
-    pnew->type = TY_STRING;
-    pnew->u.string.ps = $1;
-    pnew->u.list.car = NULL;
-    pnew->u.list.cdr = $2;
-    $$ = pnew;
+  LIST_CELL_PTR pcell = NULL;
+  $$ = NULL;
+  pcell = alloc_list_cell( pos );
+  if( pcell ) {
+    LIST_CELL_PTR pelem = NULL;    
+    pcell->pos = pos;
+    pcell->type = TY_LIST;
+    pelem = alloc_list_cell( pos );
+    if( pelem ) {
+      TYPE_CONS_PTR pty_desc = NULL;
+      pelem->type = TY_STRING;
+      pelem->u.string.ps = $1;
+      pty_desc = alloc_tycons_node( pos );
+      assert( pty_desc );
+      pty_desc->pos = pos;
+      pty_desc->type = TY_STRING;
+      pcell->u.list.pty_elem = pty_desc;
+      pcell->u.list.car = pelem;
+      // and then, typecheck pcell with $2.
+      pcell->u.list.cdr = $2;
+      if( pcell->u.list.cdr )
+	pcell->u.list.plast = (pcell->u.list.cdr)->u.list.plast;
+      else
+	pcell->u.list.plast = pcell;
+      $$ = pcell;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+ }
+| TK_LSQBL TK_RSQBL decl_list_init_elems_tail {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  LIST_CELL_PTR pcell = NULL;
+  $$ = NULL;
+  pcell = alloc_list_cell( pos );
+  if( pcell ) {
+    LIST_CELL_PTR pelem = NULL;
+    pcell->pos = pos;
+    pcell->type = TY_LIST;
+    pelem = alloc_list_cell( pos );
+    if( pelem ) {
+      TYPE_CONS_PTR pty_desc = NULL;
+      pelem->type = TY_LIST;
+      pty_desc = alloc_tycons_node( pos );
+      assert( pty_desc );
+      pty_desc->pos = pos;
+      pty_desc->type = TY_POLY;
+      pelem->u.list.pty_elem = pty_desc;
+      pcell->u.list.pty_elem = pelem;
+      pcell->u.list.car = pelem;
+      // and then, typecheck pcell with $3;
+      pcell->u.list.cdr = $3;
+      if( pcell->u.list.cdr )
+	pcell->u.list.plast = (pcell->u.list.cdr)->u.list.plast;
+      else
+	pcell->u.list.plast = pcell;
+      $$ = pcell;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+ }
+| TK_LSQBL decl_list_init_elems decl_list_init_elems_tail {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  LIST_CELL_PTR pcell = NULL;
+  $$ = NULL;
+  pcell = alloc_list_cell( pos );
+  if( pcell ) {
+    TYPE_CONS_PTR pty_desc = NULL;
+    pcell->pos = pos;
+    pcell->type = TY_LIST;
+    pty_desc = alloc_tycons_node( pos );
+    assert( pty_desc );
+    pty_desc->pos = pos;
+    pty_desc->type = TY_LIST;
+    if( $2 )
+      pty_desc->u.list.pty_elem = ($2)->u.list.pty_elem;
+    else {
+      TYPE_CONS_PTR pd_elem = NULL;
+      pd_elem = alloc_tycons_node( pos );
+      assert( pd_elem );
+      pd_elem->pos = pos;
+      pd_elem->type = TY_POLY;
+      pty_desc->u.list.pty_elem = pd_elem;
+    }
+    pcell->u.list.pty_elem = pty_desc;
+    pcell->u.list.car = $2;
+    // and then, typecheck pcell with $3;
+    pcell->u.list.cdr = $3;
+    if( pcell->u.list.cdr )
+      pcell->u.list.plast = (pcell->u.list.cdr)->u.list.plast;
+    else
+      pcell->u.list.plast = pcell;
+    $$ = pcell;
   } else
     ath_abort( pos, ABORT_MEMLACK );
  };
+
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;
 }
 | TK_RSQBL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  LIST_CELL_PTR pnew = NULL;
-  pnew = alloc_list_cell( pos );
-  if( pnew ) {
-    pnew->type = TY_STRING;
-    pnew->u.list.car = NULL;
-    pnew->u.list.cdr = NULL;
-    $$ = pnew;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
+  $$ = NULL;
  };
 %%
 int yyerror ( const char *s ) {
