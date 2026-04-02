@@ -12,7 +12,6 @@ typedef enum ath_abort {
   INTERNALERR_TYPE_CONS,
   END_OF_ATH_ABORT
 } ATH_ABORT;
-extern char *ath_abort_str[];
 
 typedef struct src_pos {
   int row;

@@ -18,7 +18,7 @@ static char *show_list_type ( char *sbuf, TYPE_CONS_PTR_C pty_cons ) {
   char *ps = NULL;
   assert( sbuf );
   assert( pty_cons );
-
+  
   pos = pty_cons->pos;
   ps = sbuf;
   switch( pty_cons->type ) {
@@ -63,6 +63,58 @@ char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
     break;
   case TY_POLY:
     ps = strcpy( ps, "poly" );
+    break;
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return ps;
+}
+
+char *show_var_type1 ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
+  SRC_POS pos;
+  char *ps = NULL;  
+  assert( sbuf );
+  assert( pty_desc );
+  
+  ps = sbuf;
+  pos = pty_desc->pos;
+  switch( pty_desc->type ) {
+  case TY_INT:
+    strcpy( ps, "int" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_CHAR:
+    strcpy( ps, "char" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_STRING:
+    strcpy( ps, "string" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_LIST:
+    strcpy( ps, "[" );
+    ps++;
+    if( pty_desc->u.list.pty_elem ) {
+      ps = show_var_type1( ps, pty_desc->u.list.pty_elem );
+      assert( *ps == 0 );
+    } else {
+      strcpy( ps, "UNKNOWN_TYPE" );
+      ps += strlen( ps );
+      assert( *ps == 0 );
+    }    
+    strcpy( ps, "]" );
+    ps++;
+    assert( *ps == 0 );
+    break;
+  case TY_POLY:
+    strcpy( ps, "poly" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
     break;
   case END_OF_TYPE_CODE:
     /* fall thru. */
