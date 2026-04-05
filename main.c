@@ -21,9 +21,14 @@ int main ( void ) {
     SYM_ENTITY_PTR psym = NULL;
     psym = find_symbol( "a" );
     if( psym ) {
-      char sbuf[256] = "";
+      char sbuf[8 * 1024] = "";
+#if 0
       show_var_type( sbuf, &psym->u.decl.u.var );
       printf( "type of a: %s\n", sbuf );
+#else
+      show_var_decl( sbuf, &psym->u.decl.u.var );
+      printf( "%s\n", sbuf );
+#endif
     } else
       printf( "symbol a isnt declared.\n " );
   }

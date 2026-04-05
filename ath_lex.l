@@ -70,7 +70,7 @@ int yywrap( void ) {
   return TK_IDENT;
 }
 
-\".+\" {
+\"[^\"]+\" {
   yylloc.first_column += strlen( yytext );
   yylval.str = find_literal( yytext );
   printf( "TK_STR_LITERAL: %s\n", yylval.str );

@@ -216,7 +216,7 @@ decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
 decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   LIST_CELL_PTR pcell = NULL;
-  $$ = NULL;
+  $$ = NULL;  
   pcell = alloc_list_cell( pos );
   if( pcell ) {
     LIST_CELL_PTR pelem = NULL;    

@@ -83,7 +83,11 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );    
     strcpy( ps, ":" );
     ps++;
+    strcpy( ps, "[" );
+    ps++;
     ps = show_var_type1( ps, pvar_desc->u.list.pty_elem );
+    strcpy( ps, "]" );
+    ps++;
     assert( *ps == 0 );
     break;
   case TY_POLY:
@@ -111,6 +115,11 @@ char *show_var_decl ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
   
   pos = pvar_decl->pos;
   ps = sbuf;
+  strcpy( ps, pvar_decl->ident );
+  ps += strlen( ps );
+  assert( *ps == 0 );
+  strcpy( ps, " := " );
+  ps += strlen( ps );
   switch( pvar_decl->type ) {
   case TY_INT:
     sprintf( ps, "%d", pvar_decl->u.var_int.init_n );
