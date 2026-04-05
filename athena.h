@@ -6,7 +6,6 @@
 #include "ath_symtbl.h"
 
 extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
-//extern char *show_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc );
 extern char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc );
 extern char *show_var_decl ( char *sbuf, VAR_DECL_PTR pvar_decl );
 
@@ -19,7 +18,7 @@ extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern char *find_literal ( char *pname );
 
 extern char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl );
-extern char *show_var_type1 ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
+extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 
 extern void err_redef ( DECL_ATTRIB_PTR pdecl_attr );

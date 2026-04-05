@@ -35,7 +35,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     strcpy( ps, ":" );
     ps++;
-    ps = show_var_type1( ps, pvar_desc );
+    ps = print_var_type( ps, pvar_desc );
     assert( *ps == 0 );
     break;
   case TY_CHAR:
@@ -44,7 +44,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     strcpy( ps, ":" );
     ps++;
-    ps = show_var_type1( ps, pvar_desc );
+    ps = print_var_type( ps, pvar_desc );
     assert( *ps == 0 );
     break;
   case TY_STRING:
@@ -53,7 +53,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     strcpy( ps, ":" );
     ps++;
-    ps = show_var_type1( ps, pvar_desc );
+    ps = print_var_type( ps, pvar_desc );
     assert( *ps == 0 );
     break;
   case TY_LIST:
@@ -85,7 +85,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     ps++;
     strcpy( ps, "[" );
     ps++;
-    ps = show_var_type1( ps, pvar_desc->u.list.pty_elem );
+    ps = print_var_type( ps, pvar_desc->u.list.pty_elem );
     strcpy( ps, "]" );
     ps++;
     assert( *ps == 0 );
@@ -96,7 +96,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     strcpy( ps, ":" );
     ps++;
-    ps = show_var_type1( ps, pvar_desc );
+    ps = print_var_type( ps, pvar_desc );
     assert( *ps == 0 );
     break;
   case END_OF_TYPE_CODE:
