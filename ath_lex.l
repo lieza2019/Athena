@@ -55,7 +55,7 @@ int yywrap( void ) {
 }
 "poly" {
   yylloc.first_column += strlen( yytext );
-  return TK_POLY;
+  return TK_KEYWORD_POLY;
 }
 
 "-"*[0-9]+ {

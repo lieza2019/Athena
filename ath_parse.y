@@ -30,7 +30,7 @@
 %token TK_KEYWORD_AS
 %token TK_KEYWORD_INT
 %token TK_KEYWORD_STRING
-%token TK_POLY
+%token TK_KEYWORD_POLY
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
@@ -75,7 +75,7 @@ statement : decl_var_poly {
   $$ = *pstmt;
  };
 
-decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_POLY TK_SMCL {
+decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   poly_var_attrib( &$$, $1, pos );
  }
@@ -88,7 +88,7 @@ decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   int_var_attrib( &$$, $1, $4, pos );
  }
-| TK_IDENT TK_KEYWORD_AS TK_POLY decl_int_init {
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   int_var_attrib( &$$, $1, $4, pos );
  };
@@ -104,7 +104,7 @@ decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   string_var_attrib( &$$, $1, $4, pos );
  }
-| TK_IDENT TK_KEYWORD_AS TK_POLY decl_string_init {
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   string_var_attrib( &$$, $1, $4, pos );
  }
@@ -123,7 +123,7 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
     $$.ident = pident;
     $$.type = TY_LIST;
     $$.u.var_list.pty = $3;
-    $$.u.var_list.init_l = NULL;
+    $$.u.var_list.init_l = $3;
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
  }
@@ -138,12 +138,32 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
     $$.ident = pident;
     $$.type = TY_LIST;
     $$.u.var_list.pty = $3;
-    $$.u.var_list.init_l = $4;
+    if( $4 )
+      $$.u.var_list.init_l = $4;
+    else
+      $$.u.var_list.init_l = $3;
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
  };
 
 list_elem_type : TK_LSQBL TK_RSQBL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  TYPE_CONS_PTR pty_desc = NULL;
+  pty_desc = alloc_tycons_node( pos );
+  if( pty_desc ) {
+    pty_desc->pos = pos;
+    pty_desc->type = TY_POLY;
+    $$ = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
+    assert( $$ );
+    assert( ($$)->type == TY_LIST );
+    assert( ($$)->u.list.pty_elem == pty_desc );
+    assert( ! ($$)->u.list.car );
+    assert( ! ($$)->u.list.cdr );
+    assert( ! ($$)->u.list.plast );    
+  } else
+    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+ }
+| TK_LSQBL TK_KEYWORD_POLY TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   TYPE_CONS_PTR pty_desc = NULL;
   pty_desc = alloc_tycons_node( pos );
