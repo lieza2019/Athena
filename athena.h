@@ -17,7 +17,6 @@ extern SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym );
 extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern char *find_literal ( char *pname );
 
-extern char *show_var_type ( char *sbuf, VAR_DECL_PTR pvar_decl );
 extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 
