@@ -48,6 +48,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     break;
   case TY_STRING:
+    assert( pvar_desc->u.string.ps );
     strcpy( ps, pvar_desc->u.string.ps );
     ps += strlen( ps );
     assert( *ps == 0 );

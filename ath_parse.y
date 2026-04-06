@@ -82,15 +82,33 @@ decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
 
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0
   int_var_attrib( &$$, $1, 0, pos );
+#else
+  $$.type = TY_INT;
+  $$.u.var_int.init_n = 0;
+  decl_attrib_var( &$$, $1, NULL, pos );
+#endif  
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0
   int_var_attrib( &$$, $1, $4, pos );
+#else
+  $$.type = TY_INT;
+  $$.u.var_int.init_n = $4;
+  decl_attrib_var( &$$, $1, NULL, pos );
+#endif  
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0
   int_var_attrib( &$$, $1, $4, pos );
+#else
+  $$.type = TY_INT;
+  $$.u.var_int.init_n = $4;
+  decl_attrib_var( &$$, $1, NULL, pos );
+#endif
  };
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   $$ = $2;
@@ -98,15 +116,30 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
 
 decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0
   string_var_attrib( &$$, $1, NULL, pos );
+#else
+  $$.type = TY_STRING;
+  decl_attrib_var( &$$, $1, "", pos );
+#endif
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0
   string_var_attrib( &$$, $1, $4, pos );
+#else
+  $$.type = TY_STRING;
+  decl_attrib_var( &$$, $1, $4, pos );
+#endif
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0
   string_var_attrib( &$$, $1, $4, pos );
+#else
+  $$.type = TY_STRING;
+  decl_attrib_var( &$$, $1, $4, pos );
+#endif
  }
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   $$ = $2;
