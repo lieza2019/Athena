@@ -49,9 +49,13 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     break;
   case TY_STRING:
     assert( pvar_desc->u.string.ps );
+    strcpy( ps,  "\"" );
+    ps++;
     strcpy( ps, pvar_desc->u.string.ps );
     ps += strlen( ps );
     assert( *ps == 0 );
+    strcpy( ps,  "\"" );
+    ps++;
     strcpy( ps, ":" );
     ps++;
     ps = print_var_type( ps, pvar_desc );
@@ -131,9 +135,14 @@ char *show_var_decl ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
     assert( *ps == 0 );
     break;
   case TY_STRING:
+    assert( pvar_decl->u.var_str.init_s );
+    strcpy( ps,  "\"" );
+    ps++;
     sprintf( ps, "%s", pvar_decl->u.var_str.init_s );
     ps += strlen( ps );
     assert( *ps == 0 );
+    strcpy( ps,  "\"" );
+    ps++;
     strcpy( ps, ":string" );
     ps += strlen( ps );
     assert( *ps == 0 );

@@ -8,17 +8,17 @@ TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
   r = (TYPE_CONS_PTR)alloc_list_cell( pos );
   return r;
 }
-void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
+
+static void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
+  char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
-  assert( strlen(pvar_name) >= 1 );
-  char *pident = NULL;
   
+  assert( pvar_attr->type == TY_POLY );
   pident = find_literal( pvar_name );
   if( pident ) {
     assert( strcmp( pident, pvar_name ) == 0 );
     pvar_attr->ident = pident;
-    pvar_attr->type = TY_POLY;
     pvar_attr->pos = pos;
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
@@ -40,15 +40,15 @@ static void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C 
 }
 
 static void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos ) {
+  char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
-  assert( strlen(pvar_name) >= 1 );
-  char *pident = NULL;
+  assert( s_init );
   
+  assert( pvar_attr->type == TY_STRING );
   pident = find_literal( pvar_name );
   if( pident ) {
     pvar_attr->ident = pident;
-    pvar_attr->type = TY_STRING;
     if( !s_init ) {
       char *pc = NULL;
       pc = new_memarea( sizeof(char) );
@@ -80,6 +80,7 @@ VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, const vo
   case TY_LIST:
     break;
   case TY_POLY:
+    poly_var_attrib( pvar_attr, pvar_name, pos );
     break;
   case END_OF_TYPE_CODE:
     /* fall thru. */

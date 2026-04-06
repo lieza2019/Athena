@@ -70,9 +70,16 @@ int yywrap( void ) {
   return TK_IDENT;
 }
 
-\"[^\"]+\" {
+\"[^\"]*\" {
+  const int len = strlen( yytext );
+  assert( len >= 2 );
   yylloc.first_column += strlen( yytext );
-  yylval.str = find_literal( yytext );
+  assert( yytext[len] == 0 );
+  assert( yytext[len - 1] == '"' );
+  yytext[len - 1] = 0;
+  assert( yytext[0] == '"' );
+  yylval.str = find_literal( &yytext[1] );
+  assert( yylval.str );
   printf( "TK_STR_LITERAL: %s\n", yylval.str );
   return TK_STR_LITERAL;
 }
