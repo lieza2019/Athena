@@ -65,7 +65,27 @@ static void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const c
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, const void *pinit, SRC_POS_C pos ) {
+static void list_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pl_ty, TYPE_CONS_PTR pl_init, SRC_POS_C pos ) {
+  char *pident = NULL;
+  assert( pvar_attr );
+  assert( pvar_name );
+  assert( pl_ty );
+  
+  assert( pvar_attr->type == TY_LIST );
+  pident = find_literal( pvar_name );
+  if( pident ) {
+    pvar_attr->pos = pos;
+    pvar_attr->ident = pident;
+    pvar_attr->u.var_list.pty = pl_ty;
+    if( pl_init )
+      pvar_attr->u.var_list.init_l = pl_init;
+    else
+      pvar_attr->u.var_list.init_l = pl_ty;
+  } else
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
+}
+
+VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, void *pty_arg, void *pinit, SRC_POS_C pos ) {
   assert( pvar_attr );
   assert( pvar_name );
   switch( pvar_attr->type ) {
@@ -78,6 +98,7 @@ VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, const vo
     string_var_attrib( pvar_attr, pvar_name, (const char *)pinit, pos );
     break;
   case TY_LIST:
+    list_var_attrib( pvar_attr, pvar_name, (TYPE_CONS_PTR)pty_arg, (TYPE_CONS_PTR)pinit, pos );
     break;
   case TY_POLY:
     poly_var_attrib( pvar_attr, pvar_name, pos );
@@ -88,4 +109,35 @@ VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, const vo
     assert( FALSE );
   }
   return pvar_attr;
+}
+
+TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C pos ) {
+  TYPE_CONS_PTR r = NULL;
+  if( elem_ty == TY_LIST ) {
+    assert( pl_ty );
+    r = (TYPE_CONS_PTR)list_creat_nil( pl_ty, pos );
+    if( !r )
+      goto failed_creat_nl;    
+  } else {
+    TYPE_CONS_PTR pty_desc = NULL;
+    assert( !pl_ty );
+    pty_desc = alloc_tycons_node( pos );
+    if( pty_desc ) {
+      pty_desc->pos = pos;
+      pty_desc->type = elem_ty;
+      r = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
+      if( !r )
+	goto failed_creat_nl;
+      pl_ty = pty_desc;
+    } else
+    failed_creat_nl:
+      ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  }
+  assert( r );
+  assert( r->type == TY_LIST );
+  assert( r->u.list.pty_elem == pl_ty );
+  assert( ! r->u.list.car );
+  assert( ! r->u.list.cdr );
+  assert( ! r->u.list.plast );
+  return r;
 }

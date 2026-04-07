@@ -72,27 +72,31 @@ statement : decl_var_poly {
 
 decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_POLY;
-  decl_attrib_var( &$$, $1, NULL, pos );
+  decl_attrib_var( &$$, $1, NULL, NULL, pos );
  }
 
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_INT;
   $$.u.var_int.init_n = 0;
-  decl_attrib_var( &$$, $1, NULL, pos );
+  decl_attrib_var( &$$, $1, NULL, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_INT;
   $$.u.var_int.init_n = $4;
-  decl_attrib_var( &$$, $1, NULL, pos );
+  decl_attrib_var( &$$, $1, NULL, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_INT;
   $$.u.var_int.init_n = $4;
-  decl_attrib_var( &$$, $1, NULL, pos );
+  decl_attrib_var( &$$, $1, NULL, NULL, pos );
  };
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   $$ = $2;
@@ -100,18 +104,21 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
 
 decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_STRING;
-  decl_attrib_var( &$$, $1, "", pos );
+  decl_attrib_var( &$$, $1, NULL, "", pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_STRING;
-  decl_attrib_var( &$$, $1, $4, pos );
+  decl_attrib_var( &$$, $1, NULL, $4, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
   $$.type = TY_STRING;
-  decl_attrib_var( &$$, $1, $4, pos );
+  decl_attrib_var( &$$, $1, NULL, $4, pos );
  }
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   $$ = $2;
@@ -119,116 +126,38 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
 
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  char *pident = NULL;
   assert( $3 );
   assert( strlen($1) >= 1 );
-  pident = find_literal( $1 );
-  if( pident ) {
-    $$.pos = pos;
-    $$.ident = pident;
-    $$.type = TY_LIST;
-    $$.u.var_list.pty = $3;
-    $$.u.var_list.init_l = $3;
-  } else
-    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
+  $$.type = TY_LIST;
+  decl_attrib_var( &$$, $1, $3, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  char *pident = NULL;
+  SRC_POS_C pos = { @1.first_line, @1.first_column };  
   assert( $3 );
   assert( strlen($1) >= 1 );
-  pident = find_literal( $1 );
-  if( pident ) {
-    $$.pos = pos;
-    $$.ident = pident;
-    $$.type = TY_LIST;
-    $$.u.var_list.pty = $3;
-    if( $4 )
-      $$.u.var_list.init_l = $4;
-    else
-      $$.u.var_list.init_l = $3;
-  } else
-    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
+  $$.type = TY_LIST;
+  decl_attrib_var( &$$, $1, $3, $4, pos );
  };
 
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pty_desc = NULL;
-  pty_desc = alloc_tycons_node( pos );
-  if( pty_desc ) {
-    pty_desc->pos = pos;
-    pty_desc->type = TY_POLY;
-    $$ = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
-    assert( $$ );
-    assert( ($$)->type == TY_LIST );
-    assert( ($$)->u.list.pty_elem == pty_desc );
-    assert( ! ($$)->u.list.car );
-    assert( ! ($$)->u.list.cdr );
-    assert( ! ($$)->u.list.plast );    
-  } else
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  $$ = var_list_type( NULL, TY_POLY, pos );
  }
 | TK_LSQBL TK_KEYWORD_POLY TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pty_desc = NULL;
-  pty_desc = alloc_tycons_node( pos );
-  if( pty_desc ) {
-    pty_desc->pos = pos;
-    pty_desc->type = TY_POLY;
-    $$ = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
-    assert( $$ );
-    assert( ($$)->type == TY_LIST );
-    assert( ($$)->u.list.pty_elem == pty_desc );
-    assert( ! ($$)->u.list.car );
-    assert( ! ($$)->u.list.cdr );
-    assert( ! ($$)->u.list.plast );    
-  } else
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  $$ = var_list_type( NULL, TY_POLY, pos );
  }
 | TK_LSQBL TK_KEYWORD_INT TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pty_desc = NULL;
-  pty_desc = alloc_tycons_node( pos );
-  if( pty_desc ) {
-    pty_desc->pos = pos;
-    pty_desc->type = TY_INT;
-    $$ = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
-    assert( $$ );    
-    assert( ($$)->type == TY_LIST );
-    assert( ($$)->u.list.pty_elem == pty_desc );
-    assert( ! ($$)->u.list.car );
-    assert( ! ($$)->u.list.cdr );
-    assert( ! ($$)->u.list.plast );    
-  } else
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  $$ = var_list_type( NULL, TY_INT, pos );
  }
 | TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pty_desc = NULL;
-  pty_desc = alloc_tycons_node( pos );
-  if( pty_desc ) {
-    pty_desc->pos = pos;
-    pty_desc->type = TY_STRING;
-    $$ = list_creat_nil( pty_desc, pos );
-    assert( $$ );
-    assert( ($$)->type == TY_LIST );
-    assert( ($$)->u.list.pty_elem == pty_desc );
-    assert( ! ($$)->u.list.car );
-    assert( ! ($$)->u.list.cdr );
-    assert( ! ($$)->u.list.plast );
-  } else
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+  $$ = var_list_type( NULL, TY_STRING, pos );
  }
 | TK_LSQBL list_elem_type TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( $2 );
-  $$ = list_creat_nil( $2, pos );
-  assert( $$ );
-  assert( ($$)->type == TY_LIST );
-  assert( ($$)->u.list.pty_elem == $2 );
-  assert( ! ($$)->u.list.car );
-  assert( ! ($$)->u.list.cdr );
-  assert( ! ($$)->u.list.plast );  
+  $$ = var_list_type( $2, TY_LIST, pos );
  };
 
 decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
