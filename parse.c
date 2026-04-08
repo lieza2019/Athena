@@ -117,7 +117,7 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
     assert( pl_ty );
     r = (TYPE_CONS_PTR)list_creat_nil( pl_ty, pos );
     if( !r )
-      goto failed_creat_nl;    
+      goto failed_memalloc;
   } else {
     TYPE_CONS_PTR pty_desc = NULL;
     assert( !pl_ty );
@@ -127,11 +127,11 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
       pty_desc->type = elem_ty;
       r = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
       if( !r )
-	goto failed_creat_nl;
+	goto failed_memalloc;
       pl_ty = pty_desc;
     } else
-    failed_creat_nl:
-      ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+    failed_memalloc:
+      ath_abort( pos, ABORT_MEMLACK );
   }
   assert( r );
   assert( r->type == TY_LIST );
@@ -139,5 +139,61 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
   assert( ! r->u.list.car );
   assert( ! r->u.list.cdr );
   assert( ! r->u.list.plast );
+  return r;
+}
+
+LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_es, SRC_POS_C pos ) {
+  LIST_CELL_PTR r = NULL;
+  LIST_CELL_PTR pcons = NULL;
+  assert( pelem_val );
+  
+  pcons = alloc_list_cell( pos );
+  if( pcons ) {
+    LIST_CELL_PTR pelem = NULL;
+    pcons->pos = pos;
+    pcons->type = TY_LIST;
+    pelem = alloc_list_cell( pos );
+    if( pelem ) {
+      TYPE_CONS_PTR pty_desc = NULL;
+      switch( elem_ty ) {
+      case TY_INT:
+	pelem->type = TY_INT;
+	pelem->u.integer.n = *(int *)pelem_val;
+	break;
+      case TY_CHAR:
+	break;
+      case TY_STRING:
+	pelem->type = TY_STRING;
+	pelem->u.string.ps = (char *)pelem_val;
+	break;
+      case TY_LIST:
+	break;
+      case TY_POLY:
+	break;
+      case END_OF_TYPE_CODE:
+	/* fall thru. */
+      default:
+	assert( FALSE );
+      }
+      pty_desc = alloc_tycons_node( pos );
+      if( pty_desc ) {
+	pty_desc->pos = pcons->pos;
+	pty_desc->type = pcons->type;
+	pcons->u.list.pty_elem = pty_desc;
+	pcons->u.list.car = pelem;
+	// and then, typecheck pcons with $2.      
+	pcons->u.list.cdr = psucc_es;
+	if( pcons->u.list.cdr )
+	  pcons->u.list.plast = (pcons->u.list.cdr)->u.list.plast;
+	else
+	  pcons->u.list.plast = pcons;
+	r = pcons;
+      } else
+	goto failed_memalloc;
+    } else
+      goto failed_memalloc;
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
   return r;
 }

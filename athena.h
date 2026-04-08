@@ -37,3 +37,4 @@ extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SR
 extern TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos );
 extern VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, void *pty_arg, void *pinit, SRC_POS_C pos );
 extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C pos );
+extern LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_es, SRC_POS_C pos );

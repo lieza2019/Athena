@@ -96,14 +96,14 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
 		pcrnt->u.list.cdr = NULL;
 		pnext = pnext->u.list.cdr;
 	      } else
-		ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+		ath_abort( pos, ABORT_MEMLACK );
 	    }
 	    (*ppdup)->u.list.plast = pcrnt;
 	  } else
-	    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+	    ath_abort( pos, ABORT_MEMLACK );
 	}
       } else
-	ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+	ath_abort( pos, ABORT_MEMLACK );
 #ifdef RUNTIME_CONSITENCY_CHECK
       assert( ppdup );
       assert( *ppdup );
@@ -137,7 +137,7 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
       }
     }
   } else
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+    ath_abort( pos, ABORT_MEMLACK );
   return *ppdup;
 }
 
@@ -164,7 +164,7 @@ LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
     assert( pl_nil->u.list.cdr == NULL );
     assert( pl_nil->u.list.plast == NULL );
   } else
-    ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+    ath_abort( pos, ABORT_MEMLACK );
   return pl_nil;
 }
 
@@ -194,7 +194,7 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C
       }
       r = pcons_cell;
     } else
-      ath_abort( pos, ABORT_CANNOT_CREAT_OBJ );
+      ath_abort( pos, ABORT_MEMLACK );
   }
   return r;
 }
