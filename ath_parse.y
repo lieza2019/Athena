@@ -181,38 +181,9 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
  }
 | TK_LSQBL decl_list_init_elems decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  LIST_CELL_PTR pcell = NULL;
-  $$ = NULL;
-  pcell = alloc_list_cell( pos );
-  if( pcell ) {
-    TYPE_CONS_PTR pty_desc = NULL;
-    pcell->pos = pos;
-    pcell->type = TY_LIST;
-    pty_desc = alloc_tycons_node( pos );
-    assert( pty_desc );
-    pty_desc->pos = pos;
-    pty_desc->type = TY_LIST;
-    if( $2 )
-      pty_desc->u.list.pty_elem = ($2)->u.list.pty_elem;
-    else {
-      TYPE_CONS_PTR pd_elem = NULL;
-      pd_elem = alloc_tycons_node( pos );
-      assert( pd_elem );
-      pd_elem->pos = pos;
-      pd_elem->type = TY_POLY;
-      pty_desc->u.list.pty_elem = pd_elem;
-    }
-    pcell->u.list.pty_elem = pty_desc;
-    pcell->u.list.car = $2;
-    // and then, typecheck pcell with $3;
-    pcell->u.list.cdr = $3;
-    if( pcell->u.list.cdr )
-      pcell->u.list.plast = (pcell->u.list.cdr)->u.list.plast;
-    else
-      pcell->u.list.plast = pcell;
-    $$ = pcell;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
+  assert( $2 );
+  assert( ($2)->type == TY_LIST );
+  $$ = value_list( $2, $3, pos );
  };
 
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {

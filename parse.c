@@ -178,9 +178,9 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	case TY_LIST:
 	  pelem->type = TY_LIST;
 	  pelem->u.list.pty_elem = pdesc;
-	  if( pelem_val ) {
-	    ;
-	  } else
+	  if( pelem_val )
+	    assert( FALSE );
+	  else
 	    pdesc->type = TY_POLY;
 	  pty_e = pelem;
 	  break;
@@ -203,6 +203,40 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	r = pcons;
       } else
 	goto failed_memalloc;
+    } else
+      goto failed_memalloc;
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return r;
+}
+
+LIST_CELL_PTR value_list ( LIST_CELL_PTR plist_elems, LIST_CELL_PTR psucc_ls, SRC_POS_C pos ) {
+  LIST_CELL_PTR r = NULL;
+  LIST_CELL_PTR pcons = NULL;
+  assert( plist_elems );
+  assert( plist_elems->type == TY_LIST );
+  
+  pcons = alloc_list_cell( pos );
+  if( pcons ) {
+    TYPE_CONS_PTR pty_desc = NULL;
+    pcons->pos = pos;
+    pcons->type = TY_LIST;
+    pty_desc = alloc_tycons_node( pos );
+    if( pty_desc ) {
+      pty_desc->pos = pos;
+      pty_desc->type = TY_LIST;
+      pty_desc->u.list.pty_elem = plist_elems->u.list.pty_elem;
+      pcons->u.list.pty_elem = pty_desc;
+      pcons->u.list.car = plist_elems;
+      // and then, typecheck pcons with psucc_ls.
+      ;
+      pcons->u.list.cdr = psucc_ls;
+      if( pcons->u.list.cdr )
+	pcons->u.list.plast = (pcons->u.list.cdr)->u.list.plast;
+      else
+	pcons->u.list.plast = pcons;
+      r = pcons;
     } else
       goto failed_memalloc;
   } else
