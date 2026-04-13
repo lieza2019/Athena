@@ -144,8 +144,7 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
 
 LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_es, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
-  LIST_CELL_PTR pcons = NULL;
-  assert( pelem_val );
+  LIST_CELL_PTR pcons = NULL;  
   
   pcons = alloc_list_cell( pos );
   if( pcons ) {
@@ -154,34 +153,48 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
     pcons->type = TY_LIST;
     pelem = alloc_list_cell( pos );
     if( pelem ) {
-      TYPE_CONS_PTR pty_desc = NULL;
-      switch( elem_ty ) {
-      case TY_INT:
-	pelem->type = TY_INT;
-	pelem->u.integer.n = *(int *)pelem_val;
-	break;
-      case TY_CHAR:
-	break;
-      case TY_STRING:
-	pelem->type = TY_STRING;
-	pelem->u.string.ps = (char *)pelem_val;
-	break;
-      case TY_LIST:
-	break;
-      case TY_POLY:
-	break;
-      case END_OF_TYPE_CODE:
-	/* fall thru. */
-      default:
-	assert( FALSE );
-      }
-      pty_desc = alloc_tycons_node( pos );
-      if( pty_desc ) {
-	pty_desc->pos = pcons->pos;
-	pty_desc->type = pcons->type;
-	pcons->u.list.pty_elem = pty_desc;
+      TYPE_CONS_PTR pdesc = NULL;      
+      pdesc = alloc_tycons_node( pos );
+      if( pdesc ) {
+	TYPE_CONS_PTR pty_e = NULL;
+	pdesc->pos = pos;
+	switch( elem_ty ) {
+	case TY_INT:
+	  assert( pelem_val );
+	  pelem->type = TY_INT;
+	  pelem->u.integer.n = *(int *)pelem_val;
+	  pdesc->type = pelem->type;
+	  pty_e = pdesc;
+	  break;
+	case TY_CHAR:
+	  break;
+	case TY_STRING:
+	  assert( pelem_val );
+	  pelem->type = TY_STRING;
+	  pelem->u.string.ps = (char *)pelem_val;
+	  pdesc->type = pelem->type;
+	  pty_e = pdesc;
+	  break;
+	case TY_LIST:
+	  pelem->type = TY_LIST;
+	  pelem->u.list.pty_elem = pdesc;
+	  if( pelem_val ) {
+	    ;
+	  } else
+	    pdesc->type = TY_POLY;
+	  pty_e = pelem;
+	  break;
+	case TY_POLY:
+	  /* fall thru. */
+	case END_OF_TYPE_CODE:
+	  /* fall thru. */
+	default:
+	  assert( FALSE );
+	}
+	pcons->u.list.pty_elem = pty_e;
 	pcons->u.list.car = pelem;
-	// and then, typecheck pcons with $2.      
+	// and then, typecheck pcons with psucc_es.
+	;
 	pcons->u.list.cdr = psucc_es;
 	if( pcons->u.list.cdr )
 	  pcons->u.list.plast = (pcons->u.list.cdr)->u.list.plast;
