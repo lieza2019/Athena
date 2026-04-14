@@ -28,7 +28,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
   
   pos = pvar_desc->pos;
   ps = sbuf;
-  switch( pvar_desc->type ) {
+  switch( pvar_desc->type.ty ) {
   case TY_INT:
     sprintf( ps, "%d", pvar_desc->u.integer.n );
     ps += strlen( ps );
@@ -72,7 +72,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
 	  ps += strlen( ps );
 	  assert( *ps == 0 );
 	}
-	assert( pcell->type == TY_LIST );
+	assert( pcell->type.ty == TY_LIST );
 	ps = print_value_type( ps, pcell->u.list.car );
 	assert( *ps == 0 );
 	pcell = pcell->u.list.cdr;

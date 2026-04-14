@@ -26,7 +26,9 @@ typedef struct symtbl_entry {
   struct symtbl_entry *passoc;
   struct symtbl_entry *pnext;
 } SYMTBL_ENTRY, *SYMTBL_ENTRY_PTR;
+
 #define SYMTBL_HASHTBL_ENTRIES 1024
+#define IDENT_HASHSEED_LEN 8
 typedef struct symtbl_scope {
   SYMTBL_ENTRY_PTR index[SYMTBL_HASHTBL_ENTRIES];
   struct symtbl_scope *pparent;

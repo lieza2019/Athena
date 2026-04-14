@@ -10,7 +10,22 @@ extern char *ath_type_name[];
 
 typedef struct type_cons {
   SRC_POS pos;
+#if 0
   TYPE_CODE type;
+#else
+  struct {
+    TYPE_CODE ty;
+    struct {
+      struct {
+	char *ident;
+	struct type_cons *pnext;
+      } ty_var;
+      struct type_cons *bvars;
+      struct type_cons *pbound;
+    } vars;
+    struct type_cons *pattic;
+  } type;
+#endif
   union {
     struct {
       int n;
@@ -28,8 +43,15 @@ typedef struct type_cons {
       struct type_cons *plast;
     } list;
   } u;
+#if 0
   struct type_cons *pnext;
   struct type_cons *pprev;
+#else
+  struct {
+    struct type_cons *pnext;
+    struct type_cons *pprev;
+  } alloc;
+#endif
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;

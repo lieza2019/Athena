@@ -1,6 +1,7 @@
 #include "ath_misc.h"
 #include "ath_mem.h"
 #include "ath_type.h"
+#include "ath_lisp.h"
 #include "ath_decl.h"
 #include "ath_stmt.h"
 #include "ath_symtbl.h"

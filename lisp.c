@@ -4,8 +4,6 @@
 #include <assert.h>
 #include "athena.h"
 
-#define NUM_CELLS_PER_ALLOC 256
-
 struct {
   LIST_CELL_PTR pavail;
   LIST_CELL_PTR palive;
@@ -21,21 +19,21 @@ LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
     {
       LIST_CELL_PTR pc = cells_manage.pavail;
       while( pc < (cells_manage.pavail + (NUM_CELLS_PER_ALLOC - 1)) ) {
-	pc->pprev = NULL;
-	pc->pnext = (pc + 1);	
+	pc->alloc.pprev = NULL;
+	pc->alloc.pnext = (pc + 1);
 	pc++;
-	assert( !pc->pnext );
+	assert( !pc->alloc.pnext );
       }
     }
   }
   assert( cells_manage.pavail );
   r = cells_manage.pavail;
-  cells_manage.pavail = r->pnext;  
-  r->pnext = NULL;
-  r->pprev = NULL;
+  cells_manage.pavail = r->alloc.pnext;
+  r->alloc.pnext = NULL;
+  r->alloc.pprev = NULL;
   if( cells_manage.palive ) {
-    (cells_manage.palive)->pprev = r;
-    r->pnext = cells_manage.palive;
+    (cells_manage.palive)->alloc.pprev = r;
+    r->alloc.pnext = cells_manage.palive;
   }
   cells_manage.palive = r;
   if( r ) {
@@ -49,23 +47,23 @@ LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
 
 void free_list_cell ( LIST_CELL_PTR pcell ) {
   assert( pcell );
-  if( !pcell->pprev ) {
+  if( !pcell->alloc.pprev ) {
     assert( pcell == cells_manage.palive );
-    cells_manage.palive = pcell->pnext;
+    cells_manage.palive = pcell->alloc.pnext;
     if( cells_manage.palive )
-      cells_manage.palive->pprev = NULL;
+      cells_manage.palive->alloc.pprev = NULL;
   } else {
     assert( pcell != cells_manage.palive );
-    LIST_CELL_PTR pn = pcell->pnext;
-    LIST_CELL_PTR pp = pcell->pprev;
+    LIST_CELL_PTR pn = pcell->alloc.pnext;
+    LIST_CELL_PTR pp = pcell->alloc.pprev;
     assert( pp );
-    pp->pnext = pn;
+    pp->alloc.pnext = pn;
     if( pn )
-      pn->pprev = pp;
-    pcell->pprev = NULL;
+      pn->alloc.pprev = pp;
+    pcell->alloc.pprev = NULL;
   }
-  assert( !pcell->pprev );
-  pcell->pnext = cells_manage.pavail;
+  assert( !pcell->alloc.pprev );
+  pcell->alloc.pnext = cells_manage.pavail;
   cells_manage.pavail = pcell;  
 }
 
@@ -81,7 +79,7 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
   if( *ppdup ) {
     (*ppdup)->pos = pos;
     (*ppdup)->type = porg->type;
-    if( (*ppdup)->type == TY_LIST ) {
+    if( (*ppdup)->type.ty == TY_LIST ) {
       list_dup( &(*ppdup)->u.list.pty_elem, porg->u.list.pty_elem, pos );
       if( (*ppdup)->u.list.pty_elem ) {
 	TYPE_CONS_PTR pcrnt = *ppdup;
@@ -121,8 +119,8 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
       }
 #endif // RUNTIME_CONSITENCY_CHECK
     } else {
-      assert( (*ppdup)->type != TY_LIST );
-      switch( (*ppdup)->type ) {
+      assert( (*ppdup)->type.ty != TY_LIST );
+      switch( (*ppdup)->type.ty ) {
       case TY_INT:
 	(*ppdup)->u.integer.n = porg->u.integer.n;
 	break;
@@ -145,7 +143,7 @@ BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list ) {
   BOOL r = FALSE;
   
   assert( pcons_list );
-  if( pcons_list->type == TY_LIST ) {
+  if( pcons_list->type.ty == TY_LIST ) {
     r = (pcons_list->u.list.car == NULL);
     assert( r ? ((! pcons_list->u.list.cdr) && (! pcons_list->u.list.plast)) : (pcons_list->u.list.plast != NULL) );
   }
@@ -158,7 +156,7 @@ LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   pl_nil = alloc_list_cell( pos );
   if( pl_nil ) {
     pl_nil->pos = pos;
-    pl_nil->type = TY_LIST;
+    pl_nil->type.ty = TY_LIST;
     pl_nil->u.list.pty_elem = pty;
     assert( pl_nil->u.list.car == NULL );
     assert( pl_nil->u.list.cdr == NULL );
@@ -172,7 +170,7 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C
   LIST_CELL_PTR r = NULL;
   
   assert( plist );
-  assert( plist->type == TY_LIST );
+  assert( plist->type.ty == TY_LIST );
   assert( pcons_ty );
   if( typecheck( (TYPE_CONS_PTR)plist->u.list.pty_elem, pcons_ty ) ) {
     LIST_CELL_PTR pcons_cell = NULL;
@@ -182,7 +180,7 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C
       pcons_cell = alloc_list_cell( pos );
     if( pcons_cell ) {
       pcons_cell->pos = pos;
-      pcons_cell->type = TY_LIST;
+      pcons_cell->type.ty = TY_LIST;
       pcons_cell->u.list.pty_elem = plist->u.list.pty_elem;
       pcons_cell->u.list.car = pcons_ty;
       if( pcons_cell != plist ) {

@@ -74,7 +74,6 @@ SYMTBL_SCOPE_PTR leave_scope ( void ) {
   return pr;
 }
 
-#define IDENT_HASHSEED_LEN 8
 static int symreg_hash ( const char *ident ) {
   const int n = 5;  
   assert( (n > 0) && (n <= IDENT_HASHSEED_LEN) );

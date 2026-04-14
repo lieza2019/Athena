@@ -124,7 +124,7 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
     pty_desc = alloc_tycons_node( pos );
     if( pty_desc ) {
       pty_desc->pos = pos;
-      pty_desc->type = elem_ty;
+      pty_desc->type.ty = elem_ty;
       r = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
       if( !r )
 	goto failed_memalloc;
@@ -134,7 +134,7 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
       ath_abort( pos, ABORT_MEMLACK );
   }
   assert( r );
-  assert( r->type == TY_LIST );
+  assert( r->type.ty == TY_LIST );
   assert( r->u.list.pty_elem == pl_ty );
   assert( ! r->u.list.car );
   assert( ! r->u.list.cdr );
@@ -150,7 +150,7 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
   if( pcons ) {
     LIST_CELL_PTR pelem = NULL;
     pcons->pos = pos;
-    pcons->type = TY_LIST;
+    pcons->type.ty = TY_LIST;
     pelem = alloc_list_cell( pos );
     if( pelem ) {
       TYPE_CONS_PTR pdesc = NULL;      
@@ -161,7 +161,7 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	switch( elem_ty ) {
 	case TY_INT:
 	  assert( pelem_val );
-	  pelem->type = TY_INT;
+	  pelem->type.ty = TY_INT;
 	  pelem->u.integer.n = *(int *)pelem_val;
 	  pdesc->type = pelem->type;
 	  pty_e = pdesc;
@@ -170,18 +170,18 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	  break;
 	case TY_STRING:
 	  assert( pelem_val );
-	  pelem->type = TY_STRING;
+	  pelem->type.ty = TY_STRING;
 	  pelem->u.string.ps = (char *)pelem_val;
 	  pdesc->type = pelem->type;
 	  pty_e = pdesc;
 	  break;
 	case TY_LIST:
-	  pelem->type = TY_LIST;
+	  pelem->type.ty = TY_LIST;
 	  pelem->u.list.pty_elem = pdesc;
 	  if( pelem_val )
 	    assert( FALSE );
 	  else
-	    pdesc->type = TY_POLY;
+	    pdesc->type.ty = TY_POLY;
 	  pty_e = pelem;
 	  break;
 	case TY_POLY:
@@ -215,17 +215,17 @@ LIST_CELL_PTR value_list ( LIST_CELL_PTR plist_elems, LIST_CELL_PTR psucc_ls, SR
   LIST_CELL_PTR r = NULL;
   LIST_CELL_PTR pcons = NULL;
   assert( plist_elems );
-  assert( plist_elems->type == TY_LIST );
+  assert( plist_elems->type.ty == TY_LIST );
   
   pcons = alloc_list_cell( pos );
   if( pcons ) {
     TYPE_CONS_PTR pty_desc = NULL;
     pcons->pos = pos;
-    pcons->type = TY_LIST;
+    pcons->type.ty = TY_LIST;
     pty_desc = alloc_tycons_node( pos );
     if( pty_desc ) {
       pty_desc->pos = pos;
-      pty_desc->type = TY_LIST;
+      pty_desc->type.ty = TY_LIST;
       pty_desc->u.list.pty_elem = plist_elems->u.list.pty_elem;
       pcons->u.list.pty_elem = pty_desc;
       pcons->u.list.car = plist_elems;
