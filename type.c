@@ -79,3 +79,9 @@ BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
   }
   return r;
 }
+
+typedef struct type_env_elem {
+  VAR_DECL var;
+  TYPE_CONS type;
+  struct type_env_elem *pnext;
+} TYPE_ENV_ELEM, *TYPE_ENV_ELEM_PTR;
