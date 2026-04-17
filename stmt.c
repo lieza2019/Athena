@@ -14,23 +14,23 @@ STATEMENT_PTR new_stmt ( void ) {
   return pr;
 }
 
-BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_DECL_PTR pvar_decl ) {
+BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr ) {
   BOOL redef = FALSE;  
   assert( ppstmt );
-  assert( pvar_decl );
+  assert( pvar_attr );
   
   *ppstmt = NULL;
   *ppstmt = new_stmt();
   if( *ppstmt ) {
-    DECL_ATTRIB_PTR pattr = NULL;
-    redef = decl_var( &pattr, pvar_decl );
-    assert( pattr );
+    DECLARATION_PTR pdecl = NULL;
+    redef = decl_var( &pdecl, pvar_attr );
+    assert( pdecl );
     if( redef )
-      err_redef( pattr );
-    (*ppstmt)->pos = pattr->u.var.pos;
-    (*ppstmt)->kind = STMT_DECL;
-    (*ppstmt)->u.pdecl = pattr;
+      err_redef( pdecl );
+    (*ppstmt)->pos = pdecl->u.variable.var.pos;
+    (*ppstmt)->sort = STMT_DECL;
+    (*ppstmt)->u.pdecl = pdecl;
   } else
-    ath_abort( pvar_decl->pos, ABORT_MEMLACK );
+    ath_abort( pvar_attr->pos, ABORT_MEMLACK );
   return redef;
 }

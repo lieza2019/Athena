@@ -9,7 +9,7 @@ TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
   return r;
 }
 
-static void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
+static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
   char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
@@ -24,7 +24,7 @@ static void poly_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-static void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
+static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
   char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
@@ -39,7 +39,7 @@ static void int_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, SRC_POS_C 
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-static void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos ) {
+static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos ) {
   char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
@@ -65,7 +65,7 @@ static void string_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, const c
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-static void list_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pl_ty, TYPE_CONS_PTR pl_init, SRC_POS_C pos ) {
+static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pl_ty, TYPE_CONS_PTR pl_init, SRC_POS_C pos ) {
   char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
@@ -85,7 +85,7 @@ static void list_var_attrib ( VAR_DECL_PTR pvar_attr, char *pvar_name, TYPE_CONS
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-VAR_DECL_PTR decl_attrib_var ( VAR_DECL_PTR pvar_attr, char *pvar_name, void *pty_arg, void *pinit, SRC_POS_C pos ) {
+VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, void *pty_arg, void *pinit, SRC_POS_C pos ) {
   assert( pvar_attr );
   assert( pvar_name );
   switch( pvar_attr->type ) {

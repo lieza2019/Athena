@@ -22,7 +22,7 @@ int main ( void ) {
     psym = find_symbol( "a" );
     if( psym ) {
       char sbuf[8 * 1024] = "";
-      show_var_decl( sbuf, &psym->u.decl.u.var );
+      show_var_decl( sbuf, &psym->u.decl.u.variable.var );
       printf( "%s\n", sbuf );
     } else
       printf( "symbol a isnt declared.\n " );

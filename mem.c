@@ -52,6 +52,7 @@ void *new_memarea ( int size ) {
     r = pchunk->pwp;
     pchunk->pwp += size;
     assert( pchunk->plim > pchunk->pwp );
+    bzero( r, size );
   }
   return r;
 }

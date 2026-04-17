@@ -15,7 +15,7 @@ YFLAGS = -dy -Wconflicts-sr -Wconflicts-rr -Wcounterexamples -Wother
 LEX = flex
 LFLAGS = -l
 
-athena : main.o mem.o misc.o symtbl.o type.o decl.o stmt.o lisp.o parse.o y.tab.o lex.yy.o
+athena : main.o mem.o misc.o symtbl.o type.o decl.o expr.o stmt.o lisp.o parse.o y.tab.o lex.yy.o
 	$(LD) $(LDFLAGS) -o $@ $^
 
 main.o : main.c athena.h
@@ -29,6 +29,8 @@ symtbl.o : symtbl.c athena.h
 type.o: type.c athena.h
 	$(CC) $(CFLAGS) $<
 decl.o : decl.c athena.h
+	$(CC) $(CFLAGS) $<
+expr.o : expr.c athena.h
 	$(CC) $(CFLAGS) $<
 stmt.o : stmt.c athena.h
 	$(CC) $(CFLAGS) $<
@@ -45,7 +47,7 @@ lex.yy.o : lex.yy.c athena.h
 lex.yy.c : ath_lex.l
 	$(LEX) $(LFLAGS) $<
 
-athena.h : ath_misc.h ath_mem.h ath_type.h ath_decl.h ath_stmt.h ath_symtbl.h
+athena.h : ath_misc.h ath_mem.h ath_type.h ath_lisp.h ath_decl.h ath_expr.h ath_stmt.h ath_symtbl.h
 	$(TOUCH) $@
 
 .PHONY : clean

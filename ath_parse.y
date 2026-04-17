@@ -18,7 +18,7 @@
   char *str;
   TYPE_CONS_PTR ptype_cons;
   LIST_CELL_PTR plist_init;
-  VAR_DECL var_decl;
+  VAR_ATTRIB var_attr;
   LIST_CELL_PTR plcell;
   STATEMENT stmt;
 }
@@ -34,12 +34,12 @@
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
-%type <var_decl> decl_var_poly
-%type <var_decl> decl_var_string
+%type <var_attr> decl_var_poly
+%type <var_attr> decl_var_string
 %type <str> decl_string_init
-%type <var_decl> decl_var_int
+%type <var_attr> decl_var_int
 %type <nat> decl_int_init
-%type <var_decl> decl_var_list
+%type <var_attr> decl_var_list
 %type <ptype_cons> list_elem_type
 %type <plist_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
 %type <stmt> statement

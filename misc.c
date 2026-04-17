@@ -112,22 +112,22 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
   return ps;
 }
 
-char *show_var_decl ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
+char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   SRC_POS pos;
   char *ps = NULL;  
   assert( sbuf );
-  assert( pvar_decl );
+  assert( pvar_attr );
   
-  pos = pvar_decl->pos;
+  pos = pvar_attr->pos;
   ps = sbuf;
-  strcpy( ps, pvar_decl->ident );
+  strcpy( ps, pvar_attr->ident );
   ps += strlen( ps );
   assert( *ps == 0 );
   strcpy( ps, " := " );
   ps += strlen( ps );
-  switch( pvar_decl->type ) {
+  switch( pvar_attr->type ) {
   case TY_INT:
-    sprintf( ps, "%d", pvar_decl->u.var_int.init_n );
+    sprintf( ps, "%d", pvar_attr->u.var_int.init_n );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps, ":int" );
@@ -135,10 +135,10 @@ char *show_var_decl ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
     assert( *ps == 0 );
     break;
   case TY_STRING:
-    assert( pvar_decl->u.var_str.init_s );
+    assert( pvar_attr->u.var_str.init_s );
     strcpy( ps,  "\"" );
     ps++;
-    sprintf( ps, "%s", pvar_decl->u.var_str.init_s );
+    sprintf( ps, "%s", pvar_attr->u.var_str.init_s );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps,  "\"" );
@@ -148,8 +148,8 @@ char *show_var_decl ( char *sbuf, VAR_DECL_PTR pvar_decl ) {
     assert( *ps == 0 );
     break;
   case TY_LIST:
-    if( pvar_decl->u.var_list.pty )
-      ps = print_value_type( ps, pvar_decl->u.var_list.init_l );
+    if( pvar_attr->u.var_list.pty )
+      ps = print_value_type( ps, pvar_attr->u.var_list.init_l );
     else
       strcpy( ps, "UNKNOWN_VALUE:[UNKNOWN_TYPE]" );
     ps += strlen( ps );

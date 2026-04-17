@@ -4,19 +4,17 @@
 #include <assert.h>
 #include "athena.h"
 
-struct {
+static struct {
   LIST_CELL_PTR pavail;
   LIST_CELL_PTR palive;
 } cells_manage;
 
 LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
+  
   if( !cells_manage.pavail ) {
     cells_manage.pavail = new_memarea( sizeof(LIST_CELL) * NUM_CELLS_PER_ALLOC );
-    if( ! cells_manage.pavail )
-      ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
-    assert( cells_manage.pavail );
-    {
+    if( cells_manage.pavail ) {
       LIST_CELL_PTR pc = cells_manage.pavail;
       while( pc < (cells_manage.pavail + (NUM_CELLS_PER_ALLOC - 1)) ) {
 	pc->alloc.pprev = NULL;
@@ -24,43 +22,37 @@ LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
 	pc++;
 	assert( !pc->alloc.pnext );
       }
-    }
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
   }
   assert( cells_manage.pavail );
   r = cells_manage.pavail;
   cells_manage.pavail = r->alloc.pnext;
-  r->alloc.pnext = NULL;
-  r->alloc.pprev = NULL;
+  bzero( r, sizeof(TYPE_CONS) );
   if( cells_manage.palive ) {
     (cells_manage.palive)->alloc.pprev = r;
     r->alloc.pnext = cells_manage.palive;
   }
   cells_manage.palive = r;
-  if( r ) {
-    r->u.list.pty_elem = NULL;
-    r->u.list.car = NULL;
-    r->u.list.cdr = NULL;
-    r->u.list.plast = NULL;
-  }
   return r;
 }
 
 void free_list_cell ( LIST_CELL_PTR pcell ) {
+  LIST_CELL_PTR pp = pcell->alloc.pprev;
   assert( pcell );
-  if( !pcell->alloc.pprev ) {
-    assert( pcell == cells_manage.palive );
-    cells_manage.palive = pcell->alloc.pnext;
-    if( cells_manage.palive )
-      cells_manage.palive->alloc.pprev = NULL;
-  } else {
-    assert( pcell != cells_manage.palive );
+  
+  if( pp ) {
     LIST_CELL_PTR pn = pcell->alloc.pnext;
-    LIST_CELL_PTR pp = pcell->alloc.pprev;
-    assert( pp );
+    assert( pcell != cells_manage.palive );    
     pp->alloc.pnext = pn;
     if( pn )
       pn->alloc.pprev = pp;
     pcell->alloc.pprev = NULL;
+  } else {
+    assert( pcell == cells_manage.palive );
+    cells_manage.palive = pcell->alloc.pnext;
+    if( cells_manage.palive )
+      cells_manage.palive->alloc.pprev = NULL;
   }
   assert( !pcell->alloc.pprev );
   pcell->alloc.pnext = cells_manage.pavail;

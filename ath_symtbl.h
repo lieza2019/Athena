@@ -12,7 +12,7 @@ typedef enum SYM_KIND {
 typedef struct sym_entity {
   SYM_KIND kind;
   union {
-    DECL_ATTRIB decl;
+    DECLARATION decl;
     struct {
       CONST_KIND kind;
       char *pstr;

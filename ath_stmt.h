@@ -1,15 +1,17 @@
 #define MAX_STATEMENTS 64
 
-typedef enum stmt_kind {
+typedef enum stmt_sort {
   STMT_DECL = 1,
-  END_OF_STMT_KIND
-} STMT_KIND;
+  STMT_EXPR,
+  END_OF_STMT_SORT
+} STMT_SORT;
 
 typedef struct statement {
   SRC_POS pos;
-  STMT_KIND kind;
+  STMT_SORT sort;
   union {
-    DECL_ATTRIB_PTR pdecl;
+    DECLARATION_PTR pdecl;
+    EXPR_CONS_PTR pexpr;
   } u;
 } STATEMENT, *STATEMENT_PTR;
 typedef const struct statement STATEMENT_C;
@@ -20,4 +22,3 @@ typedef struct statements{
   STATEMENT stmts_buf[MAX_STATEMENTS];  
 } STATEMENTS;
 extern STATEMENTS statementso;
-
