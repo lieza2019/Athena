@@ -20,13 +20,17 @@ typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
 
 #define NUM_TYELEMS_PER_ALLOC 256
 typedef struct type_env_elem {
-  VAR_ATTRIB_PTR pvar;
-  TYPE_CONS_PTR ptype;
-  struct type_env_elem *pnext;
+#if 0
   struct {
     struct type_env_elem *pnext;
     struct type_env_elem *pprev;
   } alloc;
+#else
+  ALLOC_NODE_LINKS alloc;
+#endif
+  VAR_ATTRIB_PTR pvar;
+  TYPE_CONS_PTR ptype;
+  struct type_env_elem *pnext;
 } TYPE_ENV_ELEM, *TYPE_ENV_ELEM_PTR;
 typedef TYPE_ENV_ELEM TYPE_ENV;
 typedef TYPE_ENV_ELEM_PTR TYPE_ENV_PTR;

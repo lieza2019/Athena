@@ -3,11 +3,11 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0
 static struct {
   TYPE_ENV_ELEM_PTR pavail;
   TYPE_ENV_ELEM_PTR palive;
 } tyenv_elems_manage;
-
 TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
   TYPE_ENV_ELEM_PTR r = NULL;
   
@@ -58,6 +58,20 @@ void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem ) {
   pelem->alloc.pnext = tyenv_elems_manage.pavail;
   tyenv_elems_manage.pavail = pelem;  
 }
+#else
+static struct {
+  TYPE_ENV_ELEM_PTR pavail;
+  TYPE_ENV_ELEM_PTR palive;
+} tyenv_elems_manage;
+TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
+  TYPE_ENV_ELEM_PTR penv = NULL;
+  penv = (TYPE_ENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.palive, sizeof(TYPE_ENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
+  return penv;
+}
+
+void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem ) {
+}
+#endif
 
 #define TYVER_SEQDIGITS_MAXLEN 8
 struct {

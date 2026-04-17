@@ -8,6 +8,7 @@ typedef enum type_code {
 } TYPE_CODE;
 extern char *ath_type_name[];
 
+#define NUM_CELLS_PER_ALLOC 256
 typedef struct type_cons {
 #if 1
   struct {

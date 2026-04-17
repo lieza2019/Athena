@@ -47,7 +47,7 @@ lex.yy.o : lex.yy.c athena.h
 lex.yy.c : ath_lex.l
 	$(LEX) $(LFLAGS) $<
 
-athena.h : ath_misc.h ath_mem.h ath_type.h ath_lisp.h ath_decl.h ath_expr.h ath_stmt.h ath_symtbl.h
+athena.h : ath_misc.h ath_mem.h ath_type.h ath_decl.h ath_expr.h ath_stmt.h ath_symtbl.h
 	$(TOUCH) $@
 
 .PHONY : clean
