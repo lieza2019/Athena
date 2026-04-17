@@ -1,0 +1,18 @@
+typedef enum mnemonic_code {
+  MNC_CALL = 1,
+  MNC_ASGN,
+  MNC_ARITH,
+  MNC_LVALUE,
+  MNC_RVALUE,
+  END_OF_MNEMONIC_CODE
+} MNEMONIC_CODE;
+
+typedef struct expr_cons {
+  SRC_POS pos;
+  MNEMONIC_CODE mnemonic;
+  struct {
+    void *pdaugh;
+    struct expr_cons *pleft;
+    struct expr_cons *pright;    
+  } kids;
+} EXPR_CONS, *EXPR_CONS_PTR;
