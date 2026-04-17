@@ -12,6 +12,8 @@ extern char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc );
 extern char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_decl );
 
 extern void *new_memarea ( int size );
+extern ALLOC_NODE_LINKS_PTR alloc_node ( ALLOC_NODE_LINKS_PTR *ppavail, ALLOC_NODE_LINKS_PTR *ppalive, const int node_size, const int nnodes_alloc, SRC_POS_C pos );
+extern void free_node ( ALLOC_NODE_LINKS_PTR *ppavail, ALLOC_NODE_LINKS_PTR *ppalive, ALLOC_NODE_LINKS_PTR pnode_freed );
 
 extern SYMTBL_SCOPE_PTR enter_scope ( void );
 extern SYMTBL_SCOPE_PTR leave_scope ( void );

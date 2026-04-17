@@ -9,6 +9,15 @@ typedef enum type_code {
 extern char *ath_type_name[];
 
 typedef struct type_cons {
+#if 1
+  struct {
+    ALLOC_NODE_KIND kind;
+    struct type_cons *pnext;
+    struct type_cons *pprev;
+  } alloc;
+#else
+  ALLOC_NODE_LINKS alloc;
+#endif
   SRC_POS pos;
 #if 0
   TYPE_CODE type;
@@ -43,10 +52,6 @@ typedef struct type_cons {
       struct type_cons *plast;
     } list;
   } u;
-  struct {
-    struct type_cons *pnext;
-    struct type_cons *pprev;
-  } alloc;
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;

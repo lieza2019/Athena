@@ -4,6 +4,7 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0
 static struct {
   LIST_CELL_PTR pavail;
   LIST_CELL_PTR palive;
@@ -58,6 +59,22 @@ void free_list_cell ( LIST_CELL_PTR pcell ) {
   pcell->alloc.pnext = cells_manage.pavail;
   cells_manage.pavail = pcell;  
 }
+#else
+static struct {
+  LIST_CELL_PTR pavail;
+  LIST_CELL_PTR palive;
+} list_cells_manage;
+
+LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
+  LIST_CELL_PTR r = NULL;
+  r = (LIST_CELL_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, sizeof(TYPE_CONS), NUM_CELLS_PER_ALLOC, pos );
+  return r;
+}
+
+void free_list_cell ( LIST_CELL_PTR pcell ) {
+  free_node ( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, (ALLOC_NODE_LINKS_PTR)pcell );
+}
+#endif
 
 void destroy_list ( LIST_CELL_PTR plist ) {
   assert( plist );
