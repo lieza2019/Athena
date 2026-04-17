@@ -7,7 +7,9 @@ typedef enum mnemonic_code {
   END_OF_MNEMONIC_CODE
 } MNEMONIC_CODE;
 
+#define NUM_EXPRCONS_PER_ALLOC 256
 typedef struct expr_cons {
+  ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
   MNEMONIC_CODE mnemonic;
   struct {

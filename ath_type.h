@@ -8,17 +8,9 @@ typedef enum type_code {
 } TYPE_CODE;
 extern char *ath_type_name[];
 
-#define NUM_CELLS_PER_ALLOC 256
+#define NUM_TYCONS_PER_ALLOC 256
 typedef struct type_cons {
-#if 1
-  struct {
-    ALLOC_NODE_KIND kind;
-    struct type_cons *pnext;
-    struct type_cons *pprev;
-  } alloc;
-#else
   ALLOC_NODE_LINKS alloc;
-#endif
   SRC_POS pos;
 #if 0
   TYPE_CODE type;
@@ -29,10 +21,10 @@ typedef struct type_cons {
       struct {
 	char *ident;
 	struct type_cons *pnext;
-      } ty_var;
+      } var;
       struct type_cons *bvars;
       struct type_cons *pbound;
-    } vars;
+    } tyvars;
     struct type_cons *pattic;
   } type;
 #endif

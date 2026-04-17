@@ -22,9 +22,12 @@ extern char *find_literal ( char *pname );
 
 extern TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );
 extern void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem );
-extern char *fresh_tyver ( SRC_POS_C pos );
+extern char *fresh_tyvar ( SRC_POS_C pos );
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
+
+extern EXPR_CONS_PTR alloc_expr_cons ( SRC_POS_C pos );
+extern void free_expr_cons ( EXPR_CONS_PTR pelem );
 
 extern void err_redef ( DECLARATION_PTR pdecl_attr );
 extern BOOL decl_var ( DECLARATION_PTR *ppdecl_attr, VAR_ATTRIB_PTR pvar_attr );

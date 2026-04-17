@@ -65,7 +65,7 @@ static struct {
 } list_cells_manage;
 LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
   LIST_CELL_PTR pcell = NULL;
-  pcell = (LIST_CELL_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, sizeof(TYPE_CONS), NUM_CELLS_PER_ALLOC, pos );
+  pcell = (LIST_CELL_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
   return pcell;
 }
 

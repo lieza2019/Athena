@@ -70,26 +70,9 @@ TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
 }
 
 void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem ) {
+  free_node ( (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.palive, (ALLOC_NODE_LINKS_PTR)pelem );
 }
 #endif
-
-#define TYVER_SEQDIGITS_MAXLEN 8
-struct {
-  int seq;
-} tyver_ctrl;
-char *fresh_tyver ( SRC_POS_C pos ) {
-  const char *prefix = "t_";
-  char *ident = NULL;
-  
-  ident = (char *)new_memarea( strlen(prefix) + TYVER_SEQDIGITS_MAXLEN );
-  if( ident ) {
-    const int n = strlen( prefix );
-    snprintf( &ident[n], TYVER_SEQDIGITS_MAXLEN, "%d", tyver_ctrl.seq );
-    (&ident[n])[TYVER_SEQDIGITS_MAXLEN - 1] = 0;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  return ident;
-}
 
 BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
   BOOL r = FALSE;
@@ -116,7 +99,48 @@ BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
   return r;
 }
 
-static TYPE_CONS_PTR infer ( TYPE_ENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr ) {
+#define TYVER_SEQDIGITS_MAXLEN 8
+struct {
+  int seq;
+} tyver_ctrl;
+char *fresh_tyvar ( SRC_POS_C pos ) {
+  const char *prefix = "t_";
+  char *ident = NULL;
+  
+  ident = (char *)new_memarea( strlen(prefix) + TYVER_SEQDIGITS_MAXLEN );
+  if( ident ) {
+    const int n = strlen( prefix );
+    snprintf( &ident[n], TYVER_SEQDIGITS_MAXLEN, "%d", tyver_ctrl.seq );
+    (&ident[n])[TYVER_SEQDIGITS_MAXLEN - 1] = 0;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return ident;
+}
+
+TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
+  assert( pty_cons );
+  switch( pty_cons->type.ty ) {
+  case TY_INT: case TY_CHAR: case TY_STRING:
+    break;  
+  case TY_LIST:
+    asgn_tyvar( pty_cons->u.list.pty_elem, pos );
+    break;
+  case TY_POLY:
+    assert( ! pty_cons->type.tyvars.var.pnext );
+    if( ! pty_cons->type.tyvars.var.ident ) {
+      pty_cons->type.tyvars.var.ident = fresh_tyvar( pos );
+      assert( pty_cons->type.tyvars.var.ident );
+    }
+    break;
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return pty_cons;
+}
+
+static TYPE_CONS_PTR infer ( TYPE_ENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_expr = NULL;
   assert( penv );
   assert( pexpr );
@@ -138,35 +162,45 @@ static TYPE_CONS_PTR infer ( TYPE_ENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr ) {
   }
   return pty_expr;
 }
-TYPE_CONS_PTR typematch ( TYPE_ENV_ELEM_PTR penv, STATEMENT_PTR pstmt ) {
+
+TYPE_CONS_PTR typematch ( TYPE_ENV_ELEM_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_stmt = NULL;
   assert( penv );
   assert( pstmt );
   switch( pstmt->sort ) {
   case STMT_DECL:
     {
-      EXPR_CONS asgn;
-      EXPR_CONS l, r;
-      l.pos = pstmt->pos;
-      l.mnemonic = MNC_LVALUE;
-      l.kids.pdaugh = &(pstmt->u.pdecl)->u.variable.var;
-      r.pos = pstmt->pos;
-      r.mnemonic = MNC_RVALUE;
-      r.kids.pdaugh = &(pstmt->u.pdecl)->u.variable.var.u.var_int;
-      asgn.pos = pstmt->pos;
-      asgn.mnemonic = MNC_ASGN;
-      asgn.kids.pleft = &l;
-      asgn.kids.pright = &r;
-      pty_stmt = infer( penv, &asgn );
+      EXPR_CONS_PTR pasgn = alloc_expr_cons( pos );
+      if( pasgn ) {
+	EXPR_CONS_PTR pl = alloc_expr_cons( pos );
+	EXPR_CONS_PTR pr = alloc_expr_cons( pos );
+	pasgn->pos = pstmt->pos;
+	pasgn->mnemonic = MNC_ASGN;
+	if( pl && pr ) {
+	  pl->pos = pstmt->pos;
+	  pl->mnemonic = MNC_LVALUE;
+	  pl->kids.pdaugh = &(pstmt->u.pdecl)->u.variable.var;
+	  pr->pos = pstmt->pos;
+	  pr->mnemonic = MNC_RVALUE;
+	  pr->kids.pdaugh = &(pstmt->u.pdecl)->u.variable.var.u.var_int;
+	  pasgn->kids.pleft = pl;
+	  pasgn->kids.pright = pr;
+	  pty_stmt = infer( penv, pasgn, pos );
+	} else
+	  goto failed_memalloc;
+      } else
+	goto failed_memalloc;
     }
     break;
   case STMT_EXPR:
-    infer( penv, pstmt->u.pexpr );
+    infer( penv, pstmt->u.pexpr, pos );
     break;
   case END_OF_STMT_SORT:
     /* fall thru. */
   default:
     assert( FALSE );
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
   }
   return pty_stmt;
 }
