@@ -12,55 +12,70 @@ TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
   char *pident = NULL;
   assert( pvar_attr );
-  assert( pvar_name );
-  
   assert( pvar_attr->type == TY_POLY );
-  pident = find_literal( pvar_name );
-  if( pident ) {
-    assert( strcmp( pident, pvar_name ) == 0 );
-    pvar_attr->ident = pident;
-    pvar_attr->pos = pos;
-  } else
-    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
-}
-
-static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
-  char *pident = NULL;
-  assert( pvar_attr );
   assert( pvar_name );
-
-  assert( pvar_attr->type == TY_INT );
-  pident = find_literal( pvar_name );
-  if( pident ) {
-    assert( strcmp( pident, pvar_name ) == 0 );
-    pvar_attr->ident = pident;
-    pvar_attr->pos = pos;
-  } else
-    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
-}
-
-static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, const char *s_init, SRC_POS_C pos ) {
-  char *pident = NULL;
-  assert( pvar_attr );
-  assert( pvar_name );
-  assert( s_init );
   
-  assert( pvar_attr->type == TY_STRING );
   pident = find_literal( pvar_name );
   if( pident ) {
     pvar_attr->ident = pident;
+    pvar_attr->pos = pos;
+  } else
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
+}
+
+static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR s_init, SRC_POS_C pos ) {
+  char *pident = NULL;
+  assert( pvar_attr );
+  assert( pvar_attr->type == TY_INT );
+  assert( pvar_name );
+  
+  pident = find_literal( pvar_name );
+  if( pident ) {
     if( !s_init ) {
-      char *pc = NULL;
-      pc = new_memarea( sizeof(char) );
-      if( pc ) {
-	*pc = 0;
-	s_init = pc;
+      s_init = alloc_type_cons( pos );
+      if( s_init ) {
+	s_init->pos = pos;
+	s_init->type.ty = TY_INT;
+	s_init->u.literal.integer.n = 0;
       } else
 	ath_abort( pos, ABORT_MEMLACK );
     }
     assert( s_init );
-    pvar_attr->u.var_str.init_s = s_init;
+    pvar_attr->ident = pident;
     pvar_attr->pos = pos;
+    pvar_attr->u.var_int.init_n = s_init;
+  } else
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
+}
+
+static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR s_init, SRC_POS_C pos ) {
+  char *pident = NULL;
+  assert( pvar_attr );
+  assert( pvar_attr->type == TY_STRING );
+  assert( pvar_name );
+  
+  pident = find_literal( pvar_name );
+  if( pident ) {
+    if( !s_init ) {
+      s_init = alloc_type_cons( pos );
+      if( s_init ) {
+	char *e = NULL;
+	e = new_memarea( 1 );
+	if( e )
+	  *e = 0;
+	else
+	  goto failed_memalloc;
+	s_init->pos = pos;
+	s_init->type.ty = TY_STRING;
+	s_init->u.literal.string.ps = e;
+      } else
+      failed_memalloc:
+	ath_abort( pos, ABORT_MEMLACK );
+    }
+    assert( s_init );
+    pvar_attr->ident = pident;
+    pvar_attr->pos = pos;
+    pvar_attr->u.var_str.init_s = s_init;
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
@@ -90,12 +105,12 @@ VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, void
   assert( pvar_name );
   switch( pvar_attr->type ) {
   case TY_INT:
-    int_var_attrib( pvar_attr, pvar_name, pos );
+    int_var_attrib( pvar_attr, pvar_name, (TYPE_CONS_PTR)pinit, pos );
     break;
   case TY_CHAR:
     break;
   case TY_STRING:
-    string_var_attrib( pvar_attr, pvar_name, (const char *)pinit, pos );
+    string_var_attrib( pvar_attr, pvar_name, (TYPE_CONS_PTR)pinit, pos );
     break;
   case TY_LIST:
     list_var_attrib( pvar_attr, pvar_name, (TYPE_CONS_PTR)pty_arg, (TYPE_CONS_PTR)pinit, pos );

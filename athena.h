@@ -20,6 +20,8 @@ extern SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym );
 extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern char *find_literal ( char *pname );
 
+extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
+extern void free_type_cons ( TYPE_CONS_PTR ptycons );
 extern TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );
 extern void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem );
 extern char *fresh_tyvar ( SRC_POS_C pos );

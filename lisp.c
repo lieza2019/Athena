@@ -58,7 +58,7 @@ void free_list_cell ( LIST_CELL_PTR pcell ) {
   pcell->alloc.pnext = cells_manage.pavail;
   cells_manage.pavail = pcell;  
 }
-#else
+
 static struct {
   LIST_CELL_PTR pavail;
   LIST_CELL_PTR palive;
@@ -71,6 +71,16 @@ LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
 
 void free_list_cell ( LIST_CELL_PTR pcell ) {
   free_node ( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, (ALLOC_NODE_LINKS_PTR)pcell );
+}
+#else
+LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
+  LIST_CELL_PTR pcell = NULL;
+  pcell = alloc_type_cons( pos );
+  return pcell;
+}
+
+void free_list_cell ( LIST_CELL_PTR pcell ) {
+  free_type_cons( pcell );
 }
 #endif
 

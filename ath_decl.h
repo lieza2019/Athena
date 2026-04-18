@@ -1,17 +1,17 @@
-typedef struct var_attrib {
+typedef struct pvar_attrib {
   SRC_POS pos;
   char *ident;
   TYPE_CODE type;
   union {
     struct {
-      int init_n;
+      TYPE_CONS_PTR init_n;
     } var_int;
     struct {
-      char const *init_s;
+      TYPE_CONS_PTR init_s;
     } var_str;
     struct {
       TYPE_CONS_PTR init_l;
-      TYPE_CONS_PTR pty;      
+      TYPE_CONS_PTR pty;
     } var_list;
   } u;
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;

@@ -127,7 +127,9 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   ps += strlen( ps );
   switch( pvar_attr->type ) {
   case TY_INT:
-    sprintf( ps, "%d", pvar_attr->u.var_int.init_n );
+    assert( pvar_attr->u.var_int.init_n );
+    assert( (pvar_attr->u.var_int.init_n)->type.ty == TY_INT );
+    sprintf( ps, "%d", (pvar_attr->u.var_int.init_n)->u.literal.integer.n );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps, ":int" );
@@ -136,9 +138,11 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
     break;
   case TY_STRING:
     assert( pvar_attr->u.var_str.init_s );
+    assert( (pvar_attr->u.var_str.init_s)->type.ty == TY_STRING );
+    assert( (pvar_attr->u.var_str.init_s)->u.literal.string.ps );
     strcpy( ps,  "\"" );
-    ps++;
-    sprintf( ps, "%s", pvar_attr->u.var_str.init_s );
+    ps++;    
+    sprintf( ps, "%s", (pvar_attr->u.var_str.init_s)->u.literal.string.ps );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps,  "\"" );

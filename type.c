@@ -3,6 +3,20 @@
 #include <assert.h>
 #include "athena.h"
 
+static struct {
+  TYPE_CONS_PTR pavail;
+  TYPE_CONS_PTR palive;
+} type_cons_manage;
+TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos ) {
+  TYPE_CONS_PTR ptycons = NULL;
+  ptycons = (TYPE_CONS_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive, sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
+  return ptycons;
+}
+
+void free_type_cons ( TYPE_CONS_PTR ptycons ) {
+  free_node ( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive, (ALLOC_NODE_LINKS_PTR)ptycons );
+}
+
 #if 0
 static struct {
   TYPE_ENV_ELEM_PTR pavail;
