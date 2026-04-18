@@ -35,9 +35,9 @@
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
 %type <var_attr> decl_var_poly
+%type <var_attr> decl_var_int
 %type <var_attr> decl_var_string
 %type <str> decl_string_init
-%type <var_attr> decl_var_int
 %type <nat> decl_int_init
 %type <var_attr> decl_var_list
 %type <ptype_cons> list_elem_type

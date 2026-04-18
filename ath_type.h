@@ -25,6 +25,7 @@ typedef struct type_cons {
     struct type_cons *pattic;
   } type;
   union {
+#if 0
     struct {
       int n;
     } integer;
@@ -34,6 +35,19 @@ typedef struct type_cons {
     struct {
       char *ps;
     } string;
+#else
+    struct {
+      struct {
+	int n;
+      } integer;
+      struct {
+	char c;
+      } character;
+      struct {
+	char *ps;
+      } string;
+    } literal;
+#endif
     struct {
       struct type_cons *pty_elem;
       struct type_cons *car;

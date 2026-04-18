@@ -162,7 +162,7 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	case TY_INT:
 	  assert( pelem_val );
 	  pelem->type.ty = TY_INT;
-	  pelem->u.integer.n = *(int *)pelem_val;
+	  pelem->u.literal.integer.n = *(int *)pelem_val;
 	  pdesc->type = pelem->type;
 	  pty_e = pdesc;
 	  break;
@@ -171,7 +171,7 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	case TY_STRING:
 	  assert( pelem_val );
 	  pelem->type.ty = TY_STRING;
-	  pelem->u.string.ps = (char *)pelem_val;
+	  pelem->u.literal.string.ps = (char *)pelem_val;
 	  pdesc->type = pelem->type;
 	  pty_e = pdesc;
 	  break;

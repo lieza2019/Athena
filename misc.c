@@ -30,7 +30,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
   ps = sbuf;
   switch( pvar_desc->type.ty ) {
   case TY_INT:
-    sprintf( ps, "%d", pvar_desc->u.integer.n );
+    sprintf( ps, "%d", pvar_desc->u.literal.integer.n );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps, ":" );
@@ -39,7 +39,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     break;
   case TY_CHAR:
-    sprintf( ps, "%d", pvar_desc->u.character.c );
+    sprintf( ps, "%d", pvar_desc->u.literal.character.c );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps, ":" );
@@ -48,10 +48,10 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc ) {
     assert( *ps == 0 );
     break;
   case TY_STRING:
-    assert( pvar_desc->u.string.ps );
+    assert( pvar_desc->u.literal.string.ps );
     strcpy( ps,  "\"" );
     ps++;
-    strcpy( ps, pvar_desc->u.string.ps );
+    strcpy( ps, pvar_desc->u.literal.string.ps );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps,  "\"" );

@@ -129,13 +129,13 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
       assert( (*ppdup)->type.ty != TY_LIST );
       switch( (*ppdup)->type.ty ) {
       case TY_INT:
-	(*ppdup)->u.integer.n = porg->u.integer.n;
+	(*ppdup)->u.literal.integer.n = porg->u.literal.integer.n;
 	break;
       case TY_CHAR:
-	(*ppdup)->u.character.c = porg->u.character.c;
+	(*ppdup)->u.literal.character.c = porg->u.literal.character.c;
 	break;
       case TY_STRING:
-	(*ppdup)->u.string.ps = porg->u.string.ps;
+	(*ppdup)->u.literal.string.ps = porg->u.literal.string.ps;
 	break;
       default:
 	assert( FALSE );
