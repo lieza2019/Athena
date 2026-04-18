@@ -100,7 +100,7 @@ BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
 }
 
 #define TYVER_SEQDIGITS_MAXLEN 8
-struct {
+static struct {
   int seq;
 } tyver_ctrl;
 char *fresh_tyvar ( SRC_POS_C pos ) {

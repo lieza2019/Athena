@@ -12,9 +12,6 @@ extern char *ath_type_name[];
 typedef struct type_cons {
   ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
-#if 0
-  TYPE_CODE type;
-#else
   struct {
     TYPE_CODE ty;
     struct {
@@ -27,7 +24,6 @@ typedef struct type_cons {
     } tyvars;
     struct type_cons *pattic;
   } type;
-#endif
   union {
     struct {
       int n;

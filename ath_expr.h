@@ -2,6 +2,8 @@ typedef enum mnemonic_code {
   MNC_CALL = 1,
   MNC_ASGN,
   MNC_ARITH,
+  MNC_VAR,
+  MNC_VAL,
   MNC_LVALUE,
   MNC_RVALUE,
   END_OF_MNEMONIC_CODE
