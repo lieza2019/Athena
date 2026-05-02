@@ -231,3 +231,25 @@ decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
 int yyerror ( const char *s ) {
   return 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

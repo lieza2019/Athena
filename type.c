@@ -117,7 +117,7 @@ BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
 static struct {
   int seq;
 } tyver_ctrl;
-char *fresh_tyvar ( SRC_POS_C pos ) {
+static char *fresh_tyvar ( SRC_POS_C pos ) {
   const char *prefix = "t_";
   char *ident = NULL;
   

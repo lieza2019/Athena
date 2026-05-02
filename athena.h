@@ -24,7 +24,7 @@ extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
 extern void free_type_cons ( TYPE_CONS_PTR ptycons );
 extern TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );
 extern void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem );
-extern char *fresh_tyvar ( SRC_POS_C pos );
+//extern char *fresh_tyvar ( SRC_POS_C pos );
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
