@@ -3,116 +3,6 @@
 #include <assert.h>
 #include "athena.h"
 
-static struct {
-  TYPE_CONS_PTR pavail;
-  TYPE_CONS_PTR palive;
-} type_cons_manage;
-TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos ) {
-  TYPE_CONS_PTR ptycons = NULL;
-  ptycons = (TYPE_CONS_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive, sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
-  return ptycons;
-}
-
-void free_type_cons ( TYPE_CONS_PTR ptycons ) {
-  free_node ( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive, (ALLOC_NODE_LINKS_PTR)ptycons );
-}
-
-#if 0
-static struct {
-  TYPE_ENV_ELEM_PTR pavail;
-  TYPE_ENV_ELEM_PTR palive;
-} tyenv_elems_manage;
-TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
-  TYPE_ENV_ELEM_PTR r = NULL;
-  
-  if( !tyenv_elems_manage.pavail ) {
-    tyenv_elems_manage.pavail = new_memarea( sizeof(TYPE_ENV_ELEM) * NUM_TYELEMS_PER_ALLOC );
-    if( tyenv_elems_manage.pavail ) {
-      TYPE_ENV_ELEM_PTR pe = tyenv_elems_manage.pavail;
-      while( pe < (tyenv_elems_manage.pavail + (NUM_TYELEMS_PER_ALLOC - 1)) ) {
-	pe->alloc.pprev = NULL;
-	pe->alloc.pnext = (pe + 1);
-	pe++;
-	assert( !pe->alloc.pnext );
-      }
-    } else
-      ath_abort( pos, ABORT_MEMLACK );
-  }
-  assert( tyenv_elems_manage.pavail );
-  r = tyenv_elems_manage.pavail;
-  tyenv_elems_manage.pavail = r->alloc.pnext;
-  bzero( r, sizeof(TYPE_ENV_ELEM) );
-  if( tyenv_elems_manage.palive ) {
-    assert( ! (tyenv_elems_manage.palive)->alloc.pprev );
-    (tyenv_elems_manage.palive)->alloc.pprev = r;
-    r->alloc.pnext = tyenv_elems_manage.palive;
-  }
-  tyenv_elems_manage.palive = r;
-  return r;
-}
-
-void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem ) {  
-  TYPE_ENV_ELEM_PTR pp = pelem->alloc.pprev;
-  assert( pelem );
-  
-  if( pp ) {
-    TYPE_ENV_ELEM_PTR pn = pelem->alloc.pnext;
-    assert( pelem != tyenv_elems_manage.palive );
-    pp->alloc.pnext = pn;
-    if( pn )
-      pn->alloc.pprev = pp;
-    pelem->alloc.pprev = NULL;
-  } else {
-    assert( pelem == tyenv_elems_manage.palive );
-    tyenv_elems_manage.palive = pelem->alloc.pnext;
-    if( tyenv_elems_manage.palive )
-      tyenv_elems_manage.palive->alloc.pprev = NULL;
-  }
-  assert( !pelem->alloc.pprev );
-  pelem->alloc.pnext = tyenv_elems_manage.pavail;
-  tyenv_elems_manage.pavail = pelem;  
-}
-#else
-static struct {
-  TYPE_ENV_ELEM_PTR pavail;
-  TYPE_ENV_ELEM_PTR palive;
-} tyenv_elems_manage;
-TYPE_ENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
-  TYPE_ENV_ELEM_PTR penv = NULL;
-  penv = (TYPE_ENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.palive, sizeof(TYPE_ENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
-  return penv;
-}
-
-void free_tyenv_elems ( TYPE_ENV_ELEM_PTR pelem ) {
-  free_node ( (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&tyenv_elems_manage.palive, (ALLOC_NODE_LINKS_PTR)pelem );
-}
-#endif
-
-BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
-  BOOL r = FALSE;
-  
-  assert( pty1 );
-  assert( pty2 );
-  if( pty1->type.ty == TY_LIST ) {
-    if( pty2->type.ty == TY_LIST ) {
-      assert( pty1->u.list.pty_elem );
-      assert( pty2->u.list.pty_elem );
-      r = typecheck( pty1->u.list.pty_elem, pty2->u.list.pty_elem );
-    }
-  } else {
-    assert( pty1->type.ty != TY_LIST );
-    switch( pty1->type.ty ) {
-    case TY_INT:
-    case TY_STRING:
-      r = (pty1->type.ty == pty2->type.ty);
-      break;
-    default:
-      assert( FALSE );
-    }
-  }
-  return r;
-}
-
 #define TYVER_SEQDIGITS_MAXLEN 8
 static struct {
   int seq;
@@ -154,7 +44,141 @@ TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
   return pty_cons;
 }
 
-static TYPE_CONS_PTR infer ( TYPE_ENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
+  BOOL r = FALSE;
+  
+  assert( pty1 );
+  assert( pty2 );
+  if( pty1->type.ty == TY_LIST ) {
+    if( pty2->type.ty == TY_LIST ) {
+      assert( pty1->u.list.pty_elem );
+      assert( pty2->u.list.pty_elem );
+      r = typecheck( pty1->u.list.pty_elem, pty2->u.list.pty_elem );
+    }
+  } else {
+    assert( pty1->type.ty != TY_LIST );
+    switch( pty1->type.ty ) {
+    case TY_INT:
+    case TY_STRING:
+      r = (pty1->type.ty == pty2->type.ty);
+      break;
+    default:
+      assert( FALSE );
+    }
+  }
+  return r;
+}
+
+static struct {
+  TYPE_CONS_PTR pavail;
+  TYPE_CONS_PTR palive;
+} type_cons_manage;
+TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos ) {
+  TYPE_CONS_PTR ptycons = NULL;
+  
+  ptycons = (TYPE_CONS_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive,
+				       sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
+  return ptycons;
+}
+
+void free_type_cons ( TYPE_CONS_PTR ptycons ) {
+  if( ptycons ) {
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive, (ALLOC_NODE_LINKS_PTR)ptycons );
+  }
+}
+
+static struct {
+  struct {
+    TYENV_ELEM_PTR pavail;
+    TYENV_ELEM_PTR palive;
+  } mapping;
+  struct {
+    TYPE_ENV_PTR pavail;
+    TYPE_ENV_PTR palive;
+  } env;
+} type_env_manage;
+TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
+  TYENV_ELEM_PTR penv = NULL;
+  
+  penv = (TYENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
+				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
+  return penv;
+}
+
+void free_tyenv_elems ( TYENV_ELEM_PTR pelem ) {
+  if( pelem ) {
+    /* free pelem->pvar, then. */
+    free_type_cons( pelem->ptype );
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive, (ALLOC_NODE_LINKS_PTR)pelem );
+  }
+}
+
+TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos ) {
+  TYPE_ENV_PTR penv = NULL;
+  
+  penv = (TYPE_ENV_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive,
+				   sizeof(TYPE_ENV), NUM_TYENVS_PER_ALLOC, pos );
+  return penv;
+}
+
+void free_type_env ( TYPE_ENV_PTR penv ) {
+  if( penv ) {
+    TYENV_ELEM_PTR pelem = penv->pmappings;
+    while( pelem ) {
+      TYENV_ELEM_PTR pnext = pelem->pnext;
+      free_tyenv_elems( pelem );
+      pelem = pnext;
+    }    
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive, (ALLOC_NODE_LINKS_PTR)penv );    
+  }
+}
+
+struct {
+  struct {
+    TYPE_MAPSTO_PTR pavail;
+    TYPE_MAPSTO_PTR palive;
+  } mapping;
+  struct {
+    TYPE_SUBST_PTR pavail;
+    TYPE_SUBST_PTR palive;
+  } subst;
+} type_subst_manage;
+TYPE_MAPSTO_PTR alloc_type_mapping ( SRC_POS_C pos ) {
+  TYPE_MAPSTO_PTR ptymap = NULL;
+  
+  ptymap = (TYPE_MAPSTO_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.palive,
+					sizeof(TYPE_MAPSTO), NUM_TYMAPS_PER_ALLOC, pos );
+  return ptymap;
+}
+
+void free_type_mapping ( TYPE_MAPSTO_PTR ptymap ) {
+  if( ptymap ) {
+    free_type_cons( ptymap->pty );
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.palive, (ALLOC_NODE_LINKS_PTR)ptymap );
+  }
+}
+
+TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos ) {
+  TYPE_SUBST_PTR ptysubst = NULL;
+  
+  ptysubst = (TYPE_SUBST_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.pavail, (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.palive,
+					 sizeof(TYPE_SUBST), NUM_TYSUBSTS_PER_ALLOC, pos );
+  return ptysubst;
+}
+
+void free_type_subst ( TYPE_SUBST_PTR ptysubst ) {
+  if( ptysubst ) {
+    TYPE_MAPSTO_PTR ptymap = ptysubst->pmappings;
+    while( ptymap ) {
+      TYPE_MAPSTO_PTR pnext = ptymap->pnext;
+      free_type_mapping( ptymap );
+      ptymap = pnext;
+    }
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.pavail, (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.palive, (ALLOC_NODE_LINKS_PTR)ptysubst );
+  }
+}
+
+static TYPE_CONS_PTR infer ( TYPE_SUBST_PTR *ppsubst, TYENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_expr = NULL;
   assert( penv );
   assert( pexpr );
@@ -162,6 +186,8 @@ static TYPE_CONS_PTR infer ( TYPE_ENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr, SRC_PO
   case MNC_CALL:
     break;
   case MNC_ASGN:
+    infer( NULL, penv, pexpr->kids.pleft, pos );
+    infer( NULL, penv, pexpr->kids.pright, pos );
     break;
   case MNC_ARITH:
     break;
@@ -177,44 +203,23 @@ static TYPE_CONS_PTR infer ( TYPE_ENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr, SRC_PO
   return pty_expr;
 }
 
-TYPE_CONS_PTR typematch ( TYPE_ENV_ELEM_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
+TYPE_CONS_PTR typematch ( TYPE_SUBST_PTR *ppsubst, TYENV_ELEM_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_stmt = NULL;
   assert( penv );
   assert( pstmt );
   switch( pstmt->sort ) {
   case STMT_DECL:
-    {
-      EXPR_CONS_PTR pasgn = alloc_expr_cons( pos );
-      if( pasgn ) {
-	EXPR_CONS_PTR pl = alloc_expr_cons( pos );
-	EXPR_CONS_PTR pr = alloc_expr_cons( pos );
-	pasgn->pos = pstmt->pos;
-	pasgn->mnemonic = MNC_ASGN;
-	if( pl && pr ) {
-	  pl->pos = pstmt->pos;
-	  pl->mnemonic = MNC_LVALUE;
-	  pl->kids.pdaugh = &(pstmt->u.pdecl)->u.variable.var;
-	  pr->pos = pstmt->pos;
-	  pr->mnemonic = MNC_RVALUE;
-	  pr->kids.pdaugh = &(pstmt->u.pdecl)->u.variable.var.u.var_int;
-	  pasgn->kids.pleft = pl;
-	  pasgn->kids.pright = pr;
-	  pty_stmt = infer( penv, pasgn, pos );
-	} else
-	  goto failed_memalloc;
-      } else
-	goto failed_memalloc;
-    }
+    assert( pstmt->u.pdecl );
+    assert( (pstmt->u.pdecl)->pinit );
+    infer( NULL, penv, (pstmt->u.pdecl)->pinit, pos );
     break;
   case STMT_EXPR:
-    infer( penv, pstmt->u.pexpr, pos );
+    infer( NULL, penv, pstmt->u.pexpr, pos );
     break;
   case END_OF_STMT_SORT:
     /* fall thru. */
   default:
-    assert( FALSE );
-  failed_memalloc:
-    ath_abort( pos, ABORT_MEMLACK );
+    assert( FALSE );    
   }
   return pty_stmt;
 }

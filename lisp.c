@@ -4,75 +4,6 @@
 #include <assert.h>
 #include "athena.h"
 
-#if 0
-static struct {
-  LIST_CELL_PTR pavail;
-  LIST_CELL_PTR palive;
-} cells_manage;
-LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
-  LIST_CELL_PTR r = NULL;
-  
-  if( !cells_manage.pavail ) {
-    cells_manage.pavail = new_memarea( sizeof(LIST_CELL) * NUM_CELLS_PER_ALLOC );
-    if( cells_manage.pavail ) {
-      LIST_CELL_PTR pc = cells_manage.pavail;
-      while( pc < (cells_manage.pavail + (NUM_CELLS_PER_ALLOC - 1)) ) {
-	pc->alloc.pprev = NULL;
-	pc->alloc.pnext = (pc + 1);
-	pc++;
-	assert( !pc->alloc.pnext );
-      }
-    } else
-      ath_abort( pos, ABORT_MEMLACK );
-  }
-  assert( cells_manage.pavail );
-  r = cells_manage.pavail;
-  cells_manage.pavail = r->alloc.pnext;
-  bzero( r, sizeof(TYPE_CONS) );
-  if( cells_manage.palive ) {
-    (cells_manage.palive)->alloc.pprev = r;
-    r->alloc.pnext = cells_manage.palive;
-  }
-  cells_manage.palive = r;
-  return r;
-}
-
-void free_list_cell ( LIST_CELL_PTR pcell ) {
-  LIST_CELL_PTR pp = pcell->alloc.pprev;
-  assert( pcell );
-  
-  if( pp ) {
-    LIST_CELL_PTR pn = pcell->alloc.pnext;
-    assert( pcell != cells_manage.palive );    
-    pp->alloc.pnext = pn;
-    if( pn )
-      pn->alloc.pprev = pp;
-    pcell->alloc.pprev = NULL;
-  } else {
-    assert( pcell == cells_manage.palive );
-    cells_manage.palive = pcell->alloc.pnext;
-    if( cells_manage.palive )
-      cells_manage.palive->alloc.pprev = NULL;
-  }
-  assert( !pcell->alloc.pprev );
-  pcell->alloc.pnext = cells_manage.pavail;
-  cells_manage.pavail = pcell;  
-}
-
-static struct {
-  LIST_CELL_PTR pavail;
-  LIST_CELL_PTR palive;
-} list_cells_manage;
-LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
-  LIST_CELL_PTR pcell = NULL;
-  pcell = (LIST_CELL_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
-  return pcell;
-}
-
-void free_list_cell ( LIST_CELL_PTR pcell ) {
-  free_node ( (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.pavail, (ALLOC_NODE_LINKS_PTR *)&list_cells_manage.palive, (ALLOC_NODE_LINKS_PTR)pcell );
-}
-#else
 LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
   LIST_CELL_PTR pcell = NULL;
   pcell = alloc_type_cons( pos );
@@ -82,7 +13,6 @@ LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos ) {
 void free_list_cell ( LIST_CELL_PTR pcell ) {
   free_type_cons( pcell );
 }
-#endif
 
 void destroy_list ( LIST_CELL_PTR plist ) {
   assert( plist );

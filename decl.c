@@ -43,12 +43,12 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr ) {
 	      pl->mnemonic = MNC_LVALUE;
 	      pl->kids.pdaugh = pvar_attr;	  
 	      pr->pos = pos_ini;
-	      pr->mnemonic = MNC_RVALUE;
+	      pr->mnemonic = MNC_VAL;
 	      assert( pvar_attr->u.var_int.init_n );
 	      pr->kids.pdaugh = pvar_attr->u.var_int.init_n;
 	      pasgn->kids.pleft = pl;
 	      pasgn->kids.pright = pr;
-	      ps->entity.u.decl.u.variable.pinival = pasgn;
+	      ps->entity.u.decl.pinit = pasgn;
 	    } else
 	      goto failed_memalloc;
 	  } else

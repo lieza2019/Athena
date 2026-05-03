@@ -1,5 +1,6 @@
 typedef enum type_code {
-  TY_INT = 1,
+  TY_LTE_VAR = 1,
+  TY_INT,
   TY_CHAR,
   TY_STRING,
   TY_LIST,
@@ -25,6 +26,9 @@ typedef struct type_cons {
     struct type_cons *pattic;
   } type;
   union {
+    struct {
+      void *pln_var;
+    } lte;
     struct {
       struct {
 	int n;
@@ -52,7 +56,15 @@ typedef LIST_CELL *LIST_CELL_PTR;
 typedef const LIST_CELL LIST_CELL_C;
 typedef LIST_CELL const *LIST_CELL_PTR_C;
 
-typedef struct type_subst {
+#define NUM_TYMAPS_PER_ALLOC 256
+typedef struct type_mapsto {
+  ALLOC_NODE_LINKS alloc;
   char *ident;
   TYPE_CONS_PTR pty;
+  struct type_mapsto *pnext;
+} TYPE_MAPSTO, *TYPE_MAPSTO_PTR;
+#define NUM_TYSUBSTS_PER_ALLOC 256
+typedef struct type_subst {
+  ALLOC_NODE_LINKS alloc;
+  TYPE_MAPSTO_PTR pmappings;
 } TYPE_SUBST, *TYPE_SUBST_PTR;

@@ -24,9 +24,12 @@ typedef struct type_env_elem {
   VAR_ATTRIB_PTR pvar;
   TYPE_CONS_PTR ptype;
   struct type_env_elem *pnext;
-} TYPE_ENV_ELEM, *TYPE_ENV_ELEM_PTR;
-typedef TYPE_ENV_ELEM TYPE_ENV;
-typedef TYPE_ENV_ELEM_PTR TYPE_ENV_PTR;
+} TYENV_ELEM, *TYENV_ELEM_PTR;
+#define NUM_TYENVS_PER_ALLOC 256
+typedef struct type_env {
+  ALLOC_NODE_LINKS alloc;
+  TYENV_ELEM_PTR pmappings;
+} TYPE_ENV, *TYPE_ENV_PTR;
 
 typedef enum decl_sort {
   DECL_FUN = 1,
@@ -44,9 +47,9 @@ typedef struct declaration {
 #else
       VAR_ATTRIB_PTR pvar;
 #endif
-      EXPR_CONS_PTR pinival;
     } variable;
   } u;
+  EXPR_CONS_PTR pinit;
 } DECLARATION, *DECLARATION_PTR;
 typedef const struct declaration DECL_ATTRIB_C;
 typedef struct declaration const *DECL_ATTRIB_PTR_C;
