@@ -87,6 +87,18 @@ void free_type_cons ( TYPE_CONS_PTR ptycons ) {
   }
 }
 
+TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos ) {
+  TYPE_CONS_PTR ptydesc = NULL;
+  ptydesc = alloc_type_cons( pos );
+  if( ptydesc ) {
+    assert( ptydesc_org );
+    *ptydesc = *ptydesc_org;
+    ptydesc->type.pstuck = ptydesc_org;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return ptydesc;
+}
+
 static struct {
   struct {
     TYENV_ELEM_PTR pavail;
@@ -133,6 +145,40 @@ void free_type_env ( TYPE_ENV_PTR penv ) {
   }
 }
 
+TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
+  TYPE_ENV_PTR penv = NULL;
+  
+  penv = alloc_type_env( pos );
+  if( penv ) {
+    TYENV_ELEM_PTR pprev = NULL;
+    TYENV_ELEM_PTR pmap = NULL;
+    penv->pmappings = NULL;
+    assert( penv_org );
+    pmap = penv_org->pmappings;
+    while( pmap ) {
+      TYENV_ELEM_PTR pnew = NULL;
+      pnew = alloc_tyenv_elem( pos );
+      if( pnew ) {
+	pnew->pvar = pmap->pvar;
+	pnew->ptype = pmap->ptype;
+	pnew->pnext = NULL;
+      } else {
+	penv = NULL;
+	goto failed_memalloc;
+      }
+      if( pprev )
+	pprev->pnext = pnew;
+      else
+	penv->pmappings = pnew;
+      pprev = pnew;
+      pmap = pmap->pnext;
+    }
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return penv;
+}
+
 struct {
   struct {
     TYPE_MAPSTO_PTR pavail;
@@ -168,7 +214,10 @@ TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos ) {
 
 void free_type_subst ( TYPE_SUBST_PTR ptysubst ) {
   if( ptysubst ) {
-    TYPE_MAPSTO_PTR ptymap = ptysubst->pmappings;
+    TYPE_MAPSTO_PTR ptymap = NULL;
+    if( ptysubst->pcomposit )
+      free_type_subst( ptysubst->pcomposit );
+    ptymap = ptysubst->pmappings;
     while( ptymap ) {
       TYPE_MAPSTO_PTR pnext = ptymap->pnext;
       free_type_mapping( ptymap );
@@ -178,7 +227,61 @@ void free_type_subst ( TYPE_SUBST_PTR ptysubst ) {
   }
 }
 
-static TYPE_CONS_PTR infer ( TYPE_SUBST_PTR *ppsubst, TYENV_ELEM_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos ) {
+  TYPE_SUBST_PTR psubst = NULL;
+  
+  psubst = alloc_type_subst( pos );
+  if( psubst ) {
+    TYPE_MAPSTO_PTR pprev = NULL;
+    TYPE_MAPSTO_PTR pmap = NULL;
+    assert( psub_org );
+    if( psub_org->pcomposit )
+      dup_subst( psub_org->pcomposit, pos );
+    pmap = psub_org->pmappings;
+    while( pmap ) {
+      TYPE_MAPSTO_PTR pnew = NULL;
+      pnew = alloc_type_mapping( pos );
+      if( pnew ) {
+	pnew->ident = pmap->ident;
+	pnew->pty = dup_tydesc( pmap->pty, pos );
+	assert( pnew->pty );
+	pnew->pnext = NULL;
+	if( pprev )
+	  pprev->pnext = pnew;
+	else
+	  psubst->pmappings = pnew;
+	pprev = pnew;
+	pmap = pmap->pnext;
+      } else {
+	psubst = NULL;
+	goto failed_memalloc;
+      }
+    }
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return psubst;
+}
+
+TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psub_1, TYPE_SUBST_PTR psub_2, SRC_POS_C pos ) {
+  TYPE_SUBST_PTR pnew_1 = NULL;
+  TYPE_SUBST_PTR pnew_2 = NULL;
+  pnew_1 = dup_subst( psub_1, pos );
+  if( pnew_1 ) {
+    pnew_2 = dup_subst( psub_2, pos );
+    if( pnew_2 ) {
+      pnew_1->pcomposit = pnew_2;
+    } else {
+      pnew_1 = NULL;
+      goto failed_memalloc;
+    }
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return pnew_1;
+}
+
+static TYPE_CONS_PTR infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_expr = NULL;
   assert( penv );
   assert( pexpr );
@@ -186,8 +289,22 @@ static TYPE_CONS_PTR infer ( TYPE_SUBST_PTR *ppsubst, TYENV_ELEM_PTR penv, EXPR_
   case MNC_CALL:
     break;
   case MNC_ASGN:
-    infer( NULL, penv, pexpr->kids.pleft, pos );
-    infer( NULL, penv, pexpr->kids.pright, pos );
+    {
+      TYPE_SUBST_PTR pS_l = NULL;
+      TYPE_CONS_PTR pty_l = NULL;
+      TYPE_SUBST_PTR pS_r = NULL;
+      TYPE_CONS_PTR pty_r = NULL;
+      pty_l = infer( &pS_l, penv, pexpr->kids.pleft, pos );
+      {
+	TYPE_ENV_PTR penv_r = NULL;
+	penv_r = dup_env( penv, pos );
+	if( penv_r ) {
+	  pty_r = infer( &pS_r, penv_r, pexpr->kids.pright, pos );
+	} else
+	  ;
+      }
+      ;
+    }
     break;
   case MNC_ARITH:
     break;
@@ -203,7 +320,7 @@ static TYPE_CONS_PTR infer ( TYPE_SUBST_PTR *ppsubst, TYENV_ELEM_PTR penv, EXPR_
   return pty_expr;
 }
 
-TYPE_CONS_PTR typematch ( TYPE_SUBST_PTR *ppsubst, TYENV_ELEM_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
+TYPE_CONS_PTR typematch ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_stmt = NULL;
   assert( penv );
   assert( pstmt );

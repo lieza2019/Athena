@@ -5,6 +5,7 @@ typedef enum type_code {
   TY_STRING,
   TY_LIST,
   TY_POLY,
+  TY_GEN,
   END_OF_TYPE_CODE
 } TYPE_CODE;
 extern char *ath_type_name[];
@@ -20,10 +21,9 @@ typedef struct type_cons {
 	char *ident;
 	struct type_cons *pnext;
       } var;
-      struct type_cons *bvars;
-      struct type_cons *pbound;
+      struct type_cons *pgenvars;
     } tyvars;
-    struct type_cons *pattic;
+    struct type_cons *pstuck;
   } type;
   union {
     struct {
@@ -66,5 +66,6 @@ typedef struct type_mapsto {
 #define NUM_TYSUBSTS_PER_ALLOC 256
 typedef struct type_subst {
   ALLOC_NODE_LINKS alloc;
+  struct type_subst *pcomposit;
   TYPE_MAPSTO_PTR pmappings;
 } TYPE_SUBST, *TYPE_SUBST_PTR;
