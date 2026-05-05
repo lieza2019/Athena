@@ -8,7 +8,7 @@
 
 /* from misc.c */
 extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
-extern char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_desc );
+extern char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc );
 extern char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr );
   
 /* from mem.c */
@@ -25,10 +25,10 @@ extern char *find_literal ( char *pname );
   
 /* from type.c */
 extern TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos );
-extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
 extern void free_type_cons ( TYPE_CONS_PTR ptycons );
 extern TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos );
+extern TYPE_CONS_PTR gen_tyvers ( TYPE_CONS_PTR pty, char *gen_tyvers[], const int ngenvars, SRC_POS_C pos );
 extern TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );
 extern void free_tyenv_elems ( TYENV_ELEM_PTR pelem );
 extern TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos );
@@ -40,7 +40,9 @@ extern TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos );
 extern void free_type_subst ( TYPE_SUBST_PTR ptysubst );
 extern TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos );
 extern TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psub_1, TYPE_SUBST_PTR psub_2, SRC_POS_C pos );
+extern TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYPE_CONS_PTR typematch ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos );
+extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
 /* from expr.c */

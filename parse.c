@@ -36,7 +36,7 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CON
       if( s_init ) {
 	s_init->pos = pos;
 	s_init->type.ty = TY_INT;
-	s_init->u.literal.integer.n = 0;
+	s_init->attrs.literal.integer.n = 0;
       } else
 	ath_abort( pos, ABORT_MEMLACK );
     }
@@ -67,7 +67,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_
 	  goto failed_memalloc;
 	s_init->pos = pos;
 	s_init->type.ty = TY_STRING;
-	s_init->u.literal.string.ps = e;
+	s_init->attrs.literal.string.ps = e;
       } else
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
@@ -150,10 +150,10 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
   }
   assert( r );
   assert( r->type.ty == TY_LIST );
-  assert( r->u.list.pty_elem == pl_ty );
-  assert( ! r->u.list.car );
-  assert( ! r->u.list.cdr );
-  assert( ! r->u.list.plast );
+  assert( r->attrs.list.pty_elem == pl_ty );
+  assert( ! r->attrs.list.car );
+  assert( ! r->attrs.list.cdr );
+  assert( ! r->attrs.list.plast );
   return r;
 }
 
@@ -177,7 +177,7 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	case TY_INT:
 	  assert( pelem_val );
 	  pelem->type.ty = TY_INT;
-	  pelem->u.literal.integer.n = *(int *)pelem_val;
+	  pelem->attrs.literal.integer.n = *(int *)pelem_val;
 	  pdesc->type = pelem->type;
 	  pty_e = pdesc;
 	  break;
@@ -186,13 +186,13 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	case TY_STRING:
 	  assert( pelem_val );
 	  pelem->type.ty = TY_STRING;
-	  pelem->u.literal.string.ps = (char *)pelem_val;
+	  pelem->attrs.literal.string.ps = (char *)pelem_val;
 	  pdesc->type = pelem->type;
 	  pty_e = pdesc;
 	  break;
 	case TY_LIST:
 	  pelem->type.ty = TY_LIST;
-	  pelem->u.list.pty_elem = pdesc;
+	  pelem->attrs.list.pty_elem = pdesc;
 	  if( pelem_val )
 	    assert( FALSE );
 	  else
@@ -206,15 +206,15 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	default:
 	  assert( FALSE );
 	}
-	pcons->u.list.pty_elem = pty_e;
-	pcons->u.list.car = pelem;
+	pcons->attrs.list.pty_elem = pty_e;
+	pcons->attrs.list.car = pelem;
 	// and then, typecheck pcons with psucc_es.
 	;
-	pcons->u.list.cdr = psucc_es;
-	if( pcons->u.list.cdr )
-	  pcons->u.list.plast = (pcons->u.list.cdr)->u.list.plast;
+	pcons->attrs.list.cdr = psucc_es;
+	if( pcons->attrs.list.cdr )
+	  pcons->attrs.list.plast = (pcons->attrs.list.cdr)->attrs.list.plast;
 	else
-	  pcons->u.list.plast = pcons;
+	  pcons->attrs.list.plast = pcons;
 	r = pcons;
       } else
 	goto failed_memalloc;
@@ -241,16 +241,16 @@ LIST_CELL_PTR value_list ( LIST_CELL_PTR plist_elems, LIST_CELL_PTR psucc_ls, SR
     if( pty_desc ) {
       pty_desc->pos = pos;
       pty_desc->type.ty = TY_LIST;
-      pty_desc->u.list.pty_elem = plist_elems->u.list.pty_elem;
-      pcons->u.list.pty_elem = pty_desc;
-      pcons->u.list.car = plist_elems;
+      pty_desc->attrs.list.pty_elem = plist_elems->attrs.list.pty_elem;
+      pcons->attrs.list.pty_elem = pty_desc;
+      pcons->attrs.list.car = plist_elems;
       // and then, typecheck pcons with psucc_ls.
       ;
-      pcons->u.list.cdr = psucc_ls;
-      if( pcons->u.list.cdr )
-	pcons->u.list.plast = (pcons->u.list.cdr)->u.list.plast;
+      pcons->attrs.list.cdr = psucc_ls;
+      if( pcons->attrs.list.cdr )
+	pcons->attrs.list.plast = (pcons->attrs.list.cdr)->attrs.list.plast;
       else
-	pcons->u.list.plast = pcons;
+	pcons->attrs.list.plast = pcons;
       r = pcons;
     } else
       goto failed_memalloc;

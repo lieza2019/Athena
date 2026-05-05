@@ -106,7 +106,7 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   if( pval_int ) {
     pval_int->pos = pos;
     pval_int->type.ty = TY_INT;
-    pval_int->u.literal.integer.n = $2;
+    pval_int->attrs.literal.integer.n = $2;
   } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_int;
@@ -152,7 +152,7 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
     assert( strlen( s ) == len );
     pval_string->pos = pos;
     pval_string->type.ty = TY_STRING;
-    pval_string->u.literal.string.ps = s;
+    pval_string->attrs.literal.string.ps = s;
   } else
   failed_memalloc_decl_string_init:
     ath_abort( pos, ABORT_MEMLACK );

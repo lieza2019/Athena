@@ -46,7 +46,7 @@ typedef struct type_cons {
       struct type_cons *cdr;
       struct type_cons *plast;
     } list;
-  } u;
+  } attrs;
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;
