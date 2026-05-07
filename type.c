@@ -80,116 +80,88 @@ TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos ) {
   return ptydesc;
 }
 
-TYPE_CONS_PTR gen_tyvers ( TYPE_CONS_PTR pty, char *gen_tyvers[], const int ngenvars, SRC_POS_C pos ) {
-  TYPE_CONS_PTR pgen_ty = NULL;
+int enum_gentyvers ( TYPE_CONS_PTR *ppgens_id, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+  int ngentyvers = 0;
+  assert( ppgens_id );
   assert( pty );
-  assert( gen_tyvers );
   
-  pgen_ty = dup_tydesc( pty, pos );
-  if( pgen_ty ) {
-    int i;
-    for( i = 0; i < ngenvars; i++ ) {
-      TYPE_CONS_PTR pgv = NULL;
-      assert( gen_tyvers[i] );
-      assert( pgen_ty );
-      pgv = alloc_type_cons( pos );
-      if( pgv ) {	
-	pgv->pos = pos;
-	pgv->type.ty = TY_GEN;
-	pgv->type.tyvars.pgenvars = NULL;
-	pgv->type.pstuck = NULL;
-	pgv->type.tyvars.var.ident = gen_tyvers[i];
-	pgv->type.tyvars.var.pnext = pgen_ty->type.tyvars.pgenvars;
-	pgen_ty->type.tyvars.pgenvars = pgv;
+  *ppgens_id = NULL;
+  if( pty->type.tyvars.pgenvars ) {
+    TYPE_CONS_PTR ptail = NULL;
+    TYPE_CONS_PTR pgv = pty->type.tyvars.pgenvars;
+    do {
+      TYPE_CONS_PTR pnote = NULL;
+      assert( pgv->type.tyvars.var.ident );
+      pnote = alloc_type_cons( pos );
+      if( pnote ) {
+	bzero( pnote, sizeof(TYPE_CONS) );
+	pnote->type.ty = TY_GEN;
+	pnote->type.tyvars.var.ident = pgv->type.tyvars.var.ident;
+	pnote->type.tyvars.var.pnext = NULL;
+	if( ptail )
+	  ptail->type.tyvars.var.pnext = pnote;	
+	else
+	  *ppgens_id = pnote;
+	ptail = pnote;
+	ngentyvers++;
       } else {
-	pgen_ty = NULL;
-	goto failed_memalloc;
+	*ppgens_id = NULL;
+	ath_abort( pos, ABORT_MEMLACK );
       }
-    }
+      pgv = pgv->type.tyvars.var.pnext;
+    } while( pgv );
+  }
+  return ngentyvers;
+}
+
+TYPE_CONS_PTR gen_tyvers ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_tyvers, SRC_POS_C pos ) {
+  TYPE_CONS_PTR pty_gen = NULL;
+  assert( pty );
+  assert( pgen_tyvers );
+  
+  pty_gen = dup_tydesc( pty, pos );
+  if( pty_gen ) {
+    TYPE_CONS_PTR pv = pgen_tyvers;
+    assert( pv );
+    do {
+      BOOL found = FALSE;
+      TYPE_CONS_PTR pg = pty_gen->type.tyvars.pgenvars;
+      assert( pv->type.tyvars.var.ident );
+      while( pg ) {
+	assert( pg->type.tyvars.var.ident );
+	if( strcmp( pg->type.tyvars.var.ident, pv->type.tyvars.var.ident ) == 0 ) {
+	  found = TRUE;
+	  break;
+	}
+	pg = pg->type.tyvars.var.pnext;
+      }
+      if( !found ) {
+	TYPE_CONS_PTR pnew = NULL;
+	assert( !pg );
+	pnew = alloc_type_cons( pos );
+	if( pnew ) {
+	  pnew->pos = pos;
+	  pnew->type.ty = TY_GEN;
+	  pnew->type.tyvars.pgenvars = NULL;
+	  pnew->type.pstuck = NULL;
+	  pnew->type.tyvars.var.ident = pv->type.tyvars.var.ident;
+	  pnew->type.tyvars.var.pnext = pty_gen->type.tyvars.pgenvars;
+	  pty_gen->type.tyvars.pgenvars = pnew;
+	} else {
+	  pty_gen = NULL;
+	  goto failed_memalloc;
+	}
+	assert( !pg );
+      } else {
+	assert( pg );
+	assert( strcmp( pg->type.tyvars.var.ident, pv->type.tyvars.var.ident ) == 0 );
+      }
+      pv = pv->type.tyvars.var.pnext;
+    } while( pv );
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
-  return pgen_ty;
-}
-
-static struct {
-  struct {
-    TYENV_ELEM_PTR pavail;
-    TYENV_ELEM_PTR palive;
-  } mapping;
-  struct {
-    TYPE_ENV_PTR pavail;
-    TYPE_ENV_PTR palive;
-  } env;
-} type_env_manage;
-TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
-  TYENV_ELEM_PTR penv = NULL;
-  
-  penv = (TYENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
-				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
-  return penv;
-}
-
-void free_tyenv_elems ( TYENV_ELEM_PTR pelem ) {
-  if( pelem ) {
-    /* free pelem->pvar, then. */
-    free_type_cons( pelem->ptype );
-    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive, (ALLOC_NODE_LINKS_PTR)pelem );
-  }
-}
-
-TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos ) {
-  TYPE_ENV_PTR penv = NULL;
-  
-  penv = (TYPE_ENV_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive,
-				   sizeof(TYPE_ENV), NUM_TYENVS_PER_ALLOC, pos );
-  return penv;
-}
-
-void free_type_env ( TYPE_ENV_PTR penv ) {
-  if( penv ) {
-    TYENV_ELEM_PTR pelem = penv->pmappings;
-    while( pelem ) {
-      TYENV_ELEM_PTR pnext = pelem->pnext;
-      free_tyenv_elems( pelem );
-      pelem = pnext;
-    }    
-    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive, (ALLOC_NODE_LINKS_PTR)penv );    
-  }
-}
-
-TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
-  TYPE_ENV_PTR penv = NULL;
-  
-  penv = alloc_type_env( pos );
-  if( penv ) {
-    TYENV_ELEM_PTR pprev = NULL;
-    TYENV_ELEM_PTR pmap = NULL;
-    penv->pmappings = NULL;
-    assert( penv_org );
-    pmap = penv_org->pmappings;
-    while( pmap ) {
-      TYENV_ELEM_PTR pnew = NULL;
-      pnew = alloc_tyenv_elem( pos );
-      if( pnew ) {
-	pnew->pvar = pmap->pvar;
-	pnew->ptype = pmap->ptype;
-	pnew->pnext = NULL;
-      } else {
-	penv = NULL;
-	goto failed_memalloc;
-      }
-      if( pprev )
-	pprev->pnext = pnew;
-      else
-	penv->pmappings = pnew;
-      pprev = pnew;
-      pmap = pmap->pnext;
-    }
-  } else
-  failed_memalloc:
-    ath_abort( pos, ABORT_MEMLACK );
-  return penv;
+  return pty_gen;
 }
 
 struct {
@@ -212,7 +184,6 @@ TYPE_MAPSTO_PTR alloc_type_mapping ( SRC_POS_C pos ) {
 
 void free_type_mapping ( TYPE_MAPSTO_PTR ptymap ) {
   if( ptymap ) {
-    free_type_cons( ptymap->pty );
     free_node ( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.palive, (ALLOC_NODE_LINKS_PTR)ptymap );
   }
 }
@@ -336,6 +307,20 @@ static TYPE_SUBST_PTR restrict_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyve
   return pr_subst;
 }
 
+static TYPE_CONS_PTR copy_gentyvers ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_from, SRC_POS_C pos ) {
+  TYPE_CONS_PTR pty_gen = NULL;
+  TYPE_CONS_PTR pgvs = NULL;
+  int ngenvars = 0;
+  
+  ngenvars = enum_gentyvers( &pgvs, pgen_from, pos );
+  if( ngenvars > 0 ) {
+    assert( pgvs );
+    pty_gen = gen_tyvers( pty, pgvs, pos );
+    assert( pty_gen );
+  }
+  return pty_gen;
+}
+
 static TYPE_CONS_PTR tyvar_rewrit ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_rewr = NULL;
   TYPE_MAPSTO_PTR ps_elem = NULL;
@@ -391,6 +376,52 @@ TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos
     assert( pty_subst );
     break;
   case TY_LIST:
+    assert( ! pty->type.tyvars.var.ident );
+    assert( ! pty->type.tyvars.var.pnext );
+    pty_subst = alloc_type_cons( pos );
+    if( pty_subst ) {
+      TYPE_SUBST_PTR ps_r = NULL;
+      TYPE_CONS_PTR pty_s = NULL;
+      TYPE_CONS_PTR pty_s_car = NULL;
+      TYPE_CONS_PTR pty_s_cdr = NULL;
+      pty_subst->type = pty->type;
+      pty_subst->attrs = pty->attrs;
+      pty_subst->type.pstuck = NULL;
+      ps_r = restrict_subst( psubst, pty, pos );
+      assert( ps_r );            
+      assert( pty->attrs.list.pty_elem );
+      pty_s = ty_subst( ps_r, pty->attrs.list.pty_elem, pos );
+      assert( pty_s );      
+      if( pty->attrs.list.car ) {
+	pty_s_car = ty_subst( ps_r, pty->attrs.list.car, pos );
+	assert( pty_s_car );
+	if( pty->attrs.list.cdr ) {
+	  pty_s_cdr = ty_subst( ps_r, pty->attrs.list.cdr, pos );
+	  assert( pty_s_cdr );
+	}
+      } else
+	assert( ! pty->attrs.list.cdr );
+      pty_subst->attrs.list.pty_elem = pty_s;
+      pty_subst->attrs.list.car = pty_s_car;
+      pty_subst->attrs.list.cdr = pty_s_cdr;
+      pty_subst->attrs.list.plast = pty_subst->attrs.list.car;
+      if( pty_subst->attrs.list.cdr ) {
+	TYPE_CONS_PTR pl = pty_subst->attrs.list.cdr;
+	while( pl->attrs.list.cdr ) {
+	  assert( pl->attrs.list.car );
+	  pl = pl->attrs.list.cdr;
+	}
+	assert( pl );
+	assert( pl->attrs.list.car );
+	pty_subst->attrs.list.plast = pl;
+      }
+      {
+	TYPE_CONS_PTR pty_s_gen = NULL;
+	pty_s_gen = copy_gentyvers( pty_subst, pty, pos );
+	if( pty_s_gen )
+	  pty_subst = pty_s_gen;
+      }
+    }
     break;
   case TY_POLY:      
     assert( pty->type.tyvars.var.ident );
@@ -414,89 +445,151 @@ TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos
   return pty_subst;
 }
 
-static TYPE_CONS_PTR infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
-  TYPE_CONS_PTR pty_expr = NULL;
-  assert( penv );
-  assert( pexpr );
-  switch( pexpr->mnemonic ) {
-  case MNC_CALL:
-    break;
-  case MNC_ASGN:
-    {
-      TYPE_SUBST_PTR pS_l = NULL;
-      TYPE_CONS_PTR pty_l = NULL;
-      TYPE_SUBST_PTR pS_r = NULL;
-      TYPE_CONS_PTR pty_r = NULL;
-      pty_l = infer( &pS_l, penv, pexpr->kids.pleft, pos );
-      {
-	TYPE_ENV_PTR penv_r = NULL;
-	penv_r = dup_env( penv, pos );
-	if( penv_r ) {
-	  pty_r = infer( &pS_r, penv_r, pexpr->kids.pright, pos );
-	} else
-	  ;
-      }
-      ;
-    }
-    break;
-  case MNC_ARITH:
-    break;
-  case MNC_LVALUE:
-    break;
-  case MNC_RVALUE:
-    break;
-  case END_OF_MNEMONIC_CODE:
-    /* fall thru. */
-  default:
-    break;
-  }
-  return pty_expr;
-}
-
-TYPE_CONS_PTR typematch ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
-  TYPE_CONS_PTR pty_stmt = NULL;
-  assert( penv );
-  assert( pstmt );
-  switch( pstmt->sort ) {
-  case STMT_DECL:
-    assert( pstmt->u.pdecl );
-    assert( (pstmt->u.pdecl)->pinit );
-    infer( NULL, penv, (pstmt->u.pdecl)->pinit, pos );
-    break;
-  case STMT_EXPR:
-    infer( NULL, penv, pstmt->u.pexpr, pos );
-    break;
-  case END_OF_STMT_SORT:
-    /* fall thru. */
-  default:
-    assert( FALSE );    
-  }
-  return pty_stmt;
-}
-
-BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
-  BOOL r = FALSE;
+static struct {
+  struct {
+    TYENV_ELEM_PTR pavail;
+    TYENV_ELEM_PTR palive;
+  } mapping;
+  struct {
+    TYPE_ENV_PTR pavail;
+    TYPE_ENV_PTR palive;
+  } env;
+} type_env_manage;
+TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
+  TYENV_ELEM_PTR penv = NULL;
   
-  assert( pty1 );
-  assert( pty2 );
-  if( pty1->type.ty == TY_LIST ) {
-    if( pty2->type.ty == TY_LIST ) {
-      assert( pty1->attrs.list.pty_elem );
-      assert( pty2->attrs.list.pty_elem );
-      r = typecheck( pty1->attrs.list.pty_elem, pty2->attrs.list.pty_elem );
-    }
-  } else {
-    assert( pty1->type.ty != TY_LIST );
-    switch( pty1->type.ty ) {
-    case TY_INT:
-    case TY_STRING:
-      r = (pty1->type.ty == pty2->type.ty);
-      break;
-    default:
-      assert( FALSE );
-    }
+  penv = (TYENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
+				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
+  return penv;
+}
+
+void free_tyenv_elems ( TYENV_ELEM_PTR pelem ) {
+  if( pelem ) {    
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive, (ALLOC_NODE_LINKS_PTR)pelem );
   }
-  return r;
+}
+
+TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos ) {
+  TYPE_ENV_PTR penv = NULL;
+  
+  penv = (TYPE_ENV_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive,
+				   sizeof(TYPE_ENV), NUM_TYENVS_PER_ALLOC, pos );
+  return penv;
+}
+
+void free_type_env ( TYPE_ENV_PTR penv ) {
+  if( penv ) {
+    TYENV_ELEM_PTR pelem = penv->pmappings;
+    while( pelem ) {
+      TYENV_ELEM_PTR pnext = pelem->pnext;
+      free_tyenv_elems( pelem );
+      pelem = pnext;
+    }    
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail, (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive, (ALLOC_NODE_LINKS_PTR)penv );    
+  }
+}
+
+TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
+  TYENV_ELEM_PTR *ppe = NULL;
+  assert( penv );
+  assert( var_ident );
+  
+  ppe = &penv->pmappings;
+  while( *ppe ) {
+    assert( (*ppe)->ptype );
+    assert( (*ppe)->pvar );
+    assert( ((*ppe)->pvar)->ident );
+    if( strcmp( ((*ppe)->pvar)->ident, var_ident ) == 0 ) {
+      *ppe = (*ppe)->pnext;
+      break;
+    }
+    ppe = &(*ppe)->pnext;
+  }
+  return penv;
+}
+
+TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, TYENV_ELEM_PTR pelem ) {
+  TYENV_ELEM_PTR pe = NULL;
+  assert( penv );
+  assert( pelem );
+  
+  pe = penv->pmappings;
+  pelem->pnext = pe;
+  penv->pmappings = pelem;
+  return penv;
+}
+
+TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
+  TYENV_ELEM_PTR pe = NULL;
+  assert( penv );
+  assert( var_ident );
+  
+  pe = penv->pmappings;
+  while( pe ) {
+    assert( pe->ptype );
+    assert( pe->pvar );
+    assert( (pe->pvar)->ident );
+    if( strcmp( (pe->pvar)->ident, var_ident ) == 0 )
+      break;
+    pe = pe->pnext;
+  }
+  return pe;
+}
+
+TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
+  TYPE_ENV_PTR penv = NULL;
+  
+  penv = alloc_type_env( pos );
+  if( penv ) {
+    TYENV_ELEM_PTR pprev = NULL;
+    TYENV_ELEM_PTR pmap = NULL;
+    penv->pmappings = NULL;
+    assert( penv_org );
+    pmap = penv_org->pmappings;
+    while( pmap ) {
+      TYENV_ELEM_PTR pnew = NULL;
+      pnew = alloc_tyenv_elem( pos );
+      if( pnew ) {
+	pnew->pvar = pmap->pvar;
+	pnew->ptype = pmap->ptype;
+	pnew->pnext = NULL;
+      } else {
+	penv = NULL;
+	goto failed_memalloc;
+      }
+      if( pprev )
+	pprev->pnext = pnew;
+      else
+	penv->pmappings = pnew;
+      pprev = pnew;
+      pmap = pmap->pnext;
+    }
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return penv;
+}
+
+TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos ) {
+  TYPE_ENV_PTR penv_s = NULL;
+  assert( penv );
+  assert( psubst );
+  
+  penv_s = dup_env( penv, pos );
+  if( penv_s ) {
+    TYENV_ELEM_PTR pe = penv_s->pmappings;
+    while( pe ) {
+      TYPE_CONS_PTR pty_s = NULL;
+      assert( pe->pvar );
+      assert( pe->ptype );
+      pty_s = ty_subst( psubst, pe->ptype, pos );
+      assert( pty_s );
+      pe->ptype = pty_s;
+      pe = pe->pnext;
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return penv_s; 
 }
 
 char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {

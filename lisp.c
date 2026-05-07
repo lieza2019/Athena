@@ -126,16 +126,16 @@ LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C
     else
       pcons_cell = alloc_list_cell( pos );
     if( pcons_cell ) {
-      pcons_cell->pos = pos;
-      pcons_cell->type.ty = TY_LIST;
-      pcons_cell->attrs.list.pty_elem = plist->attrs.list.pty_elem;
       pcons_cell->attrs.list.car = pcons_ty;
       if( pcons_cell != plist ) {
+	pcons_cell->pos = pos;
+	pcons_cell->type.ty = TY_LIST;
+	pcons_cell->attrs.list.pty_elem = plist->attrs.list.pty_elem;
 	pcons_cell->attrs.list.cdr = plist;
 	pcons_cell->attrs.list.plast = plist->attrs.list.plast;
       } else {
 	pcons_cell->attrs.list.cdr = NULL;
-	pcons_cell->attrs.list.plast = plist;
+	pcons_cell->attrs.list.plast = pcons_cell;
       }
       r = pcons_cell;
     } else

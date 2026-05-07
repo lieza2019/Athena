@@ -28,6 +28,10 @@ typedef struct type_env_elem {
 #define NUM_TYENVS_PER_ALLOC 256
 typedef struct type_env {
   ALLOC_NODE_LINKS alloc;
+  struct {
+    struct type_env *ppred;
+    struct type_env *psucc;    
+  } uplink;
   TYENV_ELEM_PTR pmappings;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
