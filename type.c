@@ -211,6 +211,23 @@ void free_type_subst ( TYPE_SUBST_PTR ptysubst ) {
   }
 }
 
+TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+  TYPE_MAPSTO_PTR pe = NULL;
+  assert( psubst );
+  assert( tyvar_ident );
+  assert( pty );
+  
+  pe = alloc_type_mapping( pos );
+  if( pe ) {
+    pe->ident = tyvar_ident;
+    pe->ptype = pty;
+    pe->pnext = psubst->pmappings;
+    psubst->pmappings = pe;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return psubst;
+}
+
 TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos ) {
   TYPE_SUBST_PTR psubst = NULL;
   
@@ -227,8 +244,8 @@ TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos ) {
       pnew = alloc_type_mapping( pos );
       if( pnew ) {
 	pnew->ident = pmap->ident;
-	pnew->pty = dup_tydesc( pmap->pty, pos );
-	assert( pnew->pty );
+	pnew->ptype = dup_tydesc( pmap->ptype, pos );
+	assert( pnew->ptype );
 	pnew->pnext = NULL;
 	if( pprev )
 	  pprev->pnext = pnew;
@@ -343,8 +360,8 @@ static TYPE_CONS_PTR tyvar_rewrit ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SR
 #endif // RUNTIME_CONSITENCY_CHECK
     assert( pty->type.tyvars.var.ident );
     if( strcmp( ps_elem->ident, pty->type.tyvars.var.ident ) == 0 ) {
-      assert( ps_elem->pty );
-      pty_rewr = dup_tydesc( ps_elem->pty, pos );
+      assert( ps_elem->ptype );
+      pty_rewr = dup_tydesc( ps_elem->ptype, pos );
       if( !pty_rewr )
 	goto failed_memalloc;
       break;
@@ -508,14 +525,20 @@ TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
   return penv;
 }
 
-TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, TYENV_ELEM_PTR pelem ) {
+TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYENV_ELEM_PTR pe = NULL;
   assert( penv );
-  assert( pelem );
+  assert( pvar );
+  assert( pty );
   
-  pe = penv->pmappings;
-  pelem->pnext = pe;
-  penv->pmappings = pelem;
+  pe = alloc_tyenv_elem( pos );
+  if( pe ) {
+    pe->pvar = pvar;
+    pe->ptype = pty;
+    pe->pnext = penv->pmappings;
+    penv->pmappings = pe;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   return penv;
 }
 

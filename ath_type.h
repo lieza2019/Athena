@@ -60,7 +60,7 @@ typedef LIST_CELL const *LIST_CELL_PTR_C;
 typedef struct type_mapsto {
   ALLOC_NODE_LINKS alloc;
   char *ident;
-  TYPE_CONS_PTR pty;
+  TYPE_CONS_PTR ptype;
   struct type_mapsto *pnext;
 } TYPE_MAPSTO, *TYPE_MAPSTO_PTR;
 #define NUM_TYSUBSTS_PER_ALLOC 256
