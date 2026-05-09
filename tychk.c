@@ -3,13 +3,14 @@
 #include <assert.h>
 #include "athena.h"
 
-static BOOL chk_occr ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
+static BOOL chk_tyvar_occr ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
   BOOL r = FALSE;
   assert( tyvar_ident );
   assert( pty );
   
   switch( pty->type.ty ) {
   case TY_LTE_VAR:
+    assert( pty->attrs.lte.pln_var );
     break;
   case TY_INT:
   case TY_CHAR:
@@ -18,7 +19,7 @@ static BOOL chk_occr ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
     break;
   case TY_LIST:
     assert( pty->attrs.list.pty_elem );
-    r = chk_occr( tyvar_ident, pty->attrs.list.pty_elem );
+    r = chk_tyvar_occr( tyvar_ident, pty->attrs.list.pty_elem );
     break;
   case TY_POLY:
     assert( pty->type.tyvars.var.ident );
@@ -42,7 +43,7 @@ static BOOL unif_mkequ ( TYPE_SUBST_PTR ps_unif, TYPE_CONS_PTR pvar, TYPE_CONS_P
   assert( pvar );
   assert( pvar->type.ty == TY_POLY );
   assert( pvar->type.tyvars.var.ident );
-  if( chk_occr( pvar->type.tyvars.var.ident, pty_equ ) ) {
+  if( chk_tyvar_occr( pvar->type.tyvars.var.ident, pty_equ ) ) {
     subst_add( ps_unif, pvar->type.tyvars.var.ident, pty_equ, pos );
     r = TRUE;
   }

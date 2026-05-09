@@ -10,8 +10,8 @@ typedef struct pvar_attrib {
       TYPE_CONS_PTR init_s;
     } var_str;
     struct {
-      TYPE_CONS_PTR init_l;
       TYPE_CONS_PTR pty;
+      TYPE_CONS_PTR init_l;
     } var_list;
   } u;
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
