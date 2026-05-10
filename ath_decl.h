@@ -32,15 +32,12 @@ typedef enum decl_sort {
 } DECL_SORT;
 
 typedef struct declaration {
+  SRC_POS pos;
   char *ident;
   DECL_SORT kind;
   union {
     struct {
-#if 1
-      VAR_ATTRIB var;
-#else
       VAR_ATTRIB_PTR pvar;
-#endif
     } variable;
   } u;
   EXPR_CONS_PTR pinit;

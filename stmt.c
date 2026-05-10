@@ -14,7 +14,7 @@ STATEMENT_PTR new_stmt ( void ) {
   return pr;
 }
 
-BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr ) {
+BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   BOOL redef = FALSE;  
   assert( ppstmt );
   assert( pvar_attr );
@@ -27,7 +27,7 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr ) {
     assert( pdecl );
     if( redef )
       err_redef( pdecl );
-    (*ppstmt)->pos = pdecl->u.variable.var.pos;
+    (*ppstmt)->pos = pos;
     (*ppstmt)->sort = STMT_DECL;
     (*ppstmt)->u.pdecl = pdecl;
   } else

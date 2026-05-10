@@ -48,27 +48,63 @@
 %start statement
 %%
 statement : decl_var_poly {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1 );
-  assert( pstmt );
+  VAR_ATTRIB_PTR pvattr = NULL;
+  pvattr = alloc_var_attr( pos );
+  if( pvattr ) {
+    pvattr->pos = $1.pos;
+    pvattr->ident = $1.ident;
+    pvattr->ptype = $1.ptype;
+    stmt_decl_var( &pstmt, pvattr, pos );
+    assert( pstmt );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   $$ = *pstmt;
  }
 | decl_var_string {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1 );
-  assert( pstmt );
+  VAR_ATTRIB_PTR pvattr = NULL;
+  pvattr = alloc_var_attr( pos );
+  if( pvattr ) {
+    pvattr->pos = $1.pos;
+    pvattr->ident = $1.ident;
+    pvattr->ptype = $1.ptype;
+    stmt_decl_var( &pstmt, pvattr, pos );
+    assert( pstmt );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   $$ = *pstmt;
  }
 | decl_var_int {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1 );
-  assert( pstmt );
+  VAR_ATTRIB_PTR pvattr = NULL;
+  pvattr = alloc_var_attr( pos );
+  if( pvattr ) {
+    pvattr->pos = $1.pos;
+    pvattr->ident = $1.ident;
+    pvattr->ptype = $1.ptype;
+    stmt_decl_var( &pstmt, pvattr, pos );
+    assert( pstmt );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   $$ = *pstmt;
  };
 | decl_var_list {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  stmt_decl_var( &pstmt, &$1 );
-  assert( pstmt );
+  VAR_ATTRIB_PTR pvattr = NULL;
+  pvattr = alloc_var_attr( pos );
+  if( pvattr ) {
+    pvattr->pos = $1.pos;
+    pvattr->ident = $1.ident;
+    pvattr->ptype = $1.ptype;
+    stmt_decl_var( &pstmt, pvattr, pos );
+    assert( pstmt );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   $$ = *pstmt;
  };
 

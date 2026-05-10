@@ -7,11 +7,13 @@ void err_redef ( DECLARATION_PTR pdecl ) {
   int row;
   int col;
   assert( pdecl );
-  row = pdecl->u.variable.var.pos.row;
-  col = pdecl->u.variable.var.pos.col;
+  assert( pdecl->u.variable.pvar );
+  
+  row = (pdecl->u.variable.pvar)->pos.row;
+  col = (pdecl->u.variable.pvar)->pos.col;
   assert( row > 1 );
   assert( col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, pdecl->u.variable.var.pos.row, pdecl->u.variable.var.pos.col );  
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );  
 }
 
 static struct {
@@ -46,9 +48,10 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr ) {
   if( psym ) {
     psym->ident = pvar_attr->ident;
     psym->entity.kind = SYM_DECL;
+    psym->entity.u.decl.pos = pvar_attr->pos;
     psym->entity.u.decl.ident = pvar_attr->ident;
     psym->entity.u.decl.kind = DECL_VAR;
-    psym->entity.u.decl.u.variable.var = *pvar_attr;
+    psym->entity.u.decl.u.variable.pvar = pvar_attr;
     psym->passoc = NULL;
     psym->pnext = NULL;
     {
@@ -62,7 +65,7 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr ) {
 	
 #if 1 /* assuming the specific case of "int a = n", in below code. */
 	if( (pvar_attr->ptype)->type.ty == TY_INT ) {
-	  SRC_POS pos_ini = (pvar_attr->ptype)->pos; //SRC_POS pos_ini = pvar_attr->u.var_int.init_n->pos;
+	  SRC_POS pos_ini = (pvar_attr->ptype)->pos;
 	  EXPR_CONS_PTR pasgn = alloc_expr_cons( pos_ini );
 	  pasgn->pos = pvar_attr->pos;
 	  pasgn->mnemonic = MNC_ASGN;

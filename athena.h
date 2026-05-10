@@ -66,7 +66,7 @@ extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr );
 
 /* from stmt.c */
 extern STATEMENT_PTR new_stmt ( void );
-extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr );
+extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
 
 /* from lisp.c */
 extern LIST_CELL_PTR alloc_list_cell ( SRC_POS_C pos );
