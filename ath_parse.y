@@ -222,9 +222,9 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   $$.type = TY_LIST;
   decl_attrib_var( &$$, $1, $3, $4, pos );
 #else
-  if( $4 )
+  if( $4 ) {
     decl_attrib_var( &$$, $1, TY_LIST, $4, pos );
-  else
+  } else
     decl_attrib_var( &$$, $1, TY_LIST, $3, pos );
 #endif
  };
