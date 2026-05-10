@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
-static BOOL chk_tyvar_occr ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
+static BOOL chk_tyvar_occur ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
   BOOL r = FALSE;
   assert( tyvar_ident );
   assert( pty );
@@ -11,6 +11,8 @@ static BOOL chk_tyvar_occr ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
   switch( pty->type.ty ) {
   case TY_LTE_VAR:
     assert( pty->attrs.lte.pln_var );
+    assert( ((VAR_ATTRIB_PTR)pty->attrs.lte.pln_var)->ptype );
+    r = chk_tyvar_occur( tyvar_ident, ((VAR_ATTRIB_PTR)pty->attrs.lte.pln_var)->ptype );
     break;
   case TY_INT:
   case TY_CHAR:
@@ -19,7 +21,7 @@ static BOOL chk_tyvar_occr ( char *tyvar_ident, TYPE_CONS_PTR pty ) {
     break;
   case TY_LIST:
     assert( pty->attrs.list.pty_elem );
-    r = chk_tyvar_occr( tyvar_ident, pty->attrs.list.pty_elem );
+    r = chk_tyvar_occur( tyvar_ident, pty->attrs.list.pty_elem );
     break;
   case TY_POLY:
     assert( pty->type.tyvars.var.ident );
@@ -43,7 +45,7 @@ static BOOL unif_mkequ ( TYPE_SUBST_PTR ps_unif, TYPE_CONS_PTR pvar, TYPE_CONS_P
   assert( pvar );
   assert( pvar->type.ty == TY_POLY );
   assert( pvar->type.tyvars.var.ident );
-  if( chk_tyvar_occr( pvar->type.tyvars.var.ident, pty_equ ) ) {
+  if( chk_tyvar_occur( pvar->type.tyvars.var.ident, pty_equ ) ) {
     subst_add( ps_unif, pvar->type.tyvars.var.ident, pty_equ, pos );
     r = TRUE;
   }
@@ -59,6 +61,9 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   *pps_unif = NULL;
   switch( pty_1->type.ty ) {
   case TY_LTE_VAR:
+    assert( pty_1->attrs.lte.pln_var );
+    assert( ((VAR_ATTRIB_PTR)pty_1->attrs.lte.pln_var)->ptype );
+    ty_unify( pps_unif, ((VAR_ATTRIB_PTR)pty_1->attrs.lte.pln_var)->ptype, pty_2, pos );
     break;
   case TY_INT:
     r = (pty_2->type.ty == TY_INT);
