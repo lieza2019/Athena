@@ -1,6 +1,7 @@
 typedef struct pvar_attrib {
   SRC_POS pos;
   char *ident;
+#if 0
   TYPE_CODE type;
   union {
     struct {
@@ -14,6 +15,9 @@ typedef struct pvar_attrib {
       TYPE_CONS_PTR init_l;
     } var_list;
   } u;
+#else
+  TYPE_CONS_PTR ptype;
+#endif
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
 typedef struct var_attrib const *VAR_ATTRIB_PTR_C;

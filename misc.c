@@ -112,6 +112,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
   return ps;
 }
 
+#if 0 // ***** 2026/5/10 *****
 char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   SRC_POS pos;
   char *ps = NULL;  
@@ -171,3 +172,72 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   }
   return ps;
 }
+#else
+char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
+  SRC_POS pos;
+  char *ps = NULL;  
+  assert( sbuf );
+  assert( pvar_attr );
+  assert( pvar_attr->ptype );
+  
+  pos = pvar_attr->pos;
+  ps = sbuf;
+  strcpy( ps, pvar_attr->ident );
+  ps += strlen( ps );
+  assert( *ps == 0 );
+  strcpy( ps, " := " );
+  ps += strlen( ps );
+  switch( (pvar_attr->ptype)->type.ty ) {
+  case TY_INT:
+    //assert( pvar_attr->u.var_int.init_n );
+    //assert( (pvar_attr->u.var_int.init_n)->type.ty == TY_INT );
+    //sprintf( ps, "%d", (pvar_attr->u.var_int.init_n)->attrs.literal.integer.n );
+    sprintf( ps, "%d", (pvar_attr->ptype)->attrs.literal.integer.n );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps, ":int" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_STRING:
+    //assert( pvar_attr->u.var_str.init_s );
+    //assert( (pvar_attr->u.var_str.init_s)->type.ty == TY_STRING );
+    //assert( (pvar_attr->u.var_str.init_s)->attrs.literal.string.ps );
+    assert( (pvar_attr->ptype)->attrs.literal.string.ps );
+    strcpy( ps,  "\"" );
+    ps++;    
+    //sprintf( ps, "%s", (pvar_attr->u.var_str.init_s)->attrs.literal.string.ps );
+    sprintf( ps, "%s", (pvar_attr->ptype)->attrs.literal.string.ps );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps,  "\"" );
+    ps++;
+    strcpy( ps, ":string" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_LIST:
+#if 0 // *****
+    if( pvar_attr->u.var_list.pty )
+      ps = print_value_type( ps, pvar_attr->u.var_list.init_l );
+    else
+      strcpy( ps, "UNKNOWN_VALUE:[UNKNOWN_TYPE]" );
+#else
+    ps = print_value_type( ps, pvar_attr->ptype );
+#endif
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_POLY:
+    strcpy( ps, "UNKNOWN_VALUE:poly" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return ps;
+}
+#endif

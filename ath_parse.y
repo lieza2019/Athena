@@ -75,29 +75,45 @@ statement : decl_var_poly {
 decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
+#if 0 // ***** 2026/5/10 *****
   $$.type = TY_POLY;
   decl_attrib_var( &$$, $1, NULL, NULL, pos );
+#else
+ decl_attrib_var( &$$, $1, TY_POLY, NULL, pos );
+#endif
  }
 
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
-  $$.type = TY_INT;  
+#if 0 // ***** 2026/5/10 *****
+  $$.type = TY_INT;
   decl_attrib_var( &$$, $1, NULL, NULL, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_INT, NULL, pos );
+#endif
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
   assert( $4 );
+#if 0 // ***** 2026/5/10 *****
   $$.type = TY_INT;
   decl_attrib_var( &$$, $1, NULL, $4, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_INT, $4, pos );
+#endif
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
   assert( $4 );
+#if 0 // ***** 2026/5/10 *****
   $$.type = TY_INT;
   decl_attrib_var( &$$, $1, NULL, $4, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_INT, $4, pos );
+#endif
  };
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -115,22 +131,34 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
 decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
+#if 0 // ***** 2026/5/10 *****
   $$.type = TY_STRING;
   decl_attrib_var( &$$, $1, NULL, NULL, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_STRING, NULL, pos );
+#endif
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
   assert( $4 );
+#if 0 // ***** 2026/5/10 *****
   $$.type = TY_STRING;
   decl_attrib_var( &$$, $1, NULL, $4, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_STRING, $4, pos );
+#endif
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
   assert( $4 );
+#if 0 // ***** 2026/5/10 *****
   $$.type = TY_STRING;
   decl_attrib_var( &$$, $1, NULL, $4, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_STRING, $4, pos );
+#endif
  }
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -159,6 +187,7 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   $$ = pval_string;
  };
 
+/* // ***** 2026/5/10 *****
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $3 );
@@ -172,6 +201,29 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   assert( strlen($1) >= 1 );
   $$.type = TY_LIST;
   decl_attrib_var( &$$, $1, $3, $4, pos );
+ };
+*/
+decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $3 );
+  assert( strlen($1) >= 1 );
+#if 0 // ***** 2026/5/10 *****
+  $$.type = TY_LIST;
+  decl_attrib_var( &$$, $1, $3, NULL, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_LIST, $3, pos );
+#endif
+ }
+| TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };  
+  assert( $3 );
+  assert( strlen($1) >= 1 );
+#if 0 // ***** 2026/5/10 *****
+  $$.type = TY_LIST;
+  decl_attrib_var( &$$, $1, $3, $4, pos );
+#else
+  decl_attrib_var( &$$, $1, TY_LIST, $4, pos );
+#endif
  };
 
 list_elem_type : TK_LSQBL TK_RSQBL {
