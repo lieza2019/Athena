@@ -196,7 +196,6 @@ decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
 | TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
   $$ = $3;
  };
-
 decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_INT, &$1, $2, pos );
@@ -215,7 +214,6 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   assert( ($2)->type.ty == TY_LIST );
   $$ = value_list( $2, $3, pos );
  };
-
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;
 }

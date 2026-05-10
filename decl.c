@@ -3,6 +3,37 @@
 #include <assert.h>
 #include "athena.h"
 
+void err_redef ( DECLARATION_PTR pdecl ) {
+  int row;
+  int col;
+  assert( pdecl );
+  row = pdecl->u.variable.var.pos.row;
+  col = pdecl->u.variable.var.pos.col;
+  assert( row > 1 );
+  assert( col > 1 );
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, pdecl->u.variable.var.pos.row, pdecl->u.variable.var.pos.col );  
+}
+
+static struct {
+  struct {
+    VAR_ATTRIB_PTR pavail;
+    VAR_ATTRIB_PTR palive;
+  } var;
+} decl_attr_manage;
+VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos ) {
+  VAR_ATTRIB_PTR pvattr = NULL;
+  
+  pvattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail, (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive,
+				       sizeof(VAR_ATTRIB), NUM_DECLATTR_VAR_PAR_ALLOC, pos );
+  return pvattr;
+}
+
+void free_var_addr ( VAR_ATTRIB_PTR pvattr ) {
+  if( pvattr ) {
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail, (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive, (ALLOC_NODE_LINKS_PTR)pvattr );
+  }
+}
+
 BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr ) {
   BOOL redef = FALSE;
   SYMTBL_ENTRY_PTR psym = NULL;
@@ -67,15 +98,4 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr ) {
   if( *pdecl )
     assert( strcmp( (*pdecl)->ident, pvar_attr->ident ) == 0 );
   return redef;
-}
-
-void err_redef ( DECLARATION_PTR pdecl ) {
-  int row;
-  int col;
-  assert( pdecl );
-  row = pdecl->u.variable.var.pos.row;
-  col = pdecl->u.variable.var.pos.col;
-  assert( row > 1 );
-  assert( col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, pdecl->u.variable.var.pos.row, pdecl->u.variable.var.pos.col );  
 }

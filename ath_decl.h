@@ -1,4 +1,6 @@
+#define NUM_DECLATTR_VAR_PAR_ALLOC 256
 typedef struct pvar_attrib {
+  ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
   char *ident;
   TYPE_CONS_PTR ptype;

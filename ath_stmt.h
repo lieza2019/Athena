@@ -13,6 +13,7 @@ typedef struct statement {
     DECLARATION_PTR pdecl;
     EXPR_CONS_PTR pexpr;
   } u;
+  TYPE_ENV_PTR penv;
 } STATEMENT, *STATEMENT_PTR;
 typedef const struct statement STATEMENT_C;
 typedef struct statement *STATEMENT_PTR_C;
