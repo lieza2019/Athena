@@ -114,6 +114,8 @@ VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
   case TY_POLY:
     poly_var_attrib( pvar_attr, pvar_name, pos );
     break;
+  case TY_OTHERS:
+    /* fall thru. */
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:
@@ -196,6 +198,8 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
 	  pty_e = pelem;
 	  break;
 	case TY_POLY:
+	  /* fall thru. */
+	case TY_OTHERS:
 	  /* fall thru. */
 	case END_OF_TYPE_CODE:
 	  /* fall thru. */

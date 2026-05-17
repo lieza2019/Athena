@@ -34,7 +34,7 @@ extern TYPE_MAPSTO_PTR alloc_type_mapping ( SRC_POS_C pos );
 extern void free_type_mapping ( TYPE_MAPSTO_PTR ptymap );
 extern TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos );
 extern void free_type_subst ( TYPE_SUBST_PTR ptysubst );
-extern TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
+extern TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos );
 extern TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psub_1, TYPE_SUBST_PTR psub_2, SRC_POS_C pos );
 extern TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos );
@@ -52,7 +52,7 @@ extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 /* from tychek.c */
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos );
-extern TYPE_CONS_PTR typematch ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos );
+extern TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos );
 
 /* from expr.c */
 extern EXPR_CONS_PTR alloc_expr_cons ( SRC_POS_C pos );

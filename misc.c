@@ -104,6 +104,8 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
     ps = print_var_type( ps, pvar_tydesc );
     assert( *ps == 0 );
     break;
+  case TY_OTHERS:
+    /* fall thru. */
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:
@@ -158,6 +160,8 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
     ps += strlen( ps );
     assert( *ps == 0 );
     break;
+  case TY_OTHERS:
+    /* fall thru. */
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:

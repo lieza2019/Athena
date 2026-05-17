@@ -111,7 +111,7 @@ statement : decl_var_poly {
 decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
- decl_attrib_var( &$$, $1, TY_POLY, NULL, pos );
+  decl_attrib_var( &$$, $1, TY_POLY, NULL, pos );
  }
 
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {

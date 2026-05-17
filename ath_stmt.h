@@ -18,8 +18,8 @@ typedef struct statement {
 typedef const struct statement STATEMENT_C;
 typedef struct statement *STATEMENT_PTR_C;
 
-typedef struct statements{
+typedef struct statements {
   int nstmts;
-  STATEMENT stmts_buf[MAX_STATEMENTS];  
+  STATEMENT stmts_buf[MAX_STATEMENTS];
 } STATEMENTS;
-extern STATEMENTS statementso;
+extern STATEMENTS statements;

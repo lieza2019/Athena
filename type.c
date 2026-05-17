@@ -24,7 +24,9 @@ static char *fresh_tyvar ( SRC_POS_C pos ) {
 TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
   assert( pty_cons );
   switch( pty_cons->type.ty ) {
-  case TY_INT: case TY_CHAR: case TY_STRING:
+  case TY_INT:
+  case TY_CHAR:
+  case TY_STRING:
     break;  
   case TY_LIST:
     asgn_tyvar( pty_cons->attrs.list.pty_elem, pos );
@@ -36,6 +38,8 @@ TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
       assert( pty_cons->type.tyvars.var.ident );
     }
     break;
+  case TY_OTHERS:
+    /* fall thru. */
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:
@@ -211,7 +215,7 @@ void free_type_subst ( TYPE_SUBST_PTR ptysubst ) {
   }
 }
 
-TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYPE_MAPSTO_PTR pe = NULL;
   assert( psubst );
   assert( tyvar_ident );
@@ -454,6 +458,8 @@ TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos
     break;
   case TY_GEN:
     assert( FALSE );
+  case TY_OTHERS:
+    /* fall thru. */
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:
@@ -507,6 +513,7 @@ void free_type_env ( TYPE_ENV_PTR penv ) {
 }
 
 TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
+  BOOL found = FALSE;
   TYENV_ELEM_PTR *ppe = NULL;
   assert( penv );
   assert( var_ident );
@@ -517,10 +524,19 @@ TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
     assert( (*ppe)->pvar );
     assert( ((*ppe)->pvar)->ident );
     if( strcmp( ((*ppe)->pvar)->ident, var_ident ) == 0 ) {
+      found = TRUE;
       *ppe = (*ppe)->pnext;
       break;
     }
     ppe = &(*ppe)->pnext;
+  }
+  if( !found ) {
+    assert( ! *ppe );
+    assert( penv );
+    if( penv->uplink.ppred )
+      penv = env_rid( penv->uplink.ppred, var_ident );
+    else
+      penv = NULL;
   }
   return penv;
 }
@@ -543,6 +559,7 @@ TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar, TYPE_CONS_PTR pty
 }
 
 TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
+  BOOL found = FALSE;
   TYENV_ELEM_PTR pe = NULL;
   assert( penv );
   assert( var_ident );
@@ -552,22 +569,35 @@ TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
     assert( pe->ptype );
     assert( pe->pvar );
     assert( (pe->pvar)->ident );
-    if( strcmp( (pe->pvar)->ident, var_ident ) == 0 )
+    if( strcmp( (pe->pvar)->ident, var_ident ) == 0 ) {
+      found = TRUE;
       break;
+    }
     pe = pe->pnext;
+  }
+  if( !found ) {
+    assert( !pe );
+    assert( penv );
+    if( penv->uplink.ppred )
+      pe = env_lkup( penv->uplink.ppred, var_ident );
   }
   return pe;
 }
 
 TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
   TYPE_ENV_PTR penv = NULL;
+  assert( penv_org );
   
   penv = alloc_type_env( pos );
   if( penv ) {
+    TYPE_ENV_PTR ppred = NULL;
     TYENV_ELEM_PTR pprev = NULL;
     TYENV_ELEM_PTR pmap = NULL;
-    penv->pmappings = NULL;
-    assert( penv_org );
+    if( penv_org->uplink.ppred ) {
+      ppred = dup_env( penv_org->uplink.ppred, pos );
+      assert( ppred );
+    }
+    penv->pmappings = NULL;    
     pmap = penv_org->pmappings;
     while( pmap ) {
       TYENV_ELEM_PTR pnew = NULL;
@@ -587,6 +617,10 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
       pprev = pnew;
       pmap = pmap->pnext;
     }
+    if( ppred )
+      ppred->uplink.psucc = penv;
+    penv->uplink.ppred = ppred;
+    penv->uplink.psucc = NULL;
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
@@ -659,6 +693,8 @@ char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
     ps += strlen( ps );
     assert( *ps == 0 );
     break;
+  case TY_OTHERS:
+    /* fall thru. */
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:

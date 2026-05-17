@@ -6,6 +6,7 @@ typedef enum type_code {
   TY_LIST,
   TY_POLY,
   TY_GEN,
+  TY_OTHERS,
   END_OF_TYPE_CODE
 } TYPE_CODE;
 extern char *ath_type_name[];
@@ -18,7 +19,7 @@ typedef struct type_cons {
     TYPE_CODE ty;
     struct {
       struct {
-	char *ident;
+	const char *ident;
 	struct type_cons *pnext;
       } var;
       struct type_cons *pgenvars;
@@ -59,7 +60,7 @@ typedef LIST_CELL const *LIST_CELL_PTR_C;
 #define NUM_TYMAPS_PER_ALLOC 256
 typedef struct type_mapsto {
   ALLOC_NODE_LINKS alloc;
-  char *ident;
+  const char *ident;
   TYPE_CONS_PTR ptype;
   struct type_mapsto *pnext;
 } TYPE_MAPSTO, *TYPE_MAPSTO_PTR;

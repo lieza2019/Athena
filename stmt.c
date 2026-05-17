@@ -4,6 +4,7 @@
 #include "athena.h"
 
 STATEMENTS statements = { 0, {} };
+TYPE_ENV_PTR penv_last = NULL;
 
 STATEMENT_PTR new_stmt ( void ) {
   STATEMENT_PTR pr = NULL;
