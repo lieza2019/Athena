@@ -2,7 +2,11 @@
 typedef struct pvar_attrib {
   ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
+#if 0
   char *ident;
+#else  
+  const char *ident; //char const *ident;
+#endif
   TYPE_CONS_PTR ptype;
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
@@ -33,7 +37,11 @@ typedef enum decl_sort {
 
 typedef struct declaration {
   SRC_POS pos;
+#if 0
   char *ident;
+#else
+  const char *ident;
+#endif
   DECL_SORT kind;
   union {
     struct {

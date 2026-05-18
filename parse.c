@@ -10,12 +10,12 @@ TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
 }
 
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
-  char *pident = NULL;
+  const char *pident = NULL;
   assert( pvar_attr );  
   assert( (pvar_attr->ptype)->type.ty == TY_POLY );
   assert( pvar_name );
   
-  pident = find_literal( pvar_name );
+  pident = find_literal( pvar_name, pos );
   if( pident ) {
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
@@ -24,11 +24,11 @@ static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS
 }
 
 static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pn_init, SRC_POS_C pos ) {
-  char *pident = NULL;
+  const char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
   
-  pident = find_literal( pvar_name );
+  pident = find_literal( pvar_name, pos );
   if( pident ) {
     if( !pn_init ) {
       pn_init = alloc_type_cons( pos );
@@ -49,11 +49,11 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CON
 }
 
 static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR ps_init, SRC_POS_C pos ) {
-  char *pident = NULL;
+  const char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
   
-  pident = find_literal( pvar_name );
+  pident = find_literal( pvar_name, pos );
   if( pident ) {
     if( !ps_init ) {
       ps_init = alloc_type_cons( pos );
@@ -81,13 +81,13 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_
 }
 
 static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pl_init, SRC_POS_C pos ) {
-  char *pident = NULL;
+  const char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
   assert( pl_init );
   assert( pl_init->type.ty == TY_LIST );
   
-  pident = find_literal( pvar_name );
+  pident = find_literal( pvar_name, pos );
   if( pident ) {
     pvar_attr->pos = pos;
     pvar_attr->ident = pident;

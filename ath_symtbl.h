@@ -15,13 +15,13 @@ typedef struct sym_entity {
     DECLARATION decl;
     struct {
       CONST_KIND kind;
-      char *pstr;
+      const char *pstr;
       int n;
     } constant;
   } u;
 } SYM_ENTITY, *SYM_ENTITY_PTR;
 typedef struct symtbl_entry {
-  char *ident;
+  const char *ident;
   SYM_ENTITY entity;
   struct symtbl_entry *passoc;
   struct symtbl_entry *pnext;

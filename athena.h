@@ -21,7 +21,7 @@ extern SYMTBL_SCOPE_PTR enter_scope ( void );
 extern SYMTBL_SCOPE_PTR leave_scope ( void );
 extern SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym );
 extern SYM_ENTITY_PTR find_symbol ( const char *ident );
-extern char *find_literal ( char *pname );
+extern const char *find_literal ( const char *pname, SRC_POS_C pos );
 
 /* from type.c */
 extern TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos );

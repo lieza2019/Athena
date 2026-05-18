@@ -66,7 +66,10 @@ int yywrap( void ) {
 
 ([a-zA-Z]|"_")([a-zA-Z0-9]|"_")* {
   yylloc.first_column += strlen( yytext );
-  yylval.str = find_literal( yytext );
+  {
+    SRC_POS_C pos = { yylloc.first_line, yylloc.first_column };
+    yylval.str = (char *)find_literal( yytext, pos );
+  }
   return TK_IDENT;
 }
 
@@ -74,11 +77,14 @@ int yywrap( void ) {
   const int len = strlen( yytext );
   assert( len >= 2 );
   yylloc.first_column += strlen( yytext );
-  assert( yytext[len] == 0 );
-  assert( yytext[len - 1] == '"' );
-  yytext[len - 1] = 0;
-  assert( yytext[0] == '"' );
-  yylval.str = find_literal( &yytext[1] );
+  {
+    SRC_POS_C pos = { yylloc.first_line, yylloc.first_column };
+    assert( yytext[len] == 0 );
+    assert( yytext[len - 1] == '"' );
+    yytext[len - 1] = 0;
+    assert( yytext[0] == '"' );
+    yylval.str = (char *)find_literal( &yytext[1], pos );
+  }
   assert( yylval.str );
   printf( "TK_STR_LITERAL: %s\n", yylval.str );
   return TK_STR_LITERAL;

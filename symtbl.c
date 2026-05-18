@@ -6,21 +6,30 @@
 
 SYMTBL symtbl = { NULL, NULL, NULL };
 
-static SYMTBL_ENTRY_PTR new_entry ( char *pname ) {
+static const char *sym_ident ( const char *pname, SRC_POS_C pos ) {
+  char *ps = NULL;
+  assert( pname );
+  {
+    const int len = strlen( pname );
+    ps = new_memarea( len + 1 );
+    if( ps )
+      strncpy( ps, pname, len );
+    else
+      ath_abort( pos, ABORT_MEMLACK );
+  }
+  return ps;
+}
+static SYMTBL_ENTRY_PTR new_entry ( const char *pname, SRC_POS_C pos ) {
   SYMTBL_ENTRY_PTR pr = NULL;
   assert( pname );
   pr = new_memarea( sizeof(SYMTBL_ENTRY) );
   if( pr ) {
-    const int len = strlen( pname );
     pr->passoc = NULL;
     pr->pnext = NULL;
-    pr->ident = new_memarea( len + 1 );
-    if( pr->ident )
-      strncpy( pr->ident, pname, len );
-    else
-      ;
+    pr->ident = sym_ident( pname, pos );
+    assert( pr->ident );
   } else
-    ;
+    ath_abort( pos, ABORT_MEMLACK );
   return pr;
 }
 static SYMTBL_SCOPE_PTR new_scope ( void ) {
@@ -158,7 +167,7 @@ SYM_ENTITY_PTR find_symbol ( const char *ident ) {
   return pentry;
 }
 
-static SYMTBL_ENTRY_PTR reg_literal ( char *pname ) {
+static SYMTBL_ENTRY_PTR reg_literal ( const char *pname, SRC_POS_C pos ) {
   SYMTBL_ENTRY_PTR pliter = NULL;
   int h = -1;
   assert( pname );
@@ -176,7 +185,7 @@ static SYMTBL_ENTRY_PTR reg_literal ( char *pname ) {
       pbuck = &(*pbuck)->pnext;
     assert( pbuck );
     assert( ! *pbuck );
-    pliter = new_entry( pname );
+    pliter = new_entry( pname, pos );
     if( pliter ) {
       pliter->entity.kind = SYM_CONST;
       pliter->entity.u.constant.kind = CONST_STR;
@@ -188,8 +197,8 @@ static SYMTBL_ENTRY_PTR reg_literal ( char *pname ) {
   return pliter;
 }
 
-char *find_literal ( char *pname ) {
-  char *pstr = NULL;
+const char *find_literal ( const char *pname, SRC_POS_C pos ) {
+  const char *pstr = NULL;
   SYMTBL_ENTRY_PTR psym = NULL;
   assert( pname );
   
@@ -208,7 +217,7 @@ char *find_literal ( char *pname ) {
     }
     if( !psym )
     reg:
-      psym = reg_literal( pname );
+      psym = reg_literal( pname, pos );
   }
   if( psym ) {
     assert( psym->entity.kind == SYM_CONST );

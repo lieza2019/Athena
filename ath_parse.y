@@ -167,13 +167,15 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   pval_string = alloc_type_cons( pos );
   if( pval_string ) {
     const int len = strlen( $2 );
-    char *s = NULL;
-    s = find_literal( $2 );
-    if( !s ) {      
-      s = new_memarea( len + 1 );
-      if( s ) {
-	s[len] = 0;
-	strncpy( s, $2, len );
+    const char *s = NULL;
+    s = find_literal( $2, pos );
+    if( !s ) {
+      char *s_new = NULL;
+      s_new = new_memarea( len + 1 );
+      if( s_new ) {
+	s_new[len] = 0;
+	strncpy( s_new, $2, len );
+	s = s_new;
       } else
 	goto failed_memalloc_decl_string_init;
     }
