@@ -11,17 +11,18 @@ typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
 #define NUM_TYELEMS_PER_ALLOC 256
 typedef struct type_env_elem {
   ALLOC_NODE_LINKS alloc;
+#if 1
   VAR_ATTRIB_PTR pvar;
   TYPE_CONS_PTR ptype;
+#else
+  VAR_ATTRIB var;
+#endif
   struct type_env_elem *pnext;
 } TYENV_ELEM, *TYENV_ELEM_PTR;
 #define NUM_TYENVS_PER_ALLOC 256
 typedef struct type_env {
   ALLOC_NODE_LINKS alloc;
-  struct {
-    struct type_env *ppred;
-    struct type_env *psucc;
-  } uplink;
+  struct type_env *uplink;
   TYENV_ELEM_PTR pmappings;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
