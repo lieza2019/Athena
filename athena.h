@@ -46,7 +46,7 @@ extern void free_tyenv_elems ( TYENV_ELEM_PTR pelem );
 extern TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos );
 extern void free_type_env ( TYPE_ENV_PTR penv );
 extern TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident );
-extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar, TYPE_CONS_PTR pty, SRC_POS_C pos );
+extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident );
 extern TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos );
 extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos );
