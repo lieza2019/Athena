@@ -27,6 +27,7 @@ extern const char *find_literal ( const char *pname, SRC_POS_C pos );
 extern TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos );
 extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
 extern void free_type_cons ( TYPE_CONS_PTR ptycons );
+extern BOOL chk_tycon_list ( TYPE_CONS_PTR plist );
 extern TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos );
 extern int enum_gentyvers ( TYPE_CONS_PTR *ppgenvars, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYPE_CONS_PTR gen_tyvars ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_tyvers, SRC_POS_C pos );
@@ -39,7 +40,6 @@ extern TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyvar_ident
 extern TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos );
 extern TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psub_1, TYPE_SUBST_PTR psub_2, SRC_POS_C pos );
 extern TYPE_SUBST_PTR restr_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvers_omit, SRC_POS_C pos );
-extern BOOL chk_tycon_list ( TYPE_CONS_PTR plist );
 extern TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );
 extern void free_tyenv_elems ( TYENV_ELEM_PTR pelem );
