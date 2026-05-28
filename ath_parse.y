@@ -96,6 +96,8 @@ statement : decl_var_poly {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
+  assert( $1.ident );
+  assert( chk_tycon_list( $1.ptype ) );
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;

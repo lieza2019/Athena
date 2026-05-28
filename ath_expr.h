@@ -19,4 +19,7 @@ typedef struct expr_cons {
     struct expr_cons *pleft;
     struct expr_cons *pright;    
   } kids;
+#if 1
+  TYPE_CONS_PTR ptype;
+#endif
 } EXPR_CONS, *EXPR_CONS_PTR;

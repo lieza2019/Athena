@@ -34,11 +34,13 @@ static BOOL chk_tyvar_occur ( const char *tyvar_ident, TYPE_CONS_PTR pty ) {
   assert( pty );
   
   switch( pty->type.ty ) {
+#if 0 // !!!!!!
   case TY_LTE_VAR:
     assert( pty->attrs.lte.pln_var );
     assert( ((VAR_ATTRIB_PTR)pty->attrs.lte.pln_var)->ptype );
     r = chk_tyvar_occur( tyvar_ident, ((VAR_ATTRIB_PTR)pty->attrs.lte.pln_var)->ptype );
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
@@ -87,11 +89,13 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   
   *pps_unif = NULL;
   switch( pty_1->type.ty ) {
+#if 0 // !!!!!
   case TY_LTE_VAR:
     assert( pty_1->attrs.lte.pln_var );
     assert( ((VAR_ATTRIB_PTR)pty_1->attrs.lte.pln_var)->ptype );
     ty_unify( pps_unif, ((VAR_ATTRIB_PTR)pty_1->attrs.lte.pln_var)->ptype, pty_2, pos );
     break;
+#endif
   case TY_INT:
     r = (pty_2->type.ty == TY_INT);
     if( !r ) {
@@ -228,11 +232,13 @@ static TYPE_CONS_PTR enum_tvs ( TYPE_CONS_PTR pacc, TYPE_CONS_PTR pty, SRC_POS_C
   assert( pty );
   
   switch( pty->type.ty ) {
+#if 0 // !!!!!
   case TY_LTE_VAR:
     assert( pty->attrs.lte.pln_var );
     assert( ((VAR_ATTRIB_PTR)pty->attrs.lte.pln_var)->ptype );
     ptvs = enum_tvs( pacc, ((VAR_ATTRIB_PTR)pty->attrs.lte.pln_var)->ptype, pos );
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:

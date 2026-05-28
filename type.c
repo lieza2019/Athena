@@ -75,12 +75,14 @@ static BOOL exam_tycon_elem ( TYPE_CONS_PTR pty_e, TYPE_CONS_PTR pelem ) {
   assert( pelem );
   
   switch( pelem->type.ty ) {
+#if 0 // *****
   case TY_LTE_VAR:
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
-    r = (pty_e == pelem->attrs.list.pty_elem);
+    r = (pty_e->type.ty == pelem->type.ty);
     break;
   case TY_LIST:
     assert( pelem->attrs.list.pty_elem );
@@ -91,14 +93,11 @@ static BOOL exam_tycon_elem ( TYPE_CONS_PTR pty_e, TYPE_CONS_PTR pelem ) {
       if( pelem->attrs.list.car ) {
 	TYPE_CONS_PTR pcell = pelem;
 	do {
-	  if( pty_e->attrs.list.pty_elem != pcell->attrs.list.pty_elem )
+	  assert( pcell->attrs.list.car );
+	  if( ! exam_tycon_elem( pty_e->attrs.list.pty_elem, pcell->attrs.list.car ) ) {
 	    failed = TRUE;
-	  else {
-	    if( ! exam_tycon_elem( pty_e->attrs.list.pty_elem, pcell->attrs.list.car ) )
-	      failed = TRUE;
-	  }
-	  if( failed )
 	    break;
+	  }
 	  if( ! pcell->attrs.list.cdr )
 	    failed = (pelem->attrs.list.plast != pcell);
 	  pcell = pcell->attrs.list.cdr;
@@ -436,8 +435,10 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
   assert( pty );
   
   switch( pty->type.ty ) {
+#if 0 // *****
   case TY_LTE_VAR:
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
