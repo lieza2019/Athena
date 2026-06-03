@@ -450,18 +450,41 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
   case TY_LIST:
     assert( ! pty->type.tyvars.var.ident );
     assert( ! pty->type.tyvars.var.pnext );
+    assert( pty->attrs.list.pty_elem );
     pty_subst = dup_tydesc( pty, pos );
     if( pty_subst ) {
       TYPE_CONS_PTR pty_s_elem = NULL;
+      assert( pty_subst->type.ty == TY_LIST );
+      assert( pty_subst->attrs.list.pty_elem == pty->attrs.list.pty_elem );
 #ifdef RUNTIME_CONSITENCY_CHECK
       assert( chk_tycon_list( pty_subst ) );
-#endif // RUNTIME_CONSITENCY_CHECK
-      assert( pty->attrs.list.pty_elem );
+#endif // RUNTIME_CONSITENCY_CHECK      
+#if 0 // *****
       pty_s_elem = tyvar_rewrt( psubst, pty->attrs.list.pty_elem, pos );
       assert( pty_s_elem );
       pty_subst->attrs.list.pty_elem = pty_s_elem;
       pty_subst->type.pstuck = NULL;
       pty_subst->type.tyvars.pgenvars = NULL;
+#else
+      pty_s_elem = tyvar_rewrt( psubst, pty_subst->attrs.list.pty_elem, pos );
+      assert( pty_s_elem );
+      pty_subst->attrs.list.pty_elem = pty_s_elem;
+      if( pty->attrs.list.cdr ) {
+	TYPE_CONS_PTR pty_s_cdr = NULL;
+	assert( pty->attrs.list.car );
+	assert( pty_subst->attrs.list.car == pty->attrs.list.car );
+	assert( pty_subst->attrs.list.cdr == pty->attrs.list.cdr );
+	pty_s_cdr = tyvar_rewrt( psubst, pty_subst->attrs.list.cdr, pos );
+	assert( pty_s_cdr );
+	pty_subst->attrs.list.cdr = pty_s_cdr;
+      } else {
+	assert( ! pty->attrs.list.car );
+	assert( ! pty_subst->attrs.list.car );
+	assert( ! pty_subst->attrs.list.cdr );
+      }
+      pty_subst->type.pstuck = NULL;
+      pty_subst->type.tyvars.pgenvars = NULL;
+#endif
     } else
       ath_abort( pos, ABORT_MEMLACK );
     break;
