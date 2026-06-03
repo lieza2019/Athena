@@ -97,7 +97,11 @@ statement : decl_var_poly {
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
   assert( $1.ident );
+#if 0 // *****
   assert( chk_tycon_list( $1.ptype ) );
+#else
+  exam_tycon( $1.ptype );
+#endif
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;

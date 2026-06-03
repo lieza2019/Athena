@@ -69,6 +69,7 @@ void free_type_cons ( TYPE_CONS_PTR ptycons ) {
   }
 }
 
+#if 0 // *****
 static BOOL exam_tycon_elem ( TYPE_CONS_PTR pty_e, TYPE_CONS_PTR pelem ) {
   BOOL r = FALSE;
   assert( pty_e );
@@ -122,7 +123,6 @@ static BOOL exam_tycon_elem ( TYPE_CONS_PTR pty_e, TYPE_CONS_PTR pelem ) {
   }
   return r;
 }
-
 BOOL chk_tycon_list ( TYPE_CONS_PTR plist ) {
   BOOL r = FALSE;
   assert( plist );
@@ -131,6 +131,95 @@ BOOL chk_tycon_list ( TYPE_CONS_PTR plist ) {
   r = exam_tycon_elem( plist, plist );
   return r;
 }
+#else
+TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty ) {
+  TYPE_CONS_PTR r = NULL;
+  assert( pty );
+  
+  switch( pty->type.ty ) {
+  case TY_EXPR:
+    assert( ! pty->type.tyvars.var.ident );
+    assert( ! pty->type.tyvars.var.pnext );
+    assert( pty->attrs.expr.pexpr );
+    assert( (pty->attrs.expr.pexpr)->ptype );
+    r = exam_tycon( (pty->attrs.expr.pexpr)->ptype );
+    break;
+  case TY_INT:
+  case TY_CHAR:
+  case TY_STRING:
+    assert( ! pty->type.tyvars.var.ident );
+    assert( ! pty->type.tyvars.var.pnext );
+    assert( ! pty->type.tyvars.pgenvars );
+    r = pty;
+    break;
+  case TY_LIST:
+    assert( ! pty->type.tyvars.var.ident );
+    assert( ! pty->type.tyvars.var.pnext );
+    assert( pty->attrs.list.pty_elem );
+    r = exam_tycon( pty->attrs.list.pty_elem );
+    assert( r );
+    if( pty->attrs.list.car ) {
+      LIST_CELL_PTR pc = pty;
+      do {
+	LIST_CELL_PTR car = NULL;
+	TYPE_CONS_PTR pty_c = NULL;
+	assert( pc->attrs.list.car );
+	car = pc->attrs.list.car;
+	switch( car->type.ty ) {
+	case TY_EXPR:
+	  assert( car->attrs.expr.pexpr );
+	  assert( (car->attrs.expr.pexpr)->ptype );
+	  pty_c = exam_tycon( (car->attrs.expr.pexpr)->ptype );
+	  assert( pty_c );
+	  break;
+	case TY_INT:
+	case TY_CHAR:
+	case TY_STRING:
+	  pty_c = exam_tycon( car );
+	  assert( pty_c );
+	  break;
+	case TY_LIST:
+	  pty_c = exam_tycon( car );
+	  assert( pty_c );
+	  break;
+	case TY_POLY:
+	  /* fall thru. */
+	case TY_GEN:
+	  /* fall thru. */
+	case TY_OTHERS:
+	  /* fall thru. */
+	case END_OF_TYPE_CODE:
+	  /* fall thru. */
+	default:
+	  assert( FALSE );
+	}
+	assert( pc->attrs.list.pty_elem == pty_c );
+	if( pc->attrs.list.cdr )
+	  assert( pty->attrs.list.plast == pc );
+	pc = pc->attrs.list.cdr;
+      } while( pc );
+    } else {
+      assert( ! pty->attrs.list.cdr );
+      assert( pty->attrs.list.plast == pty );
+    }
+    r = pty;
+    break;
+  case TY_POLY:
+    assert( ! pty->type.tyvars.var.pnext );
+    r = pty;
+    break;
+  case TY_GEN:
+    /* fall thru. */
+  case TY_OTHERS:
+    /* fall thru. */
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return r;
+}
+#endif
 
 TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos ) {
   TYPE_CONS_PTR ptydesc = NULL;
@@ -435,10 +524,6 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
   assert( pty );
   
   switch( pty->type.ty ) {
-#if 0
-  case TY_LTE_VAR:
-    break;
-#else
   case TY_EXPR:
     assert( ! pty->type.tyvars.var.ident );
     assert( ! pty->type.tyvars.var.pnext );
@@ -460,7 +545,6 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
 	pty_subst = pty;
     }
     break;
-#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
@@ -475,20 +559,16 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
     assert( pty->attrs.list.pty_elem );
     pty_subst = dup_tydesc( pty, pos );
     if( pty_subst ) {
+      TYPE_CONS_PTR pty_s_elem = NULL;
       assert( pty_subst->type.ty == TY_LIST );
       assert( pty_subst->attrs.list.pty_elem == pty->attrs.list.pty_elem );
 #ifdef RUNTIME_CONSITENCY_CHECK
-      assert( chk_tycon_list( pty_subst ) );
-#endif // RUNTIME_CONSITENCY_CHECK      
 #if 0 // *****
-      TYPE_CONS_PTR pty_s_elem = NULL;
-      pty_s_elem = tyvar_rewrt( psubst, pty->attrs.list.pty_elem, pos );
-      assert( pty_s_elem );
-      pty_subst->attrs.list.pty_elem = pty_s_elem;
-      pty_subst->type.pstuck = NULL;
-      pty_subst->type.tyvars.pgenvars = NULL;
+      assert( chk_tycon_list( pty_subst ) );
 #else
-      TYPE_CONS_PTR pty_s_elem = NULL;
+      exam_tycon( pty_subst );
+#endif
+#endif // RUNTIME_CONSITENCY_CHECK      
       pty_s_elem = tyvar_rewrt( psubst, pty_subst->attrs.list.pty_elem, pos );
       assert( pty_s_elem );
       pty_subst->attrs.list.pty_elem = pty_s_elem;
@@ -518,7 +598,6 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
 	if( !dirty )
 	  pty_subst = pty;
       }
-#endif
     } else
       ath_abort( pos, ABORT_MEMLACK );
     break;

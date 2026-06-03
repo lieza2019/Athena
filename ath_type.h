@@ -1,11 +1,6 @@
 typedef enum type_code {
-#if 0
-  TY_LTE_VAR = 1,
-  TY_INT,
-#else
   TY_EXPR = 1,
   TY_INT,
-#endif
   TY_CHAR,
   TY_STRING,
   TY_LIST,
@@ -32,15 +27,9 @@ typedef struct type_cons {
     struct type_cons *pstuck;
   } type;
   union {
-#if 0
-    struct {
-      void *pln_var;
-    } lte;
-#else
     struct {
       struct expr_cons *pexpr;
     } expr;
-#endif
     struct {
       struct {
 	int n;
