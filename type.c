@@ -435,7 +435,7 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
   assert( pty );
   
   switch( pty->type.ty ) {
-#if 0 // *****
+#if 0
   case TY_LTE_VAR:
     break;
 #else
@@ -504,6 +504,20 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
 	assert( ! pty_subst->attrs.list.cdr );
       pty_subst->type.pstuck = NULL;
       pty_subst->type.tyvars.pgenvars = NULL;
+      if( pty_subst->attrs.list.pty_elem == pty->attrs.list.pty_elem ) {
+	BOOL dirty = FALSE;
+	if( pty_subst->attrs.list.car ) {
+	  assert( pty->attrs.list.car );
+	  if( pty_subst->attrs.list.cdr ) {
+	    assert( pty->attrs.list.cdr );
+	    dirty = (pty_subst->attrs.list.cdr != pty->attrs.list.cdr);
+	  } else
+	    assert( ! pty->attrs.list.cdr );
+	} else
+	  assert( ! pty_subst->attrs.list.cdr );
+	if( !dirty )
+	  pty_subst = pty;
+      }
 #endif
     } else
       ath_abort( pos, ABORT_MEMLACK );
