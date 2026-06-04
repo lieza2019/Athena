@@ -56,6 +56,7 @@ statement : decl_var_poly {
     pvattr->pos = $1.pos;
     pvattr->ident = $1.ident;
     pvattr->ptype = $1.ptype;
+    pvattr->pinit = $1.pinit;
     stmt_decl_var( &pstmt, pvattr, pos );
     assert( pstmt );
   } else
@@ -71,6 +72,7 @@ statement : decl_var_poly {
     pvattr->pos = $1.pos;
     pvattr->ident = $1.ident;
     pvattr->ptype = $1.ptype;
+    pvattr->pinit = $1.pinit;
     stmt_decl_var( &pstmt, pvattr, pos );
     assert( pstmt );
   } else
@@ -86,6 +88,7 @@ statement : decl_var_poly {
     pvattr->pos = $1.pos;
     pvattr->ident = $1.ident;
     pvattr->ptype = $1.ptype;
+    pvattr->pinit = $1.pinit;
     stmt_decl_var( &pstmt, pvattr, pos );
     assert( pstmt );
   } else
@@ -97,14 +100,17 @@ statement : decl_var_poly {
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
   assert( $1.ident );
+#if 0 // *****
 #ifdef RUNTIME_CONSITENCY_CHECK
   exam_tycon( $1.ptype );
 #endif // RUNTIME_CONSITENCY_CHECK
+#endif
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;
     pvattr->ident = $1.ident;
     pvattr->ptype = $1.ptype;
+    pvattr->pinit = $1.pinit;
     stmt_decl_var( &pstmt, pvattr, pos );
     assert( pstmt );
   } else
@@ -204,14 +210,7 @@ decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };  
   assert( $3 );
   assert( strlen($1) >= 1 );
-#if 0 // *****
-  if( $4 ) {
-    decl_attrib_var( &$$, $1, TY_LIST, $3, $4, pos );
-  } else
-    decl_attrib_var( &$$, $1, TY_LIST, $3, NULL, pos );
-#else
   decl_attrib_var( &$$, $1, TY_LIST, $3, $4, pos );
-#endif
  };
 
 list_elem_type : TK_LSQBL TK_RSQBL {
@@ -257,7 +256,11 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $2 );
   assert( ($2)->type.ty == TY_LIST );
+#if 0 // *****
   $$ = value_list( $2, $3, pos );
+#else
+  $$ = value_list_elem( TY_LIST, $2, $3, pos );
+#endif
  };
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;

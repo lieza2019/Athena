@@ -8,7 +8,7 @@
 
 /* from misc.c */
 extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
-extern char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc );
+//extern char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc );
 extern char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr );
   
 /* from mem.c */
@@ -84,5 +84,5 @@ extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SR
 extern TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos );
 extern VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, void *pinit, SRC_POS_C pos );
 extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C pos );
-extern LIST_CELL_PTR value_list ( LIST_CELL_PTR plist_elems, LIST_CELL_PTR psucc_ls, SRC_POS_C pos );
+//extern LIST_CELL_PTR value_list ( LIST_CELL_PTR plist_elems, LIST_CELL_PTR psucc_ls, SRC_POS_C pos );
 extern LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_es, SRC_POS_C pos );

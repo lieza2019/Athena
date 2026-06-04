@@ -20,6 +20,7 @@ void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason ) {
   exit( ABORT_CODE );
 }
 
+#if 0
 char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
   SRC_POS pos;
   char *ps = NULL;
@@ -62,7 +63,8 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
     assert( *ps == 0 );
     break;
   case TY_LIST:
-    if( pvar_tydesc->attrs.list.car ) {
+    assert( pvar_tydesc->attrs.list.car ); // !!!!!
+    if( pvar_tydesc->attrs.list.car ) {      
       LIST_CELL_PTR_C pcell = pvar_tydesc;
       strcpy( ps, "[" );
       ps++;
@@ -81,7 +83,7 @@ char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
       ps++;
     } else {
       assert( ! pvar_tydesc->attrs.list.cdr );
-      assert( ! pvar_tydesc->attrs.list.plast );
+      assert( pvar_tydesc->attrs.list.plast == pvar_tydesc );
       strcpy( ps, "[]" );
       ps += 2;
     }
@@ -169,3 +171,159 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   }
   return ps;
 }
+#else
+static char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
+  SRC_POS pos;
+  char *ps = NULL;
+  assert( sbuf );
+  assert( pvar_tydesc );
+  
+  pos = pvar_tydesc->pos;
+  ps = sbuf;
+  switch( pvar_tydesc->type.ty ) {
+  case TY_INT:
+    sprintf( ps, "%d", pvar_tydesc->attrs.literal.integer.n );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps, ":" );
+    ps++;
+    ps = print_var_type( ps, pvar_tydesc );
+    assert( *ps == 0 );
+    break;
+  case TY_CHAR:
+    sprintf( ps, "%d", pvar_tydesc->attrs.literal.character.c );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps, ":" );
+    ps++;
+    ps = print_var_type( ps, pvar_tydesc );
+    assert( *ps == 0 );
+    break;
+  case TY_STRING:
+    assert( pvar_tydesc->attrs.literal.string.ps );
+    strcpy( ps,  "\"" );
+    ps++;
+    strcpy( ps, pvar_tydesc->attrs.literal.string.ps );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps,  "\"" );
+    ps++;
+    strcpy( ps, ":" );
+    ps++;
+    ps = print_var_type( ps, pvar_tydesc );
+    assert( *ps == 0 );
+    break;
+  case TY_LIST:
+    if( pvar_tydesc->attrs.list.car ) {      
+      LIST_CELL_PTR_C pcell = pvar_tydesc;
+      strcpy( ps, "[" );
+      ps++;
+      do {
+	if( pcell != pvar_tydesc ) {
+	  sprintf( ps, "%s", ", " );
+	  ps += strlen( ps );
+	  assert( *ps == 0 );
+	}
+	assert( pcell->type.ty == TY_LIST );
+	ps = print_value_type( ps, pcell->attrs.list.car );
+	assert( *ps == 0 );
+	pcell = pcell->attrs.list.cdr;
+      } while( pcell );
+      strcpy( ps, "]" );
+      ps++;
+    } else {
+      assert( ! pvar_tydesc->attrs.list.cdr );
+      assert( pvar_tydesc->attrs.list.plast == pvar_tydesc );
+      strcpy( ps, "[]" );
+      ps += 2;
+    }
+    assert( *ps == 0 );    
+    strcpy( ps, ":" );
+    ps++;
+    strcpy( ps, "[" );
+    ps++;
+    ps = print_var_type( ps, pvar_tydesc->attrs.list.pty_elem );
+    strcpy( ps, "]" );
+    ps++;
+    assert( *ps == 0 );
+    break;
+  case TY_POLY:
+    strcpy( ps, "UNKNOWN_VALUE" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps, ":" );
+    ps++;
+    ps = print_var_type( ps, pvar_tydesc );
+    assert( *ps == 0 );
+    break;
+  case TY_OTHERS:
+    /* fall thru. */
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return ps;
+}
+char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
+  SRC_POS pos;
+  char *ps = NULL;  
+  assert( sbuf );
+  assert( pvar_attr );
+  assert( pvar_attr->ptype );
+  
+  pos = pvar_attr->pos;
+  ps = sbuf;
+  strcpy( ps, pvar_attr->ident );
+  ps += strlen( ps );
+  assert( *ps == 0 );
+  strcpy( ps, " := " );
+  ps += strlen( ps );
+  switch( (pvar_attr->ptype)->type.ty ) {
+  case TY_INT:
+    assert( pvar_attr->pinit );
+    assert( (pvar_attr->pinit)->type.ty == TY_INT );
+    sprintf( ps, "%d", (pvar_attr->pinit)->attrs.literal.integer.n );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps, ":int" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_STRING:
+    assert( pvar_attr->pinit );
+    assert( (pvar_attr->pinit)->type.ty == TY_STRING );
+    assert( (pvar_attr->pinit)->attrs.literal.string.ps );
+    strcpy( ps,  "\"" );
+    ps++;
+    sprintf( ps, "%s", (pvar_attr->pinit)->attrs.literal.string.ps );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    strcpy( ps,  "\"" );
+    ps++;
+    strcpy( ps, ":string" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_LIST:
+    assert( pvar_attr->pinit );
+    assert( (pvar_attr->pinit)->type.ty == TY_LIST );
+    ps = print_value_type( ps, pvar_attr->pinit );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_POLY:
+    strcpy( ps, "UNKNOWN_VALUE:poly" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    break;
+  case TY_OTHERS:
+    /* fall thru. */
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return ps;
+}
+#endif
