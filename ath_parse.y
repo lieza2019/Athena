@@ -256,11 +256,7 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $2 );
   assert( ($2)->type.ty == TY_LIST );
-#if 0 // *****
-  $$ = value_list( $2, $3, pos );
-#else
   $$ = value_list_elem( TY_LIST, $2, $3, pos );
-#endif
  };
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;
