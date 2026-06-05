@@ -75,7 +75,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_
 	  goto failed_memalloc;
 	ps_init->pos = pos;
 	ps_init->type.ty = TY_STRING;
-	ps_init->attrs.literal.string.ps = e;
+	ps_init->attrs.literal.string.s = e;
       } else
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
@@ -237,7 +237,7 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
       case TY_STRING:
 	assert( pelem_val );
 	pelem->type.ty = TY_STRING;
-	pelem->attrs.literal.string.ps = (char *)pelem_val;
+	pelem->attrs.literal.string.s = (char *)pelem_val;
 	pty_e = pelem;
 	break;
       case TY_LIST:

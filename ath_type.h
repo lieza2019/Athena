@@ -38,7 +38,7 @@ typedef struct type_cons {
 	char c;
       } character;
       struct {
-	const char *ps;
+	const char *s;
       } string;
     } literal;
     struct {

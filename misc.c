@@ -48,10 +48,10 @@ static char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
     assert( *ps == 0 );
     break;
   case TY_STRING:
-    assert( pvar_tydesc->attrs.literal.string.ps );
+    assert( pvar_tydesc->attrs.literal.string.s );
     strcpy( ps,  "\"" );
     ps++;
-    strcpy( ps, pvar_tydesc->attrs.literal.string.ps );
+    strcpy( ps, pvar_tydesc->attrs.literal.string.s );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps,  "\"" );
@@ -141,10 +141,10 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   case TY_STRING:
     assert( pvar_attr->pinit );
     assert( (pvar_attr->pinit)->type.ty == TY_STRING );
-    assert( (pvar_attr->pinit)->attrs.literal.string.ps );
+    assert( (pvar_attr->pinit)->attrs.literal.string.s );
     strcpy( ps,  "\"" );
     ps++;
-    sprintf( ps, "%s", (pvar_attr->pinit)->attrs.literal.string.ps );
+    sprintf( ps, "%s", (pvar_attr->pinit)->attrs.literal.string.s );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps,  "\"" );

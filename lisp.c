@@ -75,7 +75,7 @@ TYPE_CONS_PTR list_dup ( TYPE_CONS_PTR *ppdup, TYPE_CONS_PTR porg, SRC_POS_C pos
 	(*ppdup)->attrs.literal.character.c = porg->attrs.literal.character.c;
 	break;
       case TY_STRING:
-	(*ppdup)->attrs.literal.string.ps = porg->attrs.literal.string.ps;
+	(*ppdup)->attrs.literal.string.s = porg->attrs.literal.string.s;
 	break;
       default:
 	assert( FALSE );

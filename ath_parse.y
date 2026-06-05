@@ -209,7 +209,7 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
     assert( strlen( s ) == len );
     pval_string->pos = pos;
     pval_string->type.ty = TY_STRING;
-    pval_string->attrs.literal.string.ps = s;
+    pval_string->attrs.literal.string.s = s;
   } else
   failed_memalloc_decl_string_init:
     ath_abort( pos, ABORT_MEMLACK );
