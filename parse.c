@@ -39,20 +39,18 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CON
   
   pident = find_literal( pvar_name, pos );
   if( pident ) {
-    if( !pn_init ) {
-      pn_init = alloc_type_cons( pos );
-      if( pn_init ) {
-	pn_init->pos = pos;
-	pn_init->type.ty = TY_INT;
-	pn_init->attrs.literal.integer.n = 0;
-      } else
-	ath_abort( pos, ABORT_MEMLACK );
-    }
-    assert( pn_init );
+    TYPE_CONS_PTR pty_int = NULL;
+    pty_int = alloc_type_cons( pos );
+    if( pty_int ) {
+      pty_int->pos = pos;
+      pty_int->type.ty = TY_INT;
+      pty_int->attrs.literal.integer.n = 0;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
-    pvar_attr->pinit = pn_init;
-    pvar_attr->ptype = pvar_attr->pinit;
+    pvar_attr->ptype = pty_int;
+    pvar_attr->pinit = (pn_init ? pn_init : pty_int);
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
@@ -64,27 +62,25 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_
   
   pident = find_literal( pvar_name, pos );
   if( pident ) {
-    if( !ps_init ) {
-      ps_init = alloc_type_cons( pos );
-      if( ps_init ) {
-	char *e = NULL;
-	e = new_memarea( 1 );
-	if( e )
-	  *e = 0;
-	else
-	  goto failed_memalloc;
-	ps_init->pos = pos;
-	ps_init->type.ty = TY_STRING;
-	ps_init->attrs.literal.string.s = e;
-      } else
-      failed_memalloc:
-	ath_abort( pos, ABORT_MEMLACK );
-    }
-    assert( ps_init );
+    TYPE_CONS_PTR pty_str = NULL;
+    pty_str = alloc_type_cons( pos );
+    if( pty_str ) {
+      char *e = NULL;
+      e = new_memarea( 1 );
+      if( e )
+	*e = 0;
+      else
+	goto failed_memalloc;
+      pty_str->pos = pos;
+      pty_str->type.ty = TY_STRING;
+      pty_str->attrs.literal.string.s = e;      
+    } else
+    failed_memalloc:
+      ath_abort( pos, ABORT_MEMLACK );
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
-    pvar_attr->pinit = ps_init;
-    pvar_attr->ptype = pvar_attr->pinit;
+    pvar_attr->ptype = pty_str;
+    pvar_attr->pinit = (ps_init ? ps_init : pty_str);
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
