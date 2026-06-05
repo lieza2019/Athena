@@ -11,14 +11,22 @@ TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
 
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
   const char *pident = NULL;
-  assert( pvar_attr );  
-  assert( (pvar_attr->ptype)->type.ty == TY_POLY );
+  assert( pvar_attr );
   assert( pvar_name );
   
   pident = find_literal( pvar_name, pos );
   if( pident ) {
+    TYPE_CONS_PTR pn_init = NULL;
+    pn_init = alloc_type_cons( pos );
+    if( pn_init ) {
+      pn_init->pos = pos;
+      pn_init->type.ty = TY_POLY;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+    assert( pn_init );
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
+    pvar_attr->ptype = pn_init;
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
@@ -126,6 +134,7 @@ VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
     break;
   case TY_POLY:
     poly_var_attrib( pvar_attr, pvar_name, pos );
+    break;
   case TY_GEN:
     /* fall thru. */
   case TY_OTHERS:
@@ -170,7 +179,7 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C 
   return r;
 }
 
-static TYPE_CONS_PTR retrive_car_type ( TYPE_CONS_PTR car, SRC_POS_C pos ) {
+static TYPE_CONS_PTR retrive_car_type ( LIST_CELL_PTR car, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
   assert( car );
   
@@ -249,8 +258,8 @@ LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PT
       case TY_LIST:
 	pelem->type.ty = TY_LIST;
 	if( pelem_val ) {
-	  pty_e = retrive_car_type( pelem_val, pos );
 	  pelem = pelem_val;
+	  pty_e = retrive_car_type( pelem, pos );
 	} else {
 	  TYPE_CONS_PTR pdesc = NULL;
 	  pdesc = alloc_tycons_node( pos );

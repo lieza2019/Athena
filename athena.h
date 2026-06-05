@@ -6,6 +6,10 @@
 #include "ath_stmt.h"
 #include "ath_symtbl.h"
 
+#ifndef RUNTIME_CONSITENCY_CHECK
+#define RUNTIME_CONSITENCY_CHECK
+#endif
+
 /* from misc.c */
 extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
 extern char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr );

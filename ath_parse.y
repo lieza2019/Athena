@@ -51,6 +51,8 @@ statement : decl_var_poly {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
+  assert( $1.ident );
+  assert( $1.ptype );
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;
@@ -67,6 +69,9 @@ statement : decl_var_poly {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
+  assert( $1.ident );
+  assert( $1.ptype );
+  assert( $1.pinit );
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;
@@ -83,6 +88,9 @@ statement : decl_var_poly {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
+  assert( $1.ident );
+  assert( $1.ptype );
+  assert( $1.pinit );
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;
@@ -100,11 +108,15 @@ statement : decl_var_poly {
   STATEMENT_PTR pstmt = NULL;
   VAR_ATTRIB_PTR pvattr = NULL;
   assert( $1.ident );
-#if 0 // *****
+  assert( $1.ptype );
+  assert( $1.pinit );
 #ifdef RUNTIME_CONSITENCY_CHECK
+  assert( ($1.ptype)->type.ty == TY_LIST );
+  assert( ($1.ptype)->attrs.list.pty_elem );
+  assert( ! ($1.ptype)->attrs.list.car );
+  assert( ! ($1.ptype)->attrs.list.cdr );
   exam_tycon( $1.ptype );
 #endif // RUNTIME_CONSITENCY_CHECK
-#endif
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;

@@ -69,34 +69,34 @@ void free_type_cons ( TYPE_CONS_PTR ptycons ) {
   }
 }
 
-TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty ) {
+TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
   TYPE_CONS_PTR r = NULL;
-  assert( pty );
+  assert( pty_desc );
   
-  switch( pty->type.ty ) {
+  switch( pty_desc->type.ty ) {
   case TY_EXPR:
-    assert( ! pty->type.tyvars.var.ident );
-    assert( ! pty->type.tyvars.var.pnext );
-    assert( pty->attrs.expr.pexpr );
-    assert( (pty->attrs.expr.pexpr)->ptype );
-    r = exam_tycon( (pty->attrs.expr.pexpr)->ptype );
+    assert( ! pty_desc->type.tyvars.var.ident );
+    assert( ! pty_desc->type.tyvars.var.pnext );
+    assert( pty_desc->attrs.expr.pexpr );
+    assert( (pty_desc->attrs.expr.pexpr)->ptype );
+    r = exam_tycon( (pty_desc->attrs.expr.pexpr)->ptype );
     break;
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
-    assert( ! pty->type.tyvars.var.ident );
-    assert( ! pty->type.tyvars.var.pnext );
-    assert( ! pty->type.tyvars.pgenvars );
-    r = pty;
+    assert( ! pty_desc->type.tyvars.var.ident );
+    assert( ! pty_desc->type.tyvars.var.pnext );
+    assert( ! pty_desc->type.tyvars.pgenvars );
+    r = pty_desc;
     break;
   case TY_LIST:
-    assert( ! pty->type.tyvars.var.ident );
-    assert( ! pty->type.tyvars.var.pnext );
-    assert( pty->attrs.list.pty_elem );
-    r = exam_tycon( pty->attrs.list.pty_elem );
+    assert( ! pty_desc->type.tyvars.var.ident );
+    assert( ! pty_desc->type.tyvars.var.pnext );
+    assert( pty_desc->attrs.list.pty_elem );
+    r = exam_tycon( pty_desc->attrs.list.pty_elem );
     assert( r );
-    if( pty->attrs.list.car ) {
-      LIST_CELL_PTR pc = pty;
+    if( pty_desc->attrs.list.car ) {
+      LIST_CELL_PTR pc = pty_desc;
       do {
 	LIST_CELL_PTR car = NULL;
 	TYPE_CONS_PTR pty_c = NULL;
@@ -131,19 +131,18 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty ) {
 	  assert( FALSE );
 	}
 	assert( pc->attrs.list.pty_elem == pty_c );
-	if( pc->attrs.list.cdr )
-	  assert( pty->attrs.list.plast == pc );
+	if( ! pc->attrs.list.cdr )
+	  assert( pty_desc->attrs.list.plast == pc );
 	pc = pc->attrs.list.cdr;
       } while( pc );
     } else {
-      assert( ! pty->attrs.list.cdr );
-      assert( pty->attrs.list.plast == pty );
+      assert( ! pty_desc->attrs.list.cdr );
     }
-    r = pty;
+    r = pty_desc;
     break;
   case TY_POLY:
-    assert( ! pty->type.tyvars.var.pnext );
-    r = pty;
+    assert( ! pty_desc->type.tyvars.var.pnext );
+    r = pty_desc;
     break;
   case TY_GEN:
     /* fall thru. */
