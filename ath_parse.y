@@ -16,13 +16,8 @@
   char *tk_keyword;
   int nat;
   char *str;  
-  TYPE_CONS_PTR ptype_cons;
-  /*
-    TYPE_CONS_PTR pvar_int_init;
-    TYPE_CONS_PTR pvar_string_init;
-    LIST_CELL_PTR plist_init;
-  */
   TYPE_CONS_PTR pvar_init;
+  TYPE_CONS_PTR ptype_cons;
   VAR_ATTRIB var_attr;
   LIST_CELL_PTR plcell;
   STATEMENT stmt;
@@ -39,113 +34,15 @@
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
- /*
-   %type <pvar_string_init> decl_string_init
-   %type <pvar_int_init> decl_int_init
- */
 %type <pvar_init> decl_string_init decl_int_init
-%type <var_attr> decl_var_list
-%type <ptype_cons> list_elem_type
- /*
-   %type <plist_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
- */
 %type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
 %type <pvar_init> decl_var_init
-%type <var_attr> decl_var_poly
-%type <var_attr> decl_var_int
-%type <var_attr> decl_var_string
+%type <ptype_cons> list_elem_type
+%type <var_attr> decl_var_poly decl_var_int decl_var_string decl_var_list
 %type <var_attr> decl_var
 %type <stmt> statement
 %start statement
 %%
- /*
-statement : decl_var_poly {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  STATEMENT_PTR pstmt = NULL;
-  VAR_ATTRIB_PTR pvattr = NULL;
-  assert( $1.ident );
-  assert( $1.ptype );
-  pvattr = alloc_var_attr( pos );
-  if( pvattr ) {
-    pvattr->pos = $1.pos;
-    pvattr->ident = $1.ident;
-    pvattr->ptype = $1.ptype;
-    pvattr->pinit = $1.pinit;
-    stmt_decl_var( &pstmt, pvattr, pos );
-    assert( pstmt );
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  $$ = *pstmt;
- }
-| decl_var_string {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  STATEMENT_PTR pstmt = NULL;
-  VAR_ATTRIB_PTR pvattr = NULL;
-  assert( $1.ident );
-  assert( $1.ptype );
-  assert( $1.pinit );
-  pvattr = alloc_var_attr( pos );
-  if( pvattr ) {
-    pvattr->pos = $1.pos;
-    pvattr->ident = $1.ident;
-    pvattr->ptype = $1.ptype;
-    pvattr->pinit = $1.pinit;
-    stmt_decl_var( &pstmt, pvattr, pos );
-    assert( pstmt );
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  $$ = *pstmt;
- }
-| decl_var_int {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  STATEMENT_PTR pstmt = NULL;
-  VAR_ATTRIB_PTR pvattr = NULL;
-  assert( $1.ident );
-  assert( $1.ptype );
-  assert( $1.pinit );
-  pvattr = alloc_var_attr( pos );
-  if( pvattr ) {
-    pvattr->pos = $1.pos;
-    pvattr->ident = $1.ident;
-    pvattr->ptype = $1.ptype;
-    pvattr->pinit = $1.pinit;
-    stmt_decl_var( &pstmt, pvattr, pos );
-    assert( pstmt );
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  $$ = *pstmt;
- };
-| decl_var_list {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  STATEMENT_PTR pstmt = NULL;
-  VAR_ATTRIB_PTR pvattr = NULL;
-  assert( $1.ident );
-  assert( $1.ptype );
-  assert( $1.pinit );
-#ifdef RUNTIME_CONSITENCY_CHECK
-  assert( ($1.ptype)->type.ty == TY_LIST );
-  assert( ($1.ptype)->attrs.list.pty_elem );
-  assert( ! ($1.ptype)->attrs.list.car );
-  assert( ! ($1.ptype)->attrs.list.cdr );
-  exam_tycon( $1.ptype );
-  assert( ($1.pinit)->type.ty == TY_LIST );
-  assert( ($1.pinit)->attrs.list.pty_elem );
-  assert( ($1.pinit)->attrs.list.plast );
-  exam_tycon( $1.pinit );
-#endif // RUNTIME_CONSITENCY_CHECK
-  pvattr = alloc_var_attr( pos );
-  if( pvattr ) {
-    pvattr->pos = $1.pos;
-    pvattr->ident = $1.ident;
-    pvattr->ptype = $1.ptype;
-    pvattr->pinit = $1.pinit;
-    stmt_decl_var( &pstmt, pvattr, pos );
-    assert( pstmt );
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  $$ = *pstmt;
- };
- */
 statement : decl_var {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
@@ -173,38 +70,16 @@ statement : decl_var {
 decl_var : decl_var_poly {
   $$ = $1;
  }
-| decl_var_string {
+| decl_var_int {
   $$ = $1;
  }
-| decl_var_int {
+| decl_var_string {
   $$ = $1;
  }
 | decl_var_list {
   $$ = $1;
  };
 
-/*
-decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_POLY, NULL, NULL, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_list_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
- };
-*/
 decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_attrib_var( &$$, $1, TY_POLY, NULL, NULL, pos );
@@ -214,26 +89,6 @@ decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
  };
 
-/*
-decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_INT, NULL, NULL, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_int_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  assert( $4 );
-  decl_attrib_var( &$$, $1, TY_INT, NULL, $4, pos );
- };
- /* moved to the case of TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init.
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  assert( $4 );
-  decl_attrib_var( &$$, $1, TY_INT, NULL, $4, pos );
- };
-*/
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_attrib_var( &$$, $1, TY_INT, NULL, NULL, pos );
@@ -241,6 +96,45 @@ decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_var_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_attrib_var( &$$, $1, TY_INT, NULL, $4, pos );
+ };
+
+decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  decl_attrib_var( &$$, $1, TY_STRING, NULL, NULL, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_var_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
+ };
+
+decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  decl_attrib_var( &$$, $1, TY_LIST, $3, NULL, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS list_elem_type decl_var_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  decl_attrib_var( &$$, $1, TY_LIST, $3, $4, pos );
+ };
+
+list_elem_type : TK_LSQBL TK_RSQBL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = var_list_type( NULL, TY_POLY, pos );
+ }
+| TK_LSQBL TK_KEYWORD_POLY TK_RSQBL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = var_list_type( NULL, TY_POLY, pos );
+ }
+| TK_LSQBL TK_KEYWORD_INT TK_RSQBL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = var_list_type( NULL, TY_INT, pos );
+ }
+| TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = var_list_type( NULL, TY_STRING, pos );
+ }
+| TK_LSQBL list_elem_type TK_RSQBL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = var_list_type( $2, TY_LIST, pos );
  };
 
 decl_var_init : decl_int_init {
@@ -264,35 +158,6 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_int;
- };
-
-/*
-decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, NULL, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_string_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  assert( $4 );
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
- };
-/* moved to the case of TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init.
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( strlen($1) >= 1 );
-  assert( $4 );
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
- }
-*/
-decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, NULL, pos );
- }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_var_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
  };
 
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
@@ -322,50 +187,6 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   failed_memalloc_decl_string_init:
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_string;
- };
-
-/*
-decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  assert( $3 );
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_LIST, $3, NULL, pos );
- }
-| TK_IDENT TK_KEYWORD_AS list_elem_type decl_list_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };  
-  assert( $3 );
-  assert( strlen($1) >= 1 );
-  decl_attrib_var( &$$, $1, TY_LIST, $3, $4, pos );
- };
-*/
-decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_LIST, $3, NULL, pos );
- }
-| TK_IDENT TK_KEYWORD_AS list_elem_type decl_var_init {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_LIST, $3, $4, pos );
- };
-
-list_elem_type : TK_LSQBL TK_RSQBL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = var_list_type( NULL, TY_POLY, pos );
- }
-| TK_LSQBL TK_KEYWORD_POLY TK_RSQBL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = var_list_type( NULL, TY_POLY, pos );
- }
-| TK_LSQBL TK_KEYWORD_INT TK_RSQBL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = var_list_type( NULL, TY_INT, pos );
- }
-| TK_LSQBL TK_KEYWORD_STRING TK_RSQBL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = var_list_type( NULL, TY_STRING, pos );
- }
-| TK_LSQBL list_elem_type TK_RSQBL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = var_list_type( $2, TY_LIST, pos );
  };
 
 decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
