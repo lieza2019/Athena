@@ -93,13 +93,12 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
     assert( ! pty_desc->type.tyvars.var.ident );
     assert( ! pty_desc->type.tyvars.var.pnext );
     assert( pty_desc->attrs.list.pty_elem );
-    r = exam_tycon( pty_desc->attrs.list.pty_elem );
-    assert( r );
     if( pty_desc->attrs.list.car ) {
       LIST_CELL_PTR pc = pty_desc;
       do {
 	LIST_CELL_PTR car = NULL;
 	TYPE_CONS_PTR pty_c = NULL;
+	assert( pc->attrs.list.pty_elem );
 	assert( pc->attrs.list.car );
 	car = pc->attrs.list.car;
 	switch( car->type.ty ) {
@@ -116,6 +115,7 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
 	  assert( pty_c );
 	  break;
 	case TY_LIST:
+	  assert( car->attrs.list.pty_elem );
 	  pty_c = exam_tycon( car );
 	  assert( pty_c );
 	  break;
@@ -137,6 +137,8 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
       } while( pc );
     } else {
       assert( ! pty_desc->attrs.list.cdr );
+      r = exam_tycon( pty_desc->attrs.list.pty_elem );
+      assert( r );
     }
     r = pty_desc;
     break;
