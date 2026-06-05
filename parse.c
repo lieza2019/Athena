@@ -9,24 +9,25 @@ TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
   return r;
 }
 
-static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, SRC_POS_C pos ) {
+static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pinit, SRC_POS_C pos ) {
   const char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
   
   pident = find_literal( pvar_name, pos );
   if( pident ) {
-    TYPE_CONS_PTR pn_init = NULL;
-    pn_init = alloc_type_cons( pos );
-    if( pn_init ) {
-      pn_init->pos = pos;
-      pn_init->type.ty = TY_POLY;
+    TYPE_CONS_PTR ptype = NULL;
+    ptype = alloc_type_cons( pos );
+    if( ptype ) {
+      ptype->pos = pos;
+      ptype->type.ty = TY_POLY;
     } else
       ath_abort( pos, ABORT_MEMLACK );
-    assert( pn_init );
+    assert( ptype );
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
-    pvar_attr->ptype = pn_init;
+    pvar_attr->ptype = ptype;
+    pvar_attr->pinit = pinit;
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
@@ -46,8 +47,7 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CON
 	pn_init->attrs.literal.integer.n = 0;
       } else
 	ath_abort( pos, ABORT_MEMLACK );
-    } else
-      assert( pn_init->type.ty == TY_INT );
+    }
     assert( pn_init );
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
@@ -79,8 +79,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_
       } else
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
-    } else
-      assert( ps_init->type.ty == TY_STRING );
+    }
     assert( ps_init );
     pvar_attr->ident = pident;
     pvar_attr->pos = pos;
@@ -133,7 +132,8 @@ VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
     list_var_attrib( pvar_attr, pvar_name, type_arg, (TYPE_CONS_PTR)pinit, pos );
     break;
   case TY_POLY:
-    poly_var_attrib( pvar_attr, pvar_name, pos );
+    assert( !type_arg );
+    poly_var_attrib( pvar_attr, pvar_name, pinit, pos );
     break;
   case TY_GEN:
     /* fall thru. */

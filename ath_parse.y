@@ -139,7 +139,22 @@ decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   assert( strlen($1) >= 1 );
   decl_attrib_var( &$$, $1, TY_POLY, NULL, NULL, pos );
  }
-
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
+  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
+  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_list_init {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( strlen($1) >= 1 );
+  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
+ };
+  
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
@@ -150,13 +165,15 @@ decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   assert( strlen($1) >= 1 );
   assert( $4 );
   decl_attrib_var( &$$, $1, TY_INT, NULL, $4, pos );
- }
+ };
+/* moved to the case of TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init.
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_int_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
   assert( $4 );
   decl_attrib_var( &$$, $1, TY_INT, NULL, $4, pos );
  };
+*/
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   TYPE_CONS_PTR pval_int = NULL;
@@ -180,13 +197,15 @@ decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   assert( strlen($1) >= 1 );
   assert( $4 );
   decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
- }
+ };
+/* moved to the case of TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init.
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_string_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( strlen($1) >= 1 );
   assert( $4 );
   decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
  }
+*/
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   TYPE_CONS_PTR pval_string = NULL;
