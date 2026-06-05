@@ -116,13 +116,10 @@ statement : decl_var_poly {
   assert( ! ($1.ptype)->attrs.list.car );
   assert( ! ($1.ptype)->attrs.list.cdr );
   exam_tycon( $1.ptype );
-#if 1 // *****
   assert( ($1.pinit)->type.ty == TY_LIST );
   assert( ($1.pinit)->attrs.list.pty_elem );
-  //assert( ($1.pinit)->attrs.list.car );
   assert( ($1.pinit)->attrs.list.plast );
   exam_tycon( $1.pinit );
-#endif
 #endif // RUNTIME_CONSITENCY_CHECK
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
