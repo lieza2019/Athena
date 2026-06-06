@@ -323,19 +323,20 @@ static TYPE_CONS_PTR tychk_var_decl ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv
 	goto failed_memalloc;
     }
     assert( pe_tychk );
-    pvar_attr->ptype = ty_infer( ppsubst, penv, pe_tychk, pos );
-    r = pvar_attr->ptype;
+    r = ty_infer( ppsubst, penv, pe_tychk, pos );
+    if( r )
+      pvar_attr->ptype = r;
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
   return r;
 }
 
-TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
+TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   assert( ppsubst );
-  assert( penv );
   assert( pstmt );
+  assert( pstmt->penv );
   
   switch( pstmt->sort ) {
   case STMT_DECL:
@@ -345,7 +346,7 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT
       break;
     case DECL_VAR:
       assert( (pstmt->u.pdecl)->u.variable.pvar );
-      r = tychk_var_decl( ppsubst, penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+      r = tychk_var_decl( ppsubst, pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
       break;
     case END_OF_DECL_KIND:
       /* fall thru. */
@@ -354,13 +355,12 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT
     }
     break;
   case STMT_EXPR:
-    ty_infer( ppsubst, penv, pstmt->u.pexpr, pos );
+    ty_infer( ppsubst, pstmt->penv, pstmt->u.pexpr, pos );
     break;
   case END_OF_STMT_SORT:
     /* fall thru. */
   default:
-    assert( FALSE );    
+    assert( FALSE );
   }
-  pstmt->penv = penv;
   return r;
 }

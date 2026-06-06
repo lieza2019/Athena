@@ -61,10 +61,14 @@ statement : decl_var {
     pvattr->ptype = $1.ptype;
     pvattr->pinit = $1.pinit;
     stmt_decl_var( &pstmt, pvattr, pos );
-    assert( pstmt );
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  $$ = *pstmt;  
+  assert( pstmt );
+  {
+    TYPE_SUBST_PTR psubst = NULL;
+    typecheck1( &psubst, pstmt, pos );
+  }
+  $$ = *pstmt;
  };
 
 decl_var : decl_var_poly {
