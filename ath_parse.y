@@ -13,14 +13,11 @@
 %}
 %union {
   char tk_chr;
-  char *tk_keyword;
   int nat;
   char *str;  
   TYPE_CONS_PTR pvar_init;
-  TYPE_CONS_PTR ptype_cons;
+  TYPE_CONS_PTR pty_list_elem;
   VAR_ATTRIB var_attr;
-  LIST_CELL_PTR plcell;
-  /* STATEMENT stmt; */
   STATEMENT_PTR pstmt_last;
 }
 %token <tk_chr> TK_SMCL
@@ -38,12 +35,10 @@
 %type <pvar_init> decl_int_init decl_string_init
 %type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
 %type <pvar_init> decl_var_init
-%type <ptype_cons> list_elem_type
+%type <pty_list_elem> list_elem_type
 %type <var_attr> decl_var_poly decl_var_int decl_var_string decl_var_list
 %type <var_attr> decl_var
- /* %type <stmt> statement */
 %type <pstmt_last> statement statements
- /* %start statement */
 %start statements
 %%
 statements : statements statement {
@@ -85,11 +80,7 @@ statement : decl_var {
   } else
     ath_abort( pos, ABORT_MEMLACK );
   tychk_decl_var( pstmt, pos );
-#if 0 // *****
-  $$ = *pstmt;
-#else
   $$ = pstmt;
-#endif
  };
 
 decl_var : decl_var_poly {

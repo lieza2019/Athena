@@ -10,4 +10,3 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   r = typecheck1( &psubst, pstmt, pos );
   return r;
 }
-
