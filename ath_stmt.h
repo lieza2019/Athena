@@ -14,6 +14,7 @@ typedef struct statement {
     EXPR_CONS_PTR pexpr;
   } u;
   TYPE_ENV_PTR penv;
+  struct statement *psucc;
 } STATEMENT, *STATEMENT_PTR;
 typedef const struct statement STATEMENT_C;
 typedef struct statement *STATEMENT_PTR_C;
@@ -21,5 +22,7 @@ typedef struct statement *STATEMENT_PTR_C;
 typedef struct statements {
   int nstmts;
   STATEMENT stmts_buf[MAX_STATEMENTS];
+  STATEMENT_PTR phead;
+  STATEMENT_PTR plast;
 } STATEMENTS;
 extern STATEMENTS statements;

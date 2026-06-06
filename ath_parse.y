@@ -20,7 +20,8 @@
   TYPE_CONS_PTR ptype_cons;
   VAR_ATTRIB var_attr;
   LIST_CELL_PTR plcell;
-  STATEMENT stmt;
+  /* STATEMENT stmt; */
+  STATEMENT_PTR pstmt_last;
 }
 %token <tk_chr> TK_SMCL
 %token TK_COMMA
@@ -34,15 +35,34 @@
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
-%type <pvar_init> decl_string_init decl_int_init
+%type <pvar_init> decl_int_init decl_string_init
 %type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
 %type <pvar_init> decl_var_init
 %type <ptype_cons> list_elem_type
 %type <var_attr> decl_var_poly decl_var_int decl_var_string decl_var_list
 %type <var_attr> decl_var
-%type <stmt> statement
-%start statement
+ /* %type <stmt> statement */
+%type <pstmt_last> statement statements
+ /* %start statement */
+%start statements
 %%
+statements : statements statement {
+  assert( statements.phead );
+  assert( $1 );
+  assert( statements.plast == $1 );
+  assert( $2 );
+  ($2)->psucc = NULL;
+  (statements.plast)->psucc = $2;
+  statements.plast = $2;
+  $$ = statements.plast;
+ }
+| statement {
+  assert( $1 );
+  statements.phead = $1;
+  statements.plast = statements.phead;
+  $$ = statements.plast;
+ };
+
 statement : decl_var {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
@@ -61,14 +81,15 @@ statement : decl_var {
     pvattr->ptype = $1.ptype;
     pvattr->pinit = $1.pinit;
     stmt_decl_var( &pstmt, pvattr, pos );
+    assert( pstmt );
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  assert( pstmt );
-  {
-    TYPE_SUBST_PTR psubst = NULL;
-    typecheck1( &psubst, pstmt, pos );
-  }
+  tychk_decl_var( pstmt, pos );
+#if 0 // *****
   $$ = *pstmt;
+#else
+  $$ = pstmt;
+#endif
  };
 
 decl_var : decl_var_poly {

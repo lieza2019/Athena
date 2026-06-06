@@ -289,7 +289,7 @@ static TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C p
   return pty;
 }
 
-static TYPE_CONS_PTR tychk_var_decl ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
   assert( ppsubst );
@@ -346,7 +346,7 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS
       break;
     case DECL_VAR:
       assert( (pstmt->u.pdecl)->u.variable.pvar );
-      r = tychk_var_decl( ppsubst, pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+      r = tc_decl_var( ppsubst, pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
       break;
     case END_OF_DECL_KIND:
       /* fall thru. */
