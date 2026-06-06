@@ -64,7 +64,7 @@ statement : decl_var {
     assert( pstmt );
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  $$ = *pstmt;
+  $$ = *pstmt;  
  };
 
 decl_var : decl_var_poly {
@@ -82,38 +82,38 @@ decl_var : decl_var_poly {
 
 decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_POLY, NULL, NULL, pos );
+  decl_var_attrib( &$$, $1, TY_POLY, NULL, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_var_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_POLY, NULL, $4, pos );
+  decl_var_attrib( &$$, $1, TY_POLY, NULL, $4, pos );
  };
 
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_INT, NULL, NULL, pos );
+  decl_var_attrib( &$$, $1, TY_INT, NULL, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_var_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_INT, NULL, $4, pos );
+  decl_var_attrib( &$$, $1, TY_INT, NULL, $4, pos );
  };
 
 decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, NULL, pos );
+  decl_var_attrib( &$$, $1, TY_STRING, NULL, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_var_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_STRING, NULL, $4, pos );
+  decl_var_attrib( &$$, $1, TY_STRING, NULL, $4, pos );
  };
 
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_LIST, $3, NULL, pos );
+  decl_var_attrib( &$$, $1, TY_LIST, $3, NULL, pos );
  }
 | TK_IDENT TK_KEYWORD_AS list_elem_type decl_var_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_attrib_var( &$$, $1, TY_LIST, $3, $4, pos );
+  decl_var_attrib( &$$, $1, TY_LIST, $3, $4, pos );
  };
 
 list_elem_type : TK_LSQBL TK_RSQBL {

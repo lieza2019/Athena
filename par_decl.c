@@ -106,7 +106,7 @@ static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CO
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, void *pinit, SRC_POS_C pos ) {
+VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, void *pinit, SRC_POS_C pos ) {
   assert( pvar_attr );
   assert( pvar_name );
   switch( var_type ) {

@@ -289,8 +289,50 @@ static TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C p
   return pty;
 }
 
+static TYPE_CONS_PTR tychk_var_decl ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+  TYPE_CONS_PTR r = NULL;
+  EXPR_CONS_PTR pe_lval = NULL;
+  assert( ppsubst );
+  assert( penv );
+  assert( pvar_attr );
+  
+  pe_lval = alloc_expr_cons( pos );
+  if( pe_lval ) {
+    EXPR_CONS_PTR pe_tychk = NULL;
+    pe_lval->pos = pos;
+    pe_lval->mnemonic = MNC_LVALUE;
+    pe_lval->kids.pdaugh = pvar_attr;
+    pe_tychk = pe_lval;
+    if( pvar_attr->pinit ) {
+      EXPR_CONS_PTR pe_cnst = NULL;
+      pe_cnst = alloc_expr_cons( pos );
+      if( pe_cnst ) {
+	EXPR_CONS_PTR pe_asgn = NULL;
+	pe_cnst->pos = pos;
+	pe_cnst->mnemonic = MNC_CONST;
+	pe_lval->kids.pdaugh = pvar_attr->pinit;
+	if( pe_asgn ) {
+	  pe_asgn->pos = pos;
+	  pe_asgn->mnemonic = MNC_ASGN;
+	  pe_asgn->kids.pleft = pe_lval;
+	  pe_asgn->kids.pright = pe_cnst;
+	  pe_tychk = pe_asgn;
+	} else
+	  goto failed_memalloc;
+      } else
+	goto failed_memalloc;
+    }
+    assert( pe_tychk );
+    pvar_attr->ptype = ty_infer( ppsubst, penv, pe_tychk, pos );
+    r = pvar_attr->ptype;
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return r;
+}
+
 TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
-  TYPE_CONS_PTR pty_stmt = NULL;
+  TYPE_CONS_PTR r = NULL;
   assert( ppsubst );
   assert( penv );
   assert( pstmt );
@@ -298,8 +340,18 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT
   switch( pstmt->sort ) {
   case STMT_DECL:
     assert( pstmt->u.pdecl );
-    assert( (pstmt->u.pdecl)->pinit );
-    ty_infer( ppsubst, penv, (pstmt->u.pdecl)->pinit, pos );
+    switch( (pstmt->u.pdecl)->kind ) {
+    case DECL_FUN:
+      break;
+    case DECL_VAR:
+      assert( (pstmt->u.pdecl)->u.variable.pvar );
+      r = tychk_var_decl( ppsubst, penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+      break;
+    case END_OF_DECL_KIND:
+      /* fall thru. */
+    default:
+      assert( FALSE );
+    }
     break;
   case STMT_EXPR:
     ty_infer( ppsubst, penv, pstmt->u.pexpr, pos );
@@ -310,5 +362,5 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, STATEMENT
     assert( FALSE );    
   }
   pstmt->penv = penv;
-  return pty_stmt;
+  return r;
 }

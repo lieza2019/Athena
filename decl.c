@@ -77,7 +77,7 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr ) {
 	      pl->mnemonic = MNC_LVALUE;
 	      pl->kids.pdaugh = pvar_attr;	  
 	      pr->pos = pos_ini;
-	      pr->mnemonic = MNC_VAL;
+	      pr->mnemonic = MNC_CONST;
 	      pr->kids.pdaugh = pvar_attr->ptype;
 	      pasgn->kids.pleft = pl;
 	      pasgn->kids.pright = pr;

@@ -83,8 +83,9 @@ extern BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list );
 extern LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos );
 
-/* from parse.c */
+/* from par_decl.c */
 extern TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos );
-extern VAR_ATTRIB_PTR decl_attrib_var ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, void *pinit, SRC_POS_C pos );
+VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, void *pinit, SRC_POS_C pos );
 extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C pos );
 extern LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_es, SRC_POS_C pos );
+

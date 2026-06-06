@@ -2,8 +2,7 @@ typedef enum mnemonic_code {
   MNC_CALL = 1,
   MNC_ASGN,
   MNC_ARITH,
-  MNC_VAR,
-  MNC_VAL,
+  MNC_CONST,
   MNC_LVALUE,
   MNC_RVALUE,
   END_OF_MNEMONIC_CODE
@@ -17,7 +16,7 @@ typedef struct expr_cons {
   struct {
     void *pdaugh;
     struct expr_cons *pleft;
-    struct expr_cons *pright;    
+    struct expr_cons *pright;
   } kids;
   TYPE_CONS_PTR ptype;
 } EXPR_CONS, *EXPR_CONS_PTR;
