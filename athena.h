@@ -27,7 +27,7 @@ extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern const char *find_literal ( const char *pname, SRC_POS_C pos );
 
 /* from type.c */
-extern TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos );
+extern char *fresh_tyvar ( SRC_POS_C pos );
 extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
 extern void free_type_cons ( TYPE_CONS_PTR ptycons );
 extern TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty );
@@ -48,6 +48,7 @@ extern TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );
 extern void free_tyenv_elems ( TYENV_ELEM_PTR pelem );
 extern TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos );
 extern void free_type_env ( TYPE_ENV_PTR penv );
+extern TYPE_ENV_PTR env_lnk ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv_succ );
 extern TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident );
 extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident );
@@ -55,7 +56,7 @@ extern TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos );
 extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos );
 extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
-/* from tychek.c */
+/* from tychk.c */
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos );
 extern TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS_C pos );

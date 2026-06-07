@@ -198,7 +198,7 @@ static TYPE_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
   return pty_expr;
 }
 
-static TYPE_CONS_PTR add_tv ( TYPE_CONS_PTR ptvs, const char *tv_ident, SRC_POS_C pos ) {
+static TYPE_CONS_PTR add_tyv ( TYPE_CONS_PTR ptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;
   TYPE_CONS_PTR ptv = NULL;
   assert( tv_ident );
@@ -250,7 +250,7 @@ static TYPE_CONS_PTR enum_tvs ( TYPE_CONS_PTR pacc, TYPE_CONS_PTR pty, SRC_POS_C
   case TY_POLY:
     assert( ! pty->type.tyvars.var.pnext );
     assert( pty->type.tyvars.var.ident );
-    ptvs = add_tv( pacc, pty->type.tyvars.var.ident, pos );
+    ptvs = add_tyv( pacc, pty->type.tyvars.var.ident, pos );
     break;
   case TY_GEN:
     /* fall thru. */
@@ -287,6 +287,51 @@ static TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C p
     }
   }
   return pty;
+}
+
+static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
+  assert( pty_cons );
+  switch( pty_cons->type.ty ) {
+  case TY_EXPR:
+    assert( pty_cons->attrs.expr.pexpr );
+    if( (pty_cons->attrs.expr.pexpr)->ptype )
+      travers_asgn_tyv( (pty_cons->attrs.expr.pexpr)->ptype, pos );
+    break;
+  case TY_INT:
+  case TY_CHAR:
+  case TY_STRING:
+    break;  
+  case TY_LIST:
+    assert( pty_cons->attrs.list.pty_elem );
+    if( pty_cons->attrs.list.car ) {
+      TYPE_CONS_PTR pcell = pty_cons;
+      do {
+	assert( pcell->attrs.list.car );
+	assert( pcell->attrs.list.pty_elem );
+	travers_asgn_tyv( pcell->attrs.list.pty_elem, pos );
+	pcell = pcell->attrs.list.cdr;
+      } while( pcell );
+    } else {
+      assert( pty_cons->attrs.list.cdr );
+      travers_asgn_tyv( pty_cons->attrs.list.pty_elem, pos );
+    }
+    break;
+  case TY_POLY:
+    assert( ! pty_cons->type.tyvars.var.pnext );
+    if( ! pty_cons->type.tyvars.var.ident )
+      pty_cons->type.tyvars.var.ident = fresh_tyvar( pos );
+    assert( pty_cons->type.tyvars.var.ident );
+    break;
+  case TY_GEN:
+    /* fall thru. */
+  case TY_OTHERS:
+    /* fall thru. */
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return pty_cons;
 }
 
 static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {

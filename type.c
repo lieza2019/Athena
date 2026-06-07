@@ -7,7 +7,7 @@
 static struct {
   int seq;
 } tyver_ctrl;
-static char *fresh_tyvar ( SRC_POS_C pos ) {
+char *fresh_tyvar ( SRC_POS_C pos ) {
   const char *prefix = "t_";
   char *ident = NULL;
   
@@ -19,33 +19,6 @@ static char *fresh_tyvar ( SRC_POS_C pos ) {
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return ident;
-}
-TYPE_CONS_PTR asgn_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
-  assert( pty_cons );
-  switch( pty_cons->type.ty ) {
-  case TY_INT:
-  case TY_CHAR:
-  case TY_STRING:
-    break;  
-  case TY_LIST:
-    asgn_tyvar( pty_cons->attrs.list.pty_elem, pos );
-    break;
-  case TY_POLY:
-    assert( ! pty_cons->type.tyvars.var.pnext );
-    if( ! pty_cons->type.tyvars.var.ident )
-      pty_cons->type.tyvars.var.ident = fresh_tyvar( pos );
-    assert( pty_cons->type.tyvars.var.ident );
-    break;
-  case TY_GEN:
-    /* fall thru. */
-  case TY_OTHERS:
-    /* fall thru. */
-  case END_OF_TYPE_CODE:
-    /* fall thru. */
-  default:
-    assert( FALSE );
-  }
-  return pty_cons;
 }
 
 static struct {
@@ -623,6 +596,13 @@ void free_type_env ( TYPE_ENV_PTR penv ) {
 		(ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive,
 		(ALLOC_NODE_LINKS_PTR)penv );    
   }
+}
+
+TYPE_ENV_PTR env_lnk ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv_succ ) {
+  assert( penv_pred );
+  assert( penv_succ );
+  penv_succ->uplink = penv_pred;
+  return penv_succ->uplink;
 }
 
 TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
