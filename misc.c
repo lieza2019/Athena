@@ -115,7 +115,7 @@ static char *print_value_type ( char *sbuf, TYPE_CONS_PTR_C pvar_tydesc ) {
 }
 char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   SRC_POS pos;
-  char *ps = NULL;  
+  char *ps = NULL;
   assert( sbuf );
   assert( pvar_attr );
   assert( pvar_attr->ptype );

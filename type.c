@@ -438,8 +438,8 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
     assert( ! pty->type.tyvars.var.ident );
     assert( ! pty->type.tyvars.var.pnext );
     assert( pty->attrs.expr.pexpr );
-    assert( (pty->attrs.expr.pexpr)->ptype );
-    {
+    pty_subst = pty;
+    if( (pty->attrs.expr.pexpr)->ptype ) {
       TYPE_CONS_PTR pty_s_expr = NULL;
       pty_s_expr = tyvar_rewrt( psubst, (pty->attrs.expr.pexpr)->ptype, pos );
       assert( pty_s_expr );
@@ -451,8 +451,7 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
 	  (pty_subst->attrs.expr.pexpr)->ptype = pty_s_expr;
 	} else
 	  ath_abort( pos, ABORT_MEMLACK );
-      } else
-	pty_subst = pty;
+      }
     }
     break;
   case TY_INT:

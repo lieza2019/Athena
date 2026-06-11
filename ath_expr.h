@@ -20,3 +20,16 @@ typedef struct expr_cons {
   } kids;
   TYPE_CONS_PTR ptype;
 } EXPR_CONS, *EXPR_CONS_PTR;
+
+#define EXAM_ASGN_EXPR( e )						\
+  (((e)->mnemonic == MNC_ASGN) &&					\
+   ((!((e)->kids.pdaugh)) && ((e)->kids.pleft) && ((e)->kids.pright))	\
+   )
+#define EXAM_CONST_EXPR( e )						\
+  (((e)->mnemonic == MNC_CONST) &&					\
+   (((e)->kids.pdaugh) && (!((e)->kids.pleft)) && (!((e)->kids.pright))) \
+   )
+#define EXAM_LVALUE_EXPR( e )						\
+  (((e)->mnemonic == MNC_LVALUE) &&					\
+   (((e)->kids.pdaugh) && (!((e)->kids.pleft)) && (!((e)->kids.pright))) \
+   )

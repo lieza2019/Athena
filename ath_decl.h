@@ -37,7 +37,9 @@ typedef struct declaration {
       VAR_ATTRIB_PTR pvar;
     } variable;
   } u;
+#if 1 // *****
   EXPR_CONS_PTR pinit;
+#endif
 } DECLARATION, *DECLARATION_PTR;
 typedef const struct declaration DECL_ATTRIB_C;
 typedef struct declaration const *DECL_ATTRIB_PTR_C;
