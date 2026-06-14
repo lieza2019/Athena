@@ -11,6 +11,12 @@ typedef enum type_code {
 } TYPE_CODE;
 extern char *ath_type_name[];
 
+typedef enum tycons_directive {
+  TYCONS_WITH_NOCLAIMS,
+  SUBST_TYVAR_ONLYRENAMING,
+  END_OF_TYCONS_DIRECTIVE
+} TYCONS_DIRECTIVE;
+
 #define NUM_TYCONS_PER_ALLOC 256
 typedef struct type_cons {
   ALLOC_NODE_LINKS alloc;
@@ -48,6 +54,7 @@ typedef struct type_cons {
       struct type_cons *plast;
     } list;
   } attrs;
+  TYCONS_DIRECTIVE tycons_directiv;
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;

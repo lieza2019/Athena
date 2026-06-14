@@ -68,18 +68,18 @@ static TYPE_CONS_PTR enum_expr_tvs ( TYPE_CONS_PTR *ppacc, EXPR_CONS_PTR pexpr, 
   case MNC_CALL:
     break;
   case MNC_ASGN:
-    EXAM_ASGN_EXPR( pexpr );
+    assert( EXAM_ASGN_EXPR( pexpr ) );
     enum_expr_tvs( ppacc, pexpr->kids.pleft, pos );
     enum_expr_tvs( ppacc, pexpr->kids.pright, pos );
     break;
   case MNC_ARITH:
     break;
   case MNC_CONST:
-    EXAM_CONST_EXPR( pexpr );
+    assert( EXAM_CONST_EXPR( pexpr ) );
     enum_tvs( ppacc, (TYPE_CONS_PTR)(pexpr->kids.pdaugh), pos );
     break;
   case MNC_LVALUE:
-    EXAM_LVALUE_EXPR( pexpr );
+    assert( EXAM_LVALUE_EXPR( pexpr ) );
     enum_tvs( ppacc, ((VAR_ATTRIB_PTR)(pexpr->kids.pdaugh))->ptype, pos );
     break;
   case MNC_RVALUE:
@@ -156,6 +156,37 @@ TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
     }
   }
   return pty;
+}
+
+TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+  TYPE_CONS_PTR pty_inst = NULL;
+  TYPE_SUBST_PTR ps_inst = NULL;
+  assert( pty );
+  
+  ps_inst = alloc_type_subst( pos );
+  if( ps_inst ) {
+    TYPE_CONS_PTR pgv = NULL;
+    pgv = pty->type.tyvars.pgenvars;
+    while( pgv ) {
+      TYPE_CONS_PTR ptyv_fresh = NULL;
+      assert( pgv->type.tyvars.var.ident );
+      ptyv_fresh = alloc_type_cons( pos );
+      if( ptyv_fresh ) {
+	ptyv_fresh->type.ty = TY_POLY;
+	ptyv_fresh->type.tyvars.var.ident = fresh_tyvar( pos );
+	assert( ptyv_fresh->type.tyvars.var.ident );
+	ptyv_fresh->type.tyvars.var.pnext = NULL;
+	ptyv_fresh->tycons_directiv = SUBST_TYVAR_ONLYRENAMING;
+	subst_add( ps_inst, pgv->type.tyvars.var.ident, ptyv_fresh, pos );
+      } else
+	goto failed_memalloc;
+      pgv = pgv->type.tyvars.var.pnext;
+    }
+    pty_inst = ty_subst( ps_inst, pty,pos );
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return pty_inst;
 }
 
 static BOOL chk_tyvar_occur ( const char *tyvar_ident, TYPE_CONS_PTR pty ) {
@@ -359,8 +390,8 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
       TYPE_SUBST_PTR psubst_u = NULL;
       pe_inf_l = ty_infer( &psubst_l, penv, pexpr->kids.pleft, pos );
       if( pe_inf_l ) {
-	assert( EXAM_LVALUE_EXPR( pe_inf_l ) );
 	assert( pe_inf_l->ptype );
+	assert( EXAM_LVALUE_EXPR( pe_inf_l ) );
 	pe_inf_r = ty_infer( &psubst_r, penv, pexpr->kids.pright, pos );
 	if( pe_inf_r ) {
 	  assert( pe_inf_r->ptype );
@@ -391,13 +422,75 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
   case MNC_ARITH:
     break;
   case MNC_CONST:
+    assert( EXAM_CONST_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      EXPR_CONS_PTR pe_inf = NULL;
+      TYPE_CONS_PTR pty_cnst = pexpr->kids.pdaugh;
+      assert( pty_cnst );
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_CONST;
+      switch( pty_cnst->type.ty ) {
+      case TY_EXPR:
+	assert( pty_cnst->attrs.expr.pexpr );
+	pe_inf = ty_infer( ppsubst, penv, pty_cnst->attrs.expr.pexpr, pos );
+	assert( pe_inf );
+	assert( pe_inf->ptype );
+	if( pe_inf != pty_cnst->attrs.expr.pexpr ) {
+	  TYPE_CONS_PTR pty_cnst_inf = NULL;
+	  pty_cnst_inf = alloc_type_cons( pos );
+	  if( pty_cnst_inf ) {
+	    pty_cnst_inf->pos = pos;
+	    pty_cnst_inf->type = pty_cnst->type;
+	    pty_cnst_inf->attrs = pty_cnst->attrs;
+	    pty_cnst_inf->attrs.expr.pexpr = pe_inf;
+	    pexp_inf->kids.pdaugh = pty_cnst_inf;
+	    //pexp_inf->ptype = pe_inf->ptyep;
+	  } else
+	    ath_abort( pos, ABORT_MEMLACK );
+	} else
+	  pexp_inf = pexpr;
+	break;
+      case TY_INT:
+      case TY_CHAR:
+      case TY_STRING:
+	pexp_inf = pexpr;
+	break;
+      case TY_LIST:
+	assert( pty_cnst->attrs.list.pty_elem );
+	
+	if( pty_cnst->attrs.list.car ) {
+	  TYPE_CONS_PTR pcell = pty_cnst->attrs.list.car;
+	  do {
+	    ;
+	  } while( pcell );
+	} else
+	  ;
+	break;
+      case TY_POLY:
+      case TY_GEN:
+	/* fall thru. */
+      case TY_OTHERS:
+	/* fall thru. */
+      case END_OF_TYPE_CODE:
+	/* fall thru. */
+      default:
+	assert( FALSE );
+      }
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_LVALUE:
-    EXAM_LVALUE_EXPR( pexpr );
-    {
+    assert( EXAM_LVALUE_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
       VAR_ATTRIB_PTR pvar_attr = pexpr->kids.pdaugh;
       assert( pvar_attr->ptype );
-    }
+      pvar_attr->ptype = inst_gtvs( pvar_attr->ptype, pos );
+      assert( pvar_attr->ptype );
+      ;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_RVALUE:
     break;
@@ -508,16 +601,16 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, V
       EXPR_CONS_PTR pe_declvar = NULL;
       assert( pe_lval );
       if( pe_cnst ) {
-	assert( pe_asgn );
 	assert( pvar_attr->pinit );
+	assert( pe_asgn );
 	assert( EXAM_ASGN_EXPR( pvardecl_exp_inf ) );
 	assert( EXAM_CONST_EXPR( pvardecl_exp_inf->kids.pright ) );
 	pvar_attr->pinit = (pvardecl_exp_inf->kids.pright)->kids.pdaugh;
 	pe_declvar = pvardecl_exp_inf->kids.pleft;
 	goto var_type;
       } else {
+	assert( ! pvar_attr->pinit );
 	assert( ! pe_asgn );
-	assert( ! pvar_attr->pinit );	
 	pe_declvar = pvardecl_exp_inf;
       var_type:
 	assert( pe_declvar );
@@ -532,9 +625,9 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, V
   return pty_declvar;
 }
 
-TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS_C pos ) {
+TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
-  assert( ppsubst );
+  TYPE_SUBST_PTR psubst = NULL;
   assert( pstmt );
   assert( pstmt->penv );
   
@@ -546,7 +639,7 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS
       break;
     case DECL_VAR:
       assert( (pstmt->u.pdecl)->u.variable.pvar );
-      r = tc_decl_var( ppsubst, pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+      r = tc_decl_var( &psubst, pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
       break;
     case END_OF_DECL_KIND:
       /* fall thru. */
@@ -555,7 +648,7 @@ TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS
     }
     break;
   case STMT_EXPR:
-    ty_infer( ppsubst, pstmt->penv, pstmt->u.pexpr, pos );
+    ty_infer( &psubst, pstmt->penv, pstmt->u.pexpr, pos );
     break;
   case END_OF_STMT_SORT:
     /* fall thru. */

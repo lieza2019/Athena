@@ -59,8 +59,9 @@ extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 /* from tychk.c */
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
 extern TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos );
+extern TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos );
-extern TYPE_CONS_PTR typecheck1 ( TYPE_SUBST_PTR *ppsubst, STATEMENT_PTR pstmt, SRC_POS_C pos );
+extern TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos );
 
 /* from expr.c */
 extern EXPR_CONS_PTR alloc_expr_cons ( SRC_POS_C pos );
