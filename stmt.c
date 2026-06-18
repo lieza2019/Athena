@@ -24,7 +24,7 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
   *ppstmt = new_stmt();
   if( *ppstmt ) {
     DECLARATION_PTR pdecl = NULL;
-    redef = decl_var( &pdecl, pvar_attr );
+    redef = decl_var( &pdecl, pvar_attr, pos );
     assert( pdecl );
     if( redef )
       err_redef( pdecl );
@@ -32,6 +32,6 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
     (*ppstmt)->sort = STMT_DECL;
     (*ppstmt)->u.pdecl = pdecl;
   } else
-    ath_abort( pvar_attr->pos, ABORT_MEMLACK );
+    ath_abort( pos, ABORT_MEMLACK );
   return redef;
 }

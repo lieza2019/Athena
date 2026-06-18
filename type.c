@@ -745,7 +745,7 @@ TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos
   return penv_s; 
 }
 
-char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
+char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
   SRC_POS pos;
   char *ps = NULL;  
   assert( sbuf );
@@ -773,13 +773,12 @@ char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
     strcpy( ps, "[" );
     ps++;
     if( pty_desc->attrs.list.pty_elem ) {
-      ps = print_var_type( ps, pty_desc->attrs.list.pty_elem );
-      assert( *ps == 0 );
+      ps = print_type( ps, pty_desc->attrs.list.pty_elem );
     } else {
       strcpy( ps, "UNKNOWN_TYPE" );
       ps += strlen( ps );
-      assert( *ps == 0 );
-    }    
+    }
+    assert( *ps == 0 );
     strcpy( ps, "]" );
     ps++;
     assert( *ps == 0 );

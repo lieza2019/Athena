@@ -54,7 +54,7 @@ extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CON
 extern TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident );
 extern TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos );
 extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos );
-extern char *print_var_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
+extern char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
 /* from tychk.c */
 extern BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 );
@@ -71,7 +71,7 @@ extern void free_expr_cons ( EXPR_CONS_PTR pecons );
 extern void err_redef ( DECLARATION_PTR pdecl );
 extern VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos );
 extern void free_var_addr ( VAR_ATTRIB_PTR pvattr );
-extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr );
+extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
 
 /* from stmt.c */
 extern STATEMENT_PTR new_stmt ( void );

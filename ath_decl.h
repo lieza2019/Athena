@@ -4,7 +4,11 @@ typedef struct pvar_attrib {
   SRC_POS pos;
   const char *ident;
   TYPE_CONS_PTR ptype;
+#if 0
   TYPE_CONS_PTR pinit;
+#else
+  EXPR_CONS_PTR pinit;
+#endif
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
 typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
@@ -37,7 +41,7 @@ typedef struct declaration {
       VAR_ATTRIB_PTR pvar;
     } variable;
   } u;
-#if 1 // *****
+#if 0 // *****
   EXPR_CONS_PTR pinit;
 #endif
 } DECLARATION, *DECLARATION_PTR;
