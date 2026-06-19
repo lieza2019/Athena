@@ -45,7 +45,7 @@ par_tychk.o : par_tychk.c athena.h
 	$(CC) $(CFLAGS) $<
 y.tab.o : y.tab.c
 	$(CC) $(CFLAGS_YACC) $<
-y.tab.c : ath_parse.y athena.h
+y.tab.c : ath_parse1.y athena.h
 	$(YACC) $(YFLAGS) $<
 lex.yy.o : lex.yy.c athena.h
 	$(CC) $(CFLAGS_YACC) $<
