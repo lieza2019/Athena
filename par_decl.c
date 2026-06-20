@@ -211,273 +211,55 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type, SRC_P
   return pty_l;
 }
 
-#if 0
-static TYPE_CONS_PTR retriv_car_type ( LIST_CELL_PTR car, SRC_POS_C pos ) {
-  LIST_CELL_PTR r = NULL;
-  assert( car );
-  
-  switch( car->type.ty ) {
-  case TY_EXPR:
-    assert( car->attrs.expr.pexpr );
-    r = (car->attrs.expr.pexpr)->ptype;
-    break;
-  case TY_INT:
-  case TY_CHAR:
-  case TY_STRING:
-    r = car;
-    break;
-  case TY_LIST:
-    assert( car->attrs.list.pty_elem );
-    r = car;
-    break;
-  case TY_POLY:
-    r = car;
-    break;
-  case TY_GEN:
-    /* fall thru. */
-  case TY_OTHERS:
-    /* fall thru. */
-  case END_OF_TYPE_CODE:
-    /* fall thru. */
-  default:
-    assert( FALSE );
-  }
-  return r;
-}
-LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_cs, SRC_POS_C pos ) {
-  LIST_CELL_PTR r = NULL;
-  LIST_CELL_PTR pcons = NULL;
-  
-  pcons = alloc_list_cell( pos );
-  if( pcons ) {
-    LIST_CELL_PTR pelem = NULL;
-    pcons->pos = pos;
-    pcons->type.ty = TY_LIST;
-    pelem = alloc_list_cell( pos );
-    if( pelem ) {
-      TYPE_CONS_PTR pty_e = NULL;
-      switch( elem_ty ) {
-      case TY_EXPR:
-	goto illegal_elem_type;
-      case TY_INT:
-	assert( pelem_val );
-	pelem->type.ty = TY_INT;
-	pelem->attrs.literal.integer.n = *(int *)pelem_val;
-	pty_e = pelem;
-	break;
-      case TY_CHAR:
-	break;
-      case TY_STRING:
-	assert( pelem_val );
-	pelem->type.ty = TY_STRING;
-	pelem->attrs.literal.string.s = (char *)pelem_val;
-	pty_e = pelem;
-	break;
-      case TY_LIST:
-	pelem->type.ty = TY_LIST;
-	if( pelem_val ) {
-	  pelem = pelem_val;
-	  pty_e = retriv_car_type( pelem, pos );
-	} else {
-	  TYPE_CONS_PTR pdesc = NULL;
-	  pdesc = alloc_tycons_node( pos );
-	  if( pdesc ) {
-	    pdesc->type.ty = TY_POLY;
-	    pelem->attrs.list.pty_elem = pdesc;
-	    pelem->attrs.list.plast = pelem;
-	  } else
-	    goto failed_memalloc;
-	  assert( ! pelem->attrs.list.car );
-	  assert( ! pelem->attrs.list.cdr );
-	  assert( pelem->attrs.list.plast == pelem );
-	  pty_e = pelem;
-	}
-	break;
-      case TY_POLY:
-	/* fall thru. */
-      case TY_GEN:
-	/* fall thru. */
-      case TY_OTHERS:
-	/* fall thru. */
-      case END_OF_TYPE_CODE:
-	/* fall thru. */
-      default:
-      illegal_elem_type:
-	assert( FALSE );
-      }
-      pcons->attrs.list.pty_elem = pty_e;
-      pcons->attrs.list.car = pelem;
-      pcons->attrs.list.cdr = psucc_cs;
-      if( pcons->attrs.list.cdr )
-	pcons->attrs.list.plast = (pcons->attrs.list.cdr)->attrs.list.plast;
-      else
-	pcons->attrs.list.plast = pcons;
-      r = pcons;
-    } else
-      goto failed_memalloc;
-  } else
-  failed_memalloc:
-    ath_abort( pos, ABORT_MEMLACK );
-  return r;
-}
-#else
-#if 0
-static TYPE_CONS_PTR retriv_car_type ( EXPR_CONS_PTR car, SRC_POS_C pos ) {
-#if 0
-  LIST_CELL_PTR r = NULL;
-#else
-  TYPE_CONS_PTR r = NULL;
-#endif
-  assert( car );
-  assert( car->ptype );
-  
-#if 0
-  switch( car->type.ty )
-#else
-  switch( (car->ptype)->type.ty )
-#endif
-    {
-    case TY_EXPR:
-#if 0
-      assert( car->attrs.expr.pexpr );
-      r = (car->attrs.expr.pexpr)->ptype;
-      break;
-#else
-      assert( FALSE );
-#endif
-    case TY_INT:
-    case TY_CHAR:
-    case TY_STRING:
-#if 0
-      r = car;
-#else
-      r = car->ptype;
-#endif
-      break;
-    case TY_LIST:
-#if 0
-      assert( car->attrs.list.pty_elem );
-      r = car;
-#else
-      assert( (car->ptype)->attrs.list.pty_elem );
-      r = (car->ptype)->attrs.list.pty_elem;
-#endif
-      break;
-    case TY_POLY:
-#if 0
-      r = car;
-#else
-      r = car->ptype;
-#endif
-      break;
-    case TY_GEN:
-      /* fall thru. */
-    case TY_OTHERS:
-      /* fall thru. */
-    case END_OF_TYPE_CODE:
-      /* fall thru. */
-    default:
-      assert( FALSE );
-    }
-  return r;
-}
-#endif
 EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PTR psucc_cs, SRC_POS_C pos ) {
-#if 0
-  LIST_CELL_PTR r = NULL;
-  LIST_CELL_PTR pcons = NULL;
-  pcons = alloc_list_cell( pos );
-#else
-  EXPR_CONS_PTR r = NULL;
   EXPR_CONS_PTR pcons = NULL;
+  
   pcons = alloc_expr_cons( pos );
-#endif
   if( pcons ) {
-#if 0
-    LIST_CELL_PTR pelem = NULL;
-    pcons->pos = pos;
-    pcons->type.ty = TY_LIST;
-    pelem = alloc_list_cell( pos );
-#else
     EXPR_CONS_PTR pelem = NULL;
     pcons->pos = pos;
     pcons->mnemonic = MNC_CNST_LIST;
     pelem = alloc_expr_cons( pos );
-#endif
     if( pelem ) {
       TYPE_CONS_PTR pty_e = NULL;
-#if 1
       pelem->pos = pos;
-      pelem->mnemonic = MNC_CNST_LIST;
-#endif
+      pelem->mnemonic = MNC_CNST_LIST;	
       switch( elem_ty ) {
       case TY_EXPR:
-	goto illegal_elem_type;
+	assert( FALSE );
       case TY_INT:
 	assert( pelem_val );
-#if 0
-	pelem->type.ty = TY_INT;
-	pelem->attrs.literal.integer.n = *(int *)pelem_val;
-	pty_e = pelem;
-#else
 	pty_e = alloc_type_cons( pos );
 	if( pty_e ) {
 	  pty_e->pos = pos;
 	  pty_e->type.ty = TY_INT;
 	} else
-	  ath_abort( pos, ABORT_MEMLACK );
+	  goto failed_memalloc;
 	pelem->ptype = pty_e;
 	pelem->kids.body.literal.integer.n = *(int *)pelem_val;
-#endif
 	break;
       case TY_CHAR:
+	assert( pelem_val );
 	break;
       case TY_STRING:
 	assert( pelem_val );
-#if 0
-	pelem->type.ty = TY_STRING;
-	pelem->attrs.literal.string.s = (char *)pelem_val;
-	pty_e = pelem;
-#else
 	pty_e = alloc_type_cons( pos );
 	if( pty_e ) {
 	  pty_e->pos = pos;
 	  pty_e->type.ty = TY_STRING;
 	} else
-	  ath_abort( pos, ABORT_MEMLACK );
+	  goto failed_memalloc;
 	pelem->ptype = pty_e;
 	pelem->kids.body.literal.string.s = (char *)pelem_val;
-#endif
 	break;
       case TY_LIST:
-#if 0
-	pelem->type.ty = TY_LIST;
-	if( pelem_val ) {
-	  pelem = pelem_val;
-	  pty_e = retriv_car_type( pelem, pos );
-	} else {
-	  TYPE_CONS_PTR pdesc = NULL;
-	  pdesc = alloc_tycons_node( pos );
-	  if( pdesc ) {
-	    pdesc->type.ty = TY_POLY;
-	    pelem->attrs.list.pty_elem = pdesc;
-	    pelem->attrs.list.plast = pelem;
-	  } else
-	    goto failed_memalloc;
-	  assert( ! pelem->attrs.list.car );
-	  assert( ! pelem->attrs.list.cdr );
-	  assert( pelem->attrs.list.plast == pelem );
-	  pty_e = pelem;
-	}
-#else
 	if( !pelem_val ) {
 	  pty_e = alloc_type_cons( pos );
 	  if( pty_e ) {
 	    pty_e->pos = pos;
 	    pty_e->type.ty = TY_POLY;
 	  } else
-	    ath_abort( pos, ABORT_MEMLACK );
-	  assert( pelem );
+	    goto failed_memalloc;
 	  pelem->ptype = pty_e;
 	  pelem->kids.body.list.car = NULL;
 	  pelem->kids.body.list.cdr = NULL;
@@ -485,9 +267,9 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
 	} else {
 	  assert( ((EXPR_CONS_PTR)pelem_val)->ptype );
 	  assert( (((EXPR_CONS_PTR)pelem_val)->ptype)->type.ty == TY_LIST );
+	  pty_e = ((EXPR_CONS_PTR)pelem_val)->ptype;
 	  pelem = pelem_val;
 	}
-#endif
 	break;
       case TY_POLY:
 	/* fall thru. */
@@ -498,32 +280,29 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
       case END_OF_TYPE_CODE:
 	/* fall thru. */
       default:
-      illegal_elem_type:
 	assert( FALSE );
       }
-      assert( pcons );
-#if 0
-      pcons->attrs.list.pty_elem = pty_e;
-      pcons->attrs.list.car = pelem;
-      pcons->attrs.list.cdr = psucc_cs;
-      if( pcons->attrs.list.cdr )
-	pcons->attrs.list.plast = (pcons->attrs.list.cdr)->attrs.list.plast;
-      else
-	pcons->attrs.list.plast = pcons;
-#else
       pcons->kids.body.list.car = pelem;
       pcons->kids.body.list.cdr = psucc_cs;
       if( pcons->kids.body.list.cdr )
 	pcons->kids.body.list.plast = (pcons->kids.body.list.cdr)->kids.body.list.plast;
       else
 	pcons->kids.body.list.plast = pcons;
-#endif
-      r = pcons;
+      {
+	TYPE_CONS_PTR pty_l = NULL;
+	pty_l = alloc_type_cons( pos );
+	if( pty_l ) {
+	  pty_l->pos = pos;
+	  pty_l->type.ty = TY_LIST;
+	  pty_l->attrs.list.pty_elem = pty_e;
+	} else
+	  goto failed_memalloc;
+	pcons->ptype = pty_l;
+      }
     } else
       goto failed_memalloc;
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
-  return r;
+  return pcons;
 }
-#endif
