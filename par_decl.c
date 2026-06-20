@@ -63,6 +63,7 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
     }
+    assert( pn_init );
     assert( pn_init->ptype );
     assert( (pn_init->ptype)->type.ty == TY_INT );
     pvar_attr->pinit = pn_init;
@@ -104,6 +105,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
       failed_memalloc:	
 	ath_abort( pos, ABORT_MEMLACK );
     }
+    assert( ps_init );
     assert( ps_init->ptype );
     assert( (ps_init->ptype)->type.ty == TY_STRING );
     pvar_attr->pinit = ps_init;
@@ -112,7 +114,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pty_list, TYPE_CONS_PTR pinit, SRC_POS_C pos ) {
+static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pty_list, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   const char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
@@ -124,16 +126,28 @@ static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CO
     pvar_attr->pos = pos;
     pvar_attr->ident = pident;
     pvar_attr->ptype = pty_list;
-    if( pinit ) {
-      assert( pinit->type.ty == TY_LIST );
-      pvar_attr->pinit = pinit;
-    } else
-      pvar_attr->pinit = pvar_attr->ptype;
+    if( !pinit ) {
+      pinit = alloc_expr_cons( pos );
+      if( pinit ) {
+	pinit->pos = pos;
+	pinit->mnemonic = MNC_LIST;
+	pinit->kids.body.list.car = NULL;
+	pinit->kids.body.list.cdr = NULL;
+	pinit->kids.body.list.plast = pinit;
+	pinit->ptype = pty_list;
+      } else
+	goto failed_memalloc;
+    }
+    assert( pinit );
+    assert( pinit->ptype );
+    assert( (pinit->ptype)->type.ty == TY_LIST );
+    pvar_attr->pinit = pinit;
   } else
+    failed_memalloc:
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, void *pinit, SRC_POS_C pos ) {
+VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   assert( pvar_attr );
   assert( pvar_name );
   switch( var_type ) {
@@ -141,22 +155,22 @@ VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
     goto illegal_var_type;
   case TY_INT:
     assert( !type_arg );
-    int_var_attrib( pvar_attr, pvar_name, (EXPR_CONS_PTR)pinit, pos );
+    int_var_attrib( pvar_attr, pvar_name, pinit, pos );
     break;
   case TY_CHAR:
     assert( !type_arg );
     break;
   case TY_STRING:
     assert( !type_arg );
-    string_var_attrib( pvar_attr, pvar_name, (EXPR_CONS_PTR)pinit, pos );
+    string_var_attrib( pvar_attr, pvar_name, pinit, pos );
     break;
   case TY_LIST:
     assert( type_arg );
-    list_var_attrib( pvar_attr, pvar_name, type_arg, (TYPE_CONS_PTR)pinit, pos );
+    list_var_attrib( pvar_attr, pvar_name, type_arg, pinit, pos );
     break;
   case TY_POLY:
     assert( !type_arg );
-    poly_var_attrib( pvar_attr, pvar_name, (EXPR_CONS_PTR)pinit, pos );
+    poly_var_attrib( pvar_attr, pvar_name, pinit, pos );
     break;
   case TY_GEN:
     /* fall thru. */
@@ -171,35 +185,30 @@ VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
   return pvar_attr;
 }
 
-TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pl_ty, TYPE_CODE elem_ty, SRC_POS_C pos ) {
-  TYPE_CONS_PTR r = NULL;
-  if( elem_ty == TY_LIST ) {
-    assert( pl_ty );
-    r = (TYPE_CONS_PTR)list_creat_nil( pl_ty, pos );
-    if( !r )
-      goto failed_memalloc;
-  } else {
-    TYPE_CONS_PTR pty_desc = NULL;
-    assert( !pl_ty );
-    pty_desc = alloc_tycons_node( pos );
-    if( pty_desc ) {
-      pty_desc->pos = pos;
-      pty_desc->type.ty = elem_ty;
-      r = (TYPE_CONS_PTR)list_creat_nil( pty_desc, pos );
-      if( !r )
+TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type, SRC_POS_C pos ) {
+  TYPE_CONS_PTR pty_l = NULL;
+  
+  pty_l = alloc_type_cons( pos );
+  if( pty_l ) {
+    pty_l->pos = pos;
+    pty_l->type.ty = TY_LIST;
+    if( elem_type != TY_LIST ) {
+      TYPE_CONS_PTR pty_desc = NULL;
+      assert( !pty_elem );
+      pty_desc = alloc_tycons_node( pos );
+      if( pty_desc ) {
+	pty_desc->pos = pos;
+	pty_desc->type.ty = elem_type;
+	pty_elem = pty_desc;
+      } else
 	goto failed_memalloc;
-      pl_ty = pty_desc;
-    } else
+    }
+    assert( pty_elem );
+    pty_l->attrs.list.pty_elem = pty_elem;
+  } else
     failed_memalloc:
-      ath_abort( pos, ABORT_MEMLACK );
-  }
-  assert( r );
-  assert( r->type.ty == TY_LIST );
-  assert( r->attrs.list.pty_elem == pl_ty );
-  assert( ! r->attrs.list.car );
-  assert( ! r->attrs.list.cdr );
-  r->attrs.list.plast = r;
-  return r;
+    ath_abort( pos, ABORT_MEMLACK );
+  return pty_l;
 }
 
 static TYPE_CONS_PTR retriv_car_type ( LIST_CELL_PTR car, SRC_POS_C pos ) {

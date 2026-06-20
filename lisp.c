@@ -97,6 +97,7 @@ BOOL list_is_nil ( TYPE_CONS_PTR_C pcons_list ) {
   return r;
 }
 
+#if 0 // NOW OBSOLETE.
 LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYPE_CONS_PTR pl_nil = NULL;
   assert( pty );
@@ -112,6 +113,7 @@ LIST_CELL_PTR list_creat_nil( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
     ath_abort( pos, ABORT_MEMLACK );
   return pl_nil;
 }
+#endif
 
 LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SRC_POS_C pos ) {
   LIST_CELL_PTR r = NULL;
