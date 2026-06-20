@@ -204,7 +204,7 @@ const char *find_literal ( const char *pname, SRC_POS_C pos ) {
   
   if( !symtbl.pliteral )
     goto reg;
-  {
+  else {
     int h = -1;
     h = symreg_hash( pname );
     assert( (h > -1) && (h < SYMTBL_HASHTBL_ENTRIES) );
@@ -219,10 +219,9 @@ const char *find_literal ( const char *pname, SRC_POS_C pos ) {
     reg:
       psym = reg_literal( pname, pos );
   }
-  if( psym ) {
-    assert( psym->entity.kind == SYM_CONST );
-    assert( psym->entity.u.constant.kind == CONST_STR );
-    pstr = psym->entity.u.constant.pstr;
-  }
+  assert( psym );
+  assert( psym->entity.kind == SYM_CONST );
+  assert( psym->entity.u.constant.kind == CONST_STR );
+  pstr = psym->entity.u.constant.pstr;
   return pstr;
 }

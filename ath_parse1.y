@@ -194,23 +194,10 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   pval_string = alloc_expr_cons( pos );
   if( pval_string ) {
     TYPE_CONS_PTR pty_str = NULL;
-    const int len = strlen( $2 );    
-    const char *s = NULL;
     pval_string->pos = pos;
     pval_string->mnemonic = MNC_CONST;
-    s = find_literal( $2, pos );
-    if( !s ) {
-      char *s_new = NULL;
-      s_new = new_memarea( len + 1 );
-      if( s_new ) {
-	s_new[len] = 0;
-	strncpy( s_new, $2, len );
-	s = s_new;
-      } else
-	goto failed_memalloc_decl_string_init;
-    }
-    assert( s );
-    pval_string->kids.body.literal.string.s = s;
+    pval_string->kids.body.literal.string.s = find_literal( $2, pos );
+    assert( pval_string->kids.body.literal.string.s );
     pty_str = alloc_type_cons( pos );
     if( pty_str ) {
       pty_str->pos = pos;
