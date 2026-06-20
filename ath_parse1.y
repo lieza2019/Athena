@@ -34,7 +34,7 @@
 %token <str> TK_STR_LITERAL
 %type <pvar_init> decl_var_init
 %type <pvar_init> decl_int_init decl_string_init
-/* %type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail */
+%type <pvar_init> decl_list_init /* decl_list_init_elems decl_list_init_elems_tail */
 %type <pty_list_elem> list_elem_type
 %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list
 %type <pstmt_last> statement statements
@@ -80,7 +80,9 @@ statement : decl_var {
     assert( pstmt );
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  /* tychk_decl_var( pstmt, pos ); */
+#if 0 // *****
+  tychk_decl_var( pstmt, pos );
+#endif
   $$ = pstmt;
  };
 
@@ -127,13 +129,11 @@ decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_LIST, $3, NULL, pos );
- };
-/*
+ }
 | TK_IDENT TK_KEYWORD_AS list_elem_type decl_var_init {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_LIST, $3, $4, pos );
  };
-*/
 
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -161,12 +161,10 @@ decl_var_init : decl_int_init {
  }
 | decl_string_init {
   $$ = $1;
- };
-/*
+ }
 | decl_list_init {
   $$ = $1;
  };
-*/
 
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };  
@@ -226,10 +224,10 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   $$ = pval_string;
  };
 
-/*
 decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
   $$ = NULL;
- }
+ };
+/*
 | TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
   $$ = $3;
  };

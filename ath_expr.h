@@ -9,7 +9,7 @@ typedef enum mnemonic_code {
   MNC_CNST_INT,
   MNC_CNST_CHAR,
   MNC_CNST_STR,
-  MNC_LIST,
+  MNC_CNST_LIST,
   END_OF_MNEMONIC_CODE
 } MNEMONIC_CODE;
 

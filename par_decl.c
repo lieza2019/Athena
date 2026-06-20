@@ -130,7 +130,7 @@ static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CO
       pinit = alloc_expr_cons( pos );
       if( pinit ) {
 	pinit->pos = pos;
-	pinit->mnemonic = MNC_LIST;
+	pinit->mnemonic = MNC_CNST_LIST;
 	pinit->kids.body.list.car = NULL;
 	pinit->kids.body.list.cdr = NULL;
 	pinit->kids.body.list.plast = pinit;
