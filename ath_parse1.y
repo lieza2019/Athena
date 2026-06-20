@@ -241,15 +241,15 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
 | TK_LSQBL TK_RSQBL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_LIST, NULL, $3, pos );
- };
-/*
+ }
 | TK_LSQBL decl_list_init_elems decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $2 );
-  assert( ($2)->type.ty == TY_LIST );
+  assert( ($2)->ptype );
+  assert( (($2)->ptype)->type.ty == TY_LIST );
   $$ = value_list_elem( TY_LIST, $2, $3, pos );
  };
-*/
+
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;
 }
