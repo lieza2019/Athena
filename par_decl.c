@@ -56,7 +56,7 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
       pn_init = alloc_expr_cons( pos );
       if( pn_init ) {
 	pn_init->pos = pos;
-	pn_init->mnemonic = MNC_CNST_INT;
+	pn_init->mnemonic = MNC_CONST;
 	pn_init->kids.body.literal.integer.n = 0;
 	pn_init->ptype = pty_int;
       } else
@@ -98,7 +98,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
       ps_init = alloc_expr_cons( pos );
       if( ps_init ) {
 	ps_init->pos = pos;
-	ps_init->mnemonic = MNC_CNST_STR;
+	ps_init->mnemonic = MNC_CONST;
 	ps_init->kids.body.literal.string.s = e;
 	ps_init->ptype = pty_str;
       } else
@@ -130,7 +130,7 @@ static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CO
       pinit = alloc_expr_cons( pos );
       if( pinit ) {
 	pinit->pos = pos;
-	pinit->mnemonic = MNC_CNST_LIST;
+	pinit->mnemonic = MNC_LIST;
 	pinit->kids.body.list.car = NULL;
 	pinit->kids.body.list.cdr = NULL;
 	pinit->kids.body.list.plast = pinit;
@@ -218,12 +218,12 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
   if( pcons ) {
     EXPR_CONS_PTR pelem = NULL;
     pcons->pos = pos;
-    pcons->mnemonic = MNC_CNST_LIST;
+    pcons->mnemonic = MNC_LIST;
     pelem = alloc_expr_cons( pos );
     if( pelem ) {
       TYPE_CONS_PTR pty_e = NULL;
       pelem->pos = pos;
-      pelem->mnemonic = MNC_CNST_LIST;	
+      pelem->mnemonic = MNC_LIST;
       switch( elem_ty ) {
       case TY_EXPR:
 	assert( FALSE );
@@ -233,9 +233,9 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
 	if( pty_e ) {
 	  pty_e->pos = pos;
 	  pty_e->type.ty = TY_INT;
+	  pelem->ptype = pty_e;
 	} else
-	  goto failed_memalloc;
-	pelem->ptype = pty_e;
+	  goto failed_memalloc;	
 	pelem->kids.body.literal.integer.n = *(int *)pelem_val;
 	break;
       case TY_CHAR:
@@ -247,20 +247,28 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
 	if( pty_e ) {
 	  pty_e->pos = pos;
 	  pty_e->type.ty = TY_STRING;
+	  pelem->ptype = pty_e;
 	} else
 	  goto failed_memalloc;
-	pelem->ptype = pty_e;
 	pelem->kids.body.literal.string.s = (char *)pelem_val;
 	break;
       case TY_LIST:
 	if( !pelem_val ) {
 	  pty_e = alloc_type_cons( pos );
 	  if( pty_e ) {
+	    TYPE_CONS_PTR pty_ply = NULL;
 	    pty_e->pos = pos;
-	    pty_e->type.ty = TY_POLY;
+	    pty_e->type.ty = TY_LIST;
+	    pty_ply = alloc_type_cons( pos );
+	    if( pty_ply ) {
+	      pty_ply->pos = pos;
+	      pty_ply->type.ty = TY_POLY;
+	    } else
+	      goto failed_memalloc;
+	    pty_e->attrs.list.pty_elem = pty_ply;
+	    pelem->ptype = pty_e;
 	  } else
 	    goto failed_memalloc;
-	  pelem->ptype = pty_e;
 	  pelem->kids.body.list.car = NULL;
 	  pelem->kids.body.list.cdr = NULL;
 	  pelem->kids.body.list.plast = pelem;

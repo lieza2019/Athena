@@ -173,7 +173,7 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
   if( pval_int ) {
     TYPE_CONS_PTR pty_int = NULL;
     pval_int->pos = pos;
-    pval_int->mnemonic = MNC_CNST_INT;
+    pval_int->mnemonic = MNC_CONST;
     pval_int->kids.body.literal.integer.n = $2;
     pty_int = alloc_type_cons( pos );
     if( pty_int ) {
@@ -197,7 +197,7 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
     const int len = strlen( $2 );    
     const char *s = NULL;
     pval_string->pos = pos;
-    pval_string->mnemonic = MNC_CNST_STR;
+    pval_string->mnemonic = MNC_CONST;
     s = find_literal( $2, pos );
     if( !s ) {
       char *s_new = NULL;
@@ -237,12 +237,12 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
 | TK_STR_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_STRING, $1, $2, pos );
- };
-/*
+ }
 | TK_LSQBL TK_RSQBL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_LIST, NULL, $3, pos );
- }
+ };
+/*
 | TK_LSQBL decl_list_init_elems decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $2 );
