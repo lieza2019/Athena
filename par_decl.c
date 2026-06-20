@@ -3,12 +3,6 @@
 #include <assert.h>
 #include "athena.h"
 
-TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos ) {
-  TYPE_CONS_PTR r = NULL;
-  r = (TYPE_CONS_PTR)alloc_list_cell( pos );
-  return r;
-}
-
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   const char *pident = NULL;
   assert( pvar_attr );
@@ -195,7 +189,7 @@ TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type, SRC_P
     if( elem_type != TY_LIST ) {
       TYPE_CONS_PTR pty_desc = NULL;
       assert( !pty_elem );
-      pty_desc = alloc_tycons_node( pos );
+      pty_desc = alloc_type_cons( pos );
       if( pty_desc ) {
 	pty_desc->pos = pos;
 	pty_desc->type.ty = elem_type;

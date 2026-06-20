@@ -10,19 +10,6 @@ typedef enum mnemonic_code {
 } MNEMONIC_CODE;
 
 #define NUM_EXPRCONS_PER_ALLOC 256
-#if 0
-typedef struct expr_cons {
-  ALLOC_NODE_LINKS alloc;
-  SRC_POS pos;
-  MNEMONIC_CODE mnemonic;
-  struct {
-    void *pdaugh;
-    struct expr_cons *pleft;
-    struct expr_cons *pright;
-  } kids;
-  TYPE_CONS_PTR ptype;
-} EXPR_CONS, *EXPR_CONS_PTR;
-#else
 typedef struct expr_cons {
   ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
@@ -69,4 +56,3 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
   (((e)->mnemonic == MNC_LVALUE) &&					\
    (((e)->kids.pdaugh) && (!((e)->kids.pleft)) && (!((e)->kids.pright))) \
    )
-#endif
