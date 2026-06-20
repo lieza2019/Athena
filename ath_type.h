@@ -1,6 +1,10 @@
 typedef enum type_code {
+#if 1 // NOW OBSOLETE.
   TY_EXPR = 1,
   TY_INT,
+#else
+  TY_INT = 1,
+#endif
   TY_CHAR,
   TY_STRING,
   TY_LIST,
@@ -33,9 +37,11 @@ typedef struct type_cons {
     struct type_cons *pstuck;
   } type;
   union {
+#if 1 // NOW OBSOLETE.
     struct {
       struct expr_cons *pexpr;
     } expr;
+#endif
     struct {
       struct {
 	int n;
@@ -49,9 +55,11 @@ typedef struct type_cons {
     } literal;
     struct {
       struct type_cons *pty_elem;
+#if 1 // NOW OBSOLETE.
       struct type_cons *car;
       struct type_cons *cdr;
       struct type_cons *plast;
+#endif
     } list;
   } attrs;
   TYCONS_DIRECTIVE tycons_directiv;

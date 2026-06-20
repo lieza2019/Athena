@@ -34,7 +34,7 @@
 %token <str> TK_STR_LITERAL
 %type <pvar_init> decl_var_init
 %type <pvar_init> decl_int_init decl_string_init
-%type <pvar_init> decl_list_init /* decl_list_init_elems decl_list_init_elems_tail */
+%type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
 %type <pty_list_elem> list_elem_type
 %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list
 %type <pstmt_last> statement statements
@@ -226,8 +226,7 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
 
 decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
   $$ = NULL;
- };
-/*
+ }
 | TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
   $$ = $3;
  };
@@ -238,7 +237,8 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
 | TK_STR_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_STRING, $1, $2, pos );
- }
+ };
+/*
 | TK_LSQBL TK_RSQBL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_LIST, NULL, $3, pos );
@@ -249,13 +249,13 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   assert( ($2)->type.ty == TY_LIST );
   $$ = value_list_elem( TY_LIST, $2, $3, pos );
  };
+*/
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;
 }
 | TK_RSQBL {
   $$ = NULL;
  };
-*/
 %%
 int yyerror ( const char *s ) {
   return 1;

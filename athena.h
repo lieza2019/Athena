@@ -92,7 +92,7 @@ extern LIST_CELL_PTR cons_list ( LIST_CELL_PTR plist, TYPE_CONS_PTR pcons_ty, SR
 extern TYPE_CONS_PTR alloc_tycons_node ( SRC_POS_C pos );
 extern VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos );
 extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type, SRC_POS_C pos );
-extern LIST_CELL_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, LIST_CELL_PTR psucc_es, SRC_POS_C pos );
+extern EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PTR psucc_cs, SRC_POS_C pos );
 
 /* from par_tychk.c */
 TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
