@@ -36,8 +36,7 @@
 /* %type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail */
 %type <pvar_init> decl_var_init
 /* %type <pty_list_elem> list_elem_type */
-%type <var_attr> decl_var_poly decl_var_int decl_var_string /* decl_var_list */
-%type <var_attr> decl_var
+%type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string /* decl_var_list */
 %type <pstmt_last> statement statements
 %start statements
 %%
@@ -64,18 +63,20 @@ statement : decl_var {
   VAR_ATTRIB_PTR pvattr = NULL;
   assert( $1.ident );
   assert( $1.ptype );
+#if 0 // *****
 #ifdef RUNTIME_CONSITENCY_CHECK
   exam_tycon( $1.ptype );
   if( $1.pinit )
     exam_tycon( $1.pinit );
 #endif // RUNTIME_CONSITENCY_CHECK
+#endif
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;
     pvattr->ident = $1.ident;
     pvattr->ptype = $1.ptype;
     pvattr->pinit = $1.pinit;
-    stmt_decl_var( &pstmt, pvattr, pos ); /* <- NOW HERE. */
+    stmt_decl_var( &pstmt, pvattr, pos );
     assert( pstmt );
   } else
     ath_abort( pos, ABORT_MEMLACK );
@@ -170,25 +171,37 @@ decl_var_init : decl_int_init {
 */
 
 decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pval_int = NULL;
-  pval_int = alloc_type_cons( pos );
+  SRC_POS_C pos = { @1.first_line, @1.first_column };  
+  EXPR_CONS_PTR pval_int = NULL;
+  pval_int = alloc_expr_cons( pos );
   if( pval_int ) {
+    TYPE_CONS_PTR pty_int = NULL;
     pval_int->pos = pos;
-    pval_int->type.ty = TY_INT;
-    pval_int->attrs.literal.integer.n = $2;
+    pval_int->mnemonic = MNC_CNST_INT;
+    pval_int->kids.body.literal.integer.n = $2;
+    pty_int = alloc_type_cons( pos );
+    if( pty_int ) {
+      pty_int->pos = pos;
+      pty_int->type.ty = TY_INT;
+    } else
+      goto failed_memalloc;
+    pval_int->ptype = pty_int;
   } else
+  failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_int;
  };
 
 decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  TYPE_CONS_PTR pval_string = NULL;
-  pval_string = alloc_type_cons( pos );
+  EXPR_CONS_PTR pval_string = NULL;
+  pval_string = alloc_expr_cons( pos );
   if( pval_string ) {
-    const int len = strlen( $2 );
+    TYPE_CONS_PTR pty_str = NULL;
+    const int len = strlen( $2 );    
     const char *s = NULL;
+    pval_string->pos = pos;
+    pval_string->mnemonic = MNC_CNST_STR;
     s = find_literal( $2, pos );
     if( !s ) {
       char *s_new = NULL;
@@ -201,10 +214,14 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
 	goto failed_memalloc_decl_string_init;
     }
     assert( s );
-    assert( strlen( s ) == len );
-    pval_string->pos = pos;
-    pval_string->type.ty = TY_STRING;
-    pval_string->attrs.literal.string.s = s;
+    pval_string->kids.body.literal.string.s = s;
+    pty_str = alloc_type_cons( pos );
+    if( pty_str ) {
+      pty_str->pos = pos;
+      pty_str->type.ty = TY_STRING;
+    } else
+      goto failed_memalloc_decl_string_init;
+    pval_string->ptype = pty_str;
   } else
   failed_memalloc_decl_string_init:
     ath_abort( pos, ABORT_MEMLACK );

@@ -40,8 +40,7 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
   BOOL redef = FALSE;
   SYMTBL_ENTRY_PTR psym = NULL;
   assert( pdecl );
-  assert( pvar_attr );
-  
+  assert( pvar_attr ); 
   assert( pvar_attr->ptype );
   
   *pdecl = NULL;
@@ -49,7 +48,7 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
   if( psym ) {
     psym->ident = pvar_attr->ident;
     psym->entity.kind = SYM_DECL;
-    psym->entity.u.decl.pos = pvar_attr->pos;
+    psym->entity.u.decl.pos = pos;
     psym->entity.u.decl.ident = pvar_attr->ident;
     psym->entity.u.decl.kind = DECL_VAR;
     psym->entity.u.decl.u.variable.pvar = pvar_attr;
@@ -98,7 +97,7 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  if( *pdecl )
-    assert( strcmp( (*pdecl)->ident, pvar_attr->ident ) == 0 );
+  assert( *pdecl );
+  assert( strcmp( (*pdecl)->ident, pvar_attr->ident ) == 0 );
   return redef;
 }
