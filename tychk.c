@@ -98,10 +98,12 @@ static TYPE_CONS_PTR enum_tvs ( TYPE_CONS_PTR *ppacc, TYPE_CONS_PTR pty, SRC_POS
   assert( pty );
   
   switch( pty->type.ty ) {
+#if 0 // !!!!!
   case TY_EXPR:
     assert( pty->attrs.expr.pexpr );
     enum_expr_tvs( ppacc, pty->attrs.expr.pexpr, pos );
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
@@ -425,12 +427,15 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
     assert( EXAM_CONST_EXPR( pexpr ) );
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
+#if 0 // !!!!!
       EXPR_CONS_PTR pe_inf = NULL;
+#endif
       TYPE_CONS_PTR pty_cnst = pexpr->kids.pdaugh;
       assert( pty_cnst );
       pexp_inf->pos = pos;
       pexp_inf->mnemonic = MNC_CONST;
       switch( pty_cnst->type.ty ) {
+#if 0 // !!!!!
       case TY_EXPR:
 	assert( pty_cnst->attrs.expr.pexpr );
 	pe_inf = ty_infer( ppsubst, penv, pty_cnst->attrs.expr.pexpr, pos );
@@ -451,6 +456,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
 	} else
 	  pexp_inf = pexpr;
 	break;
+#endif
       case TY_INT:
       case TY_CHAR:
       case TY_STRING:
@@ -518,11 +524,13 @@ static char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
 static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
   assert( pty_cons );
   switch( pty_cons->type.ty ) {
+#if 0 // !!!!!
   case TY_EXPR:
     assert( pty_cons->attrs.expr.pexpr );
     if( (pty_cons->attrs.expr.pexpr)->ptype )
       travers_asgn_tyv( (pty_cons->attrs.expr.pexpr)->ptype, pos );
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:

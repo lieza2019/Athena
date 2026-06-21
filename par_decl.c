@@ -145,8 +145,6 @@ VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
   assert( pvar_attr );
   assert( pvar_name );
   switch( var_type ) {
-  case TY_EXPR:
-    goto illegal_var_type;
   case TY_INT:
     assert( !type_arg );
     int_var_attrib( pvar_attr, pvar_name, pinit, pos );
@@ -173,7 +171,6 @@ VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE
   case END_OF_TYPE_CODE:
     /* fall thru. */
   default:
-  illegal_var_type:
     assert( FALSE );
   }
   return pvar_attr;
@@ -219,8 +216,6 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
       pelem->pos = pos;
       pelem->mnemonic = MNC_LIST;
       switch( elem_ty ) {
-      case TY_EXPR:
-	assert( FALSE );
       case TY_INT:
 	assert( pelem_val );
 	pty_e = alloc_type_cons( pos );

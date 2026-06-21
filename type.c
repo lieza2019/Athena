@@ -47,6 +47,7 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
   assert( pty_desc );
   
   switch( pty_desc->type.ty ) {
+#if 0 // !!!!!!
   case TY_EXPR:
     assert( ! pty_desc->type.tyvars.var.ident );
     assert( ! pty_desc->type.tyvars.var.pnext );
@@ -54,6 +55,7 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
     assert( (pty_desc->attrs.expr.pexpr)->ptype );
     r = exam_tycon( (pty_desc->attrs.expr.pexpr)->ptype );
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
@@ -75,12 +77,14 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
 	assert( pc->attrs.list.car );
 	car = pc->attrs.list.car;
 	switch( car->type.ty ) {
+#if 0 // !!!!!
 	case TY_EXPR:
 	  assert( car->attrs.expr.pexpr );
 	  assert( (car->attrs.expr.pexpr)->ptype );
 	  pty_c = exam_tycon( (car->attrs.expr.pexpr)->ptype );
 	  assert( pty_c );
 	  break;
+#endif
 	case TY_INT:
 	case TY_CHAR:
 	case TY_STRING:
@@ -434,6 +438,7 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
   assert( pty );
   
   switch( pty->type.ty ) {
+#if 0 // !!!!!
   case TY_EXPR:
     assert( ! pty->type.tyvars.var.ident );
     assert( ! pty->type.tyvars.var.pnext );
@@ -454,6 +459,7 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
       }
     }
     break;
+#endif
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
