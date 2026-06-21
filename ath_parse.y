@@ -180,10 +180,10 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
       pty_int->pos = pos;
       pty_int->type.ty = TY_INT;
     } else
-      goto failed_memalloc;
+      goto failed_memalloc_decl_int_init;
     pval_int->ptype = pty_int;
   } else
-  failed_memalloc:
+  failed_memalloc_decl_int_init:
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_int;
  };

@@ -4,21 +4,19 @@
 #include "athena.h"
 
 #define TYVER_SEQDIGITS_MAXLEN 8
+const char tyvar_prefix[] = "t_";
 static struct {
   int seq;
-} tyver_ctrl;
-char *fresh_tyvar ( SRC_POS_C pos ) {
-  const char *prefix = "t_";
-  char *ident = NULL;
-  
-  ident = (char *)new_memarea( strlen(prefix) + (TYVER_SEQDIGITS_MAXLEN + 1) );
-  if( ident ) {
-    const int n = strlen( prefix );
-    snprintf( &ident[n], TYVER_SEQDIGITS_MAXLEN, "%d", tyver_ctrl.seq );
-    (&ident[n])[TYVER_SEQDIGITS_MAXLEN] = 0;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  return ident;
+  char scratch[strlen(tyvar_prefix) + (TYVER_SEQDIGITS_MAXLEN + 1)];
+} tyvar_ctrl;
+const char *fresh_tyvar ( SRC_POS_C pos ) {
+  const char *tyv_id = NULL;
+  const int n = strlen( tyvar_prefix );
+  snprintf( &tyvar_ctrl.scratch[n], TYVER_SEQDIGITS_MAXLEN, "%d", tyvar_ctrl.seq++ );
+  (&tyvar_ctrl.scratch[n])[TYVER_SEQDIGITS_MAXLEN] = 0;
+  tyv_id = find_literal( tyvar_ctrl.scratch, pos );
+  assert( tyv_id );
+  return tyv_id;
 }
 
 static struct {
@@ -42,6 +40,7 @@ void free_type_cons ( TYPE_CONS_PTR ptycons ) {
   }
 }
 
+#if 0
 TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
   TYPE_CONS_PTR r = NULL;
   assert( pty_desc );
@@ -134,6 +133,7 @@ TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty_desc ) {
   }
   return r;
 }
+#endif
 
 TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos ) {
   TYPE_CONS_PTR ptydesc = NULL;
@@ -153,12 +153,12 @@ TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos ) {
   return ptydesc;
 }
 
-int enum_gentyvers ( TYPE_CONS_PTR *ppgenvars, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+int enum_gentyvars ( TYPE_CONS_PTR *ppgen_tyvs, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   int ngvs = 0;
-  assert( ppgenvars );
+  assert( ppgen_tyvs );
   assert( pty );
   
-  *ppgenvars = NULL;
+  *ppgen_tyvs = NULL;
   if( pty->type.tyvars.pgenvars ) {
     TYPE_CONS_PTR ptail = NULL;
     TYPE_CONS_PTR pgv = pty->type.tyvars.pgenvars;
@@ -176,11 +176,11 @@ int enum_gentyvers ( TYPE_CONS_PTR *ppgenvars, TYPE_CONS_PTR pty, SRC_POS_C pos 
 	if( ptail )
 	  ptail->type.tyvars.var.pnext = pnote;	
 	else
-	  *ppgenvars = pnote;
+	  *ppgen_tyvs = pnote;
 	ptail = pnote;
 	ngvs++;
       } else {
-	*ppgenvars = NULL;
+	*ppgen_tyvs = NULL;
 	ath_abort( pos, ABORT_MEMLACK );
       }
       pgv = pgv->type.tyvars.var.pnext;
@@ -189,51 +189,51 @@ int enum_gentyvers ( TYPE_CONS_PTR *ppgenvars, TYPE_CONS_PTR pty, SRC_POS_C pos 
   return ngvs;
 }
 
-TYPE_CONS_PTR gen_tyvars ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_tyvers, SRC_POS_C pos ) {
+TYPE_CONS_PTR gen_tyvars ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_tyvs, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_gen = NULL;
   assert( pty );
-  assert( pgen_tyvers );
+  assert( pgen_tyvs );
   
   pty_gen = dup_tydesc( pty, pos );
   if( pty_gen ) {
-    TYPE_CONS_PTR pv = pgen_tyvers;
-    assert( pv );
+    TYPE_CONS_PTR ptvs = pgen_tyvs;
+    assert( ptvs );
     do {
       BOOL found = FALSE;
-      TYPE_CONS_PTR pg = pty_gen->type.tyvars.pgenvars;
-      assert( pv->type.ty == TY_OTHERS );
-      assert( pv->type.tyvars.var.ident );
-      while( pg ) {
-	assert( pg->type.tyvars.var.ident );
-	if( strcmp( pg->type.tyvars.var.ident, pv->type.tyvars.var.ident ) == 0 ) {
+      TYPE_CONS_PTR pgvs = pty_gen->type.tyvars.pgenvars;
+      assert( ptvs->type.ty == TY_OTHERS );
+      assert( ptvs->type.tyvars.var.ident );
+      while( pgvs ) {
+	assert( pgvs->type.tyvars.var.ident );
+	if( strcmp( pgvs->type.tyvars.var.ident, ptvs->type.tyvars.var.ident ) == 0 ) {
 	  found = TRUE;
 	  break;
 	}
-	pg = pg->type.tyvars.var.pnext;
+	pgvs = pgvs->type.tyvars.var.pnext;
       }
       if( !found ) {
 	TYPE_CONS_PTR pnew = NULL;
-	assert( !pg );
+	assert( !pgvs );
 	pnew = alloc_type_cons( pos );
 	if( pnew ) {
 	  pnew->pos = pos;
 	  pnew->type.ty = TY_GEN;
 	  pnew->type.tyvars.pgenvars = NULL;
 	  pnew->type.pstuck = NULL;
-	  pnew->type.tyvars.var.ident = pv->type.tyvars.var.ident;
+	  pnew->type.tyvars.var.ident = ptvs->type.tyvars.var.ident;
 	  pnew->type.tyvars.var.pnext = pty_gen->type.tyvars.pgenvars;
 	  pty_gen->type.tyvars.pgenvars = pnew;
 	} else {
 	  pty_gen = NULL;
 	  goto failed_memalloc;
 	}
-	assert( !pg );
+	assert( !pgvs );
       } else {
-	assert( pg );
-	assert( strcmp( pg->type.tyvars.var.ident, pv->type.tyvars.var.ident ) == 0 );
+	assert( pgvs );
+	assert( strcmp( pgvs->type.tyvars.var.ident, ptvs->type.tyvars.var.ident ) == 0 );
       }
-      pv = pv->type.tyvars.var.pnext;
-    } while( pv );
+      ptvs = ptvs->type.tyvars.var.pnext;
+    } while( ptvs );
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
@@ -278,14 +278,15 @@ TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos ) {
 
 void free_type_subst ( TYPE_SUBST_PTR psubst ) {
   if( psubst ) {
-    TYPE_MAPSTO_PTR ptymap = NULL;
+    TYPE_MAPSTO_PTR ptymaps = NULL;
     if( psubst->pcomposit )
       free_type_subst( psubst->pcomposit );
-    ptymap = psubst->pmappings;
-    while( ptymap ) {
-      TYPE_MAPSTO_PTR pn = ptymap->pnext;
-      free_type_mapping( ptymap );
-      ptymap = pn;
+    ptymaps = psubst->pmappings;
+    while( ptymaps ) {
+      TYPE_MAPSTO_PTR pn = NULL;
+      pn = ptymaps->pnext;
+      free_type_mapping( ptymaps );
+      ptymaps = pn;
     }
     free_node ( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.pavail,
 		(ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.palive,
@@ -293,17 +294,17 @@ void free_type_subst ( TYPE_SUBST_PTR psubst ) {
   }
 }
 
-TYPE_CONS_PTR subst_map ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, SRC_POS_C pos ) {
+TYPE_CONS_PTR subst_map ( TYPE_SUBST_PTR psubst, const char *tyv_ident, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   TYPE_MAPSTO_PTR ps_elem = NULL;
   assert( psubst );
-  assert( tyvar_ident );
+  assert( tyv_ident );
   
   ps_elem = psubst->pmappings;
   while( ps_elem ) {
     assert( ps_elem->ident );
     assert( ps_elem->ptype );
-    if( strcmp( ps_elem->ident, tyvar_ident ) == 0 ) {
+    if( strcmp( ps_elem->ident, tyv_ident ) == 0 ) {
       r = ps_elem->ptype;
       break;
     }
@@ -312,15 +313,15 @@ TYPE_CONS_PTR subst_map ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, SRC_PO
   return r;
 }
 
-TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyv_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYPE_MAPSTO_PTR pe = NULL;
   assert( psubst );
-  assert( tyvar_ident );
+  assert( tyv_ident );
   assert( pty );
   
   pe = alloc_type_mapping( pos );
   if( pe ) {
-    pe->ident = tyvar_ident;
+    pe->ident = tyv_ident;
     pe->ptype = pty;
     pe->pnext = psubst->pmappings;
     psubst->pmappings = pe;
@@ -329,20 +330,20 @@ TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, TYPE_
   return psubst;
 }
 
-TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos ) {
-  TYPE_SUBST_PTR ps_dup = NULL;
-  assert( psub_org );
-
-  ps_dup = alloc_type_subst( pos );
-  if( ps_dup ) {
-    TYPE_SUBST_PTR pc_dup = NULL;
-    TYPE_MAPSTO_PTR pprev = NULL;
+TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psubst_org, SRC_POS_C pos ) {
+  TYPE_SUBST_PTR psubst_dup = NULL;
+  assert( psubst_org );
+  
+  psubst_dup = alloc_type_subst( pos );
+  if( psubst_dup ) {
+    TYPE_SUBST_PTR pcomps_dup = NULL;
+    TYPE_MAPSTO_PTR plast = NULL;
     TYPE_MAPSTO_PTR pmap = NULL;
-    if( psub_org->pcomposit ) {
-      pc_dup = dup_subst( psub_org->pcomposit, pos );
-      assert( pc_dup );
+    if( psubst_org->pcomposit ) {
+      pcomps_dup = dup_subst( psubst_org->pcomposit, pos );
+      assert( pcomps_dup );
     }
-    pmap = psub_org->pmappings;
+    pmap = psubst_org->pmappings;
     while( pmap ) {
       TYPE_MAPSTO_PTR pnew = NULL;
       assert( pmap->ident );
@@ -352,84 +353,87 @@ TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos ) {
 	pnew->ident = pmap->ident;
 	pnew->ptype = pmap->ptype;
 	pnew->pnext = NULL;
-	if( pprev )
-	  pprev->pnext = pnew;
+	if( plast )
+	  plast->pnext = pnew;
 	else
-	  ps_dup->pmappings = pnew;
-	pprev = pnew;
-	pmap = pmap->pnext;
+	  psubst_dup->pmappings = pnew;
+	plast = pnew;
       } else {
-	ps_dup = NULL;
+	psubst_dup = NULL;
 	goto failed_memalloc;
       }
-      ps_dup->pcomposit = pc_dup;
+      pmap = pmap->pnext;
     }
+    psubst_dup->pcomposit = pcomps_dup;
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
-  return ps_dup;
+  return psubst_dup;
 }
 
-TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psub_1, TYPE_SUBST_PTR psub_2, SRC_POS_C pos ) {
-  TYPE_SUBST_PTR pnew_1 = NULL;
-  TYPE_SUBST_PTR pnew_2 = NULL;
-  pnew_1 = dup_subst( psub_1, pos );
-  if( pnew_1 ) {
-    pnew_2 = dup_subst( psub_2, pos );
-    if( pnew_2 ) {
-      pnew_1->pcomposit = pnew_2;
+TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2, SRC_POS_C pos ) {
+  TYPE_SUBST_PTR psub1_new = NULL;
+  TYPE_SUBST_PTR psub2_new = NULL;
+  assert( psubst_1 );
+  assert( psubst_2 );
+  
+  psub1_new = dup_subst( psubst_1, pos );
+  if( psub1_new ) {
+    psub2_new = dup_subst( psubst_2, pos );
+    if( psub2_new ) {
+      psub1_new->pcomposit = psub2_new;
     } else {
-      pnew_1 = NULL;
+      psub1_new = NULL;
       goto failed_memalloc;
     }
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
-  return pnew_1;
+  return psub1_new;
 }
 
-static TYPE_SUBST_PTR elim_subst_elems ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvers_omit, SRC_POS_C pos ) {
-  TYPE_SUBST_PTR ps_elim = NULL;
+static TYPE_SUBST_PTR elim_subst_elems ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvs_omit, SRC_POS_C pos ) {
+  TYPE_SUBST_PTR psub_elim = NULL;
   assert( psubst );
-  assert( tyvers_omit );
-  
-  if( psubst->pcomposit )
-    ps_elim = elim_subst_elems( psubst->pcomposit, tyvers_omit, pos );
-  assert( ps_elim );
+  assert( tyvs_omit );
+
+  psub_elim = psubst;
+  if ( psub_elim->pcomposit )
+    psub_elim->pcomposit = elim_subst_elems( psub_elim->pcomposit, tyvs_omit, pos );
   {
-    TYPE_CONS_PTR pev = tyvers_omit;
-    while( pev ) {
+    TYPE_CONS_PTR pm_elim = tyvs_omit;
+    while( pm_elim ) {
       TYPE_MAPSTO_PTR *ppm = NULL;
-      assert( pev->type.ty == TY_OTHERS );
-      ppm = &ps_elim->pmappings;
+      assert( pm_elim->type.ty == TY_OTHERS );
+      ppm = &psub_elim->pmappings;
       while( *ppm ) {
-	assert( pev->type.tyvars.var.ident );
-	if( strcmp( (*ppm)->ident, pev->type.tyvars.var.ident ) == 0 ) {
+	assert( pm_elim->type.tyvars.var.ident );
+	if( strcmp( (*ppm)->ident, pm_elim->type.tyvars.var.ident ) == 0 ) {
 	  *ppm = (*ppm)->pnext;
 	  break;
-	} else
-	  ppm = &(*ppm)->pnext;
+	}
+	ppm = &(*ppm)->pnext;
       }
-      pev = pev->type.tyvars.var.pnext;
+      pm_elim = pm_elim->type.tyvars.var.pnext;
     }
   }
-  return ps_elim;
+  return psub_elim;
 }
-TYPE_SUBST_PTR restr_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvers_omit, SRC_POS_C pos ) {
-  TYPE_SUBST_PTR pr_subst = NULL;
+TYPE_SUBST_PTR restr_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvs_omit, SRC_POS_C pos ) {
+  TYPE_SUBST_PTR psub_restr = NULL;
   assert( psubst );
-  assert( tyvers_omit );
+  assert( tyvs_omit );
   
   {
-    TYPE_SUBST_PTR pnew = NULL;
-    pnew = dup_subst( psubst, pos );
-    if( pnew ) {
-      pr_subst = elim_subst_elems( pnew, tyvers_omit, pos );
-      assert( pr_subst );
+    TYPE_SUBST_PTR psub_dup = NULL;
+    psub_dup = dup_subst( psubst, pos );
+    if( psub_dup ) {
+      psub_restr = elim_subst_elems( psub_dup, tyvs_omit, pos );
+      assert( psub_restr );
     } else
       ath_abort( pos, ABORT_MEMLACK );
   }
-  return pr_subst;
+  return psub_restr;
 }
 
 static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
@@ -464,22 +468,18 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
   case TY_CHAR:
   case TY_STRING:
     assert( ! pty->type.tyvars.var.ident );
-    assert( ! pty->type.tyvars.var.pnext );
     assert( ! pty->type.tyvars.pgenvars );
     pty_subst = pty;
     break;
   case TY_LIST:
     assert( ! pty->type.tyvars.var.ident );
-    assert( ! pty->type.tyvars.var.pnext );
     assert( pty->attrs.list.pty_elem );
     pty_subst = dup_tydesc( pty, pos );
     if( pty_subst ) {
       TYPE_CONS_PTR pty_s_elem = NULL;
       assert( pty_subst->type.ty == TY_LIST );
       assert( pty_subst->attrs.list.pty_elem == pty->attrs.list.pty_elem );
-#ifdef RUNTIME_CONSITENCY_CHECK
-      exam_tycon( pty_subst );
-#endif // RUNTIME_CONSITENCY_CHECK
+      
       pty_s_elem = tyvar_rewrt( psubst, pty_subst->attrs.list.pty_elem, pos );
       assert( pty_s_elem );
       pty_subst->attrs.list.pty_elem = pty_s_elem;
@@ -514,7 +514,6 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
     break;
   case TY_POLY:      
     assert( pty->type.tyvars.var.ident );
-    assert( ! pty->type.tyvars.var.pnext );
     {
       TYPE_CONS_PTR pty_m = NULL;
       pty_m = subst_map( psubst, pty->type.tyvars.var.ident, pos );
@@ -525,7 +524,6 @@ static TYPE_CONS_PTR tyvar_rewrt ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC
       } else
 	pty_subst = pty;
     }
-    assert( pty_subst );
     break;
   case TY_GEN:
     /* fall thru. */

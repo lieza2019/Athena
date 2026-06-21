@@ -27,21 +27,23 @@ extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern const char *find_literal ( const char *pname, SRC_POS_C pos );
 
 /* from type.c */
-extern char *fresh_tyvar ( SRC_POS_C pos );
+extern const char *fresh_tyvar ( SRC_POS_C pos );
 extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
 extern void free_type_cons ( TYPE_CONS_PTR ptycons );
+#if 0 // NOW OBSOLETE.
 extern TYPE_CONS_PTR exam_tycon ( TYPE_CONS_PTR pty );
+#endif
 extern TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos );
-extern int enum_gentyvers ( TYPE_CONS_PTR *ppgenvars, TYPE_CONS_PTR pty, SRC_POS_C pos );
-extern TYPE_CONS_PTR gen_tyvars ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_tyvers, SRC_POS_C pos );
+extern int enum_gentyvars ( TYPE_CONS_PTR *ppgen_tyvs, TYPE_CONS_PTR pty, SRC_POS_C pos );
+extern TYPE_CONS_PTR gen_tyvars ( TYPE_CONS_PTR pty, TYPE_CONS_PTR pgen_tyvs, SRC_POS_C pos );
 extern TYPE_MAPSTO_PTR alloc_type_mapping ( SRC_POS_C pos );
 extern void free_type_mapping ( TYPE_MAPSTO_PTR ptymap );
 extern TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos );
 extern void free_type_subst ( TYPE_SUBST_PTR ptysubst );
-extern TYPE_CONS_PTR subst_map ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, SRC_POS_C pos );
-extern TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyvar_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
-extern TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psub_org, SRC_POS_C pos );
-extern TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psub_1, TYPE_SUBST_PTR psub_2, SRC_POS_C pos );
+extern TYPE_CONS_PTR subst_map ( TYPE_SUBST_PTR psubst, const char *tyv_ident, SRC_POS_C pos );
+extern TYPE_SUBST_PTR subst_add ( TYPE_SUBST_PTR psubst, const char *tyv_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
+extern TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psubst_org, SRC_POS_C pos );
+extern TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2, SRC_POS_C pos );
 extern TYPE_SUBST_PTR restr_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvers_omit, SRC_POS_C pos );
 extern TYPE_CONS_PTR ty_subst ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos );

@@ -63,6 +63,7 @@ typedef struct type_cons {
     } list;
   } attrs;
   TYCONS_DIRECTIVE tycons_directiv;
+  struct expr_cons *pexpr;
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;
