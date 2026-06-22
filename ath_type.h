@@ -55,7 +55,7 @@ typedef struct type_cons {
     } literal;
     struct {
       struct type_cons *pty_elem;
-#if 1 // NOW OBSOLETE.
+#if 0 // NOW OBSOLETE.
       struct type_cons *car; // !!!!!
       struct type_cons *cdr; // !!!!!
       struct type_cons *plast; // !!!!!

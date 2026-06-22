@@ -63,13 +63,6 @@ statement : decl_var {
   VAR_ATTRIB_PTR pvattr = NULL;
   assert( $1.ident );
   assert( $1.ptype );
-#if 0 // *****
-#ifdef RUNTIME_CONSITENCY_CHECK
-  exam_tycon( $1.ptype );
-  if( $1.pinit )
-    exam_tycon( $1.pinit );
-#endif // RUNTIME_CONSITENCY_CHECK
-#endif
   pvattr = alloc_var_attr( pos );
   if( pvattr ) {
     pvattr->pos = $1.pos;
