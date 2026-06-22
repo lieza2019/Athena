@@ -18,7 +18,7 @@ typedef struct expr_cons {
     struct expr_cons *pleft;
     struct expr_cons *pright;
 #if 0 // NOW OBSOLETE.
-    void *pdaugh; // !!!!!
+    void *pdaugh;
 #endif
     union {
       struct {
