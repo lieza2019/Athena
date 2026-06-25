@@ -23,14 +23,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
       assert( statements.phead );
     env_add( pe_vardecl, pvar_attr->ident, pvar_attr->ptype, pos );
     pstmt->penv = pe_vardecl;
-#if 0
-    {
-      TYPE_SUBST_PTR psubst = NULL;
-      r = typecheck1( &psubst, pstmt, pos );
-    }
-#else
     r = typecheck2( pstmt, pos );
-#endif
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return r;
