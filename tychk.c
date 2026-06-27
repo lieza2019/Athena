@@ -257,9 +257,9 @@ TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) { // REVISED.
 }
 
 #if 0
-static BOOL chk_tyvar_occur ( const char *tyvar_ident, TYPE_CONS_PTR pty ) {
+static BOOL chk_tyvar_occur ( const char *tyv_ident, TYPE_CONS_PTR pty ) {
   BOOL r = FALSE;
-  assert( tyvar_ident );
+  assert( tyv_ident );
   assert( pty );
   
   switch( pty->type.ty ) {
@@ -277,11 +277,11 @@ static BOOL chk_tyvar_occur ( const char *tyvar_ident, TYPE_CONS_PTR pty ) {
     break;
   case TY_LIST:
     assert( pty->attrs.list.pty_elem );
-    r = chk_tyvar_occur( tyvar_ident, pty->attrs.list.pty_elem );
+    r = chk_tyvar_occur( tyv_ident, pty->attrs.list.pty_elem );
     break;
   case TY_POLY:
     assert( pty->type.tyvars.var.ident );
-    r = (strcmp( pty->type.tyvars.var.ident, tyvar_ident ) == 0);
+    r = (strcmp( pty->type.tyvars.var.ident, tyv_ident ) == 0);
     break;
   case TY_GEN:
     /* fall thru. */
@@ -294,21 +294,53 @@ static BOOL chk_tyvar_occur ( const char *tyvar_ident, TYPE_CONS_PTR pty ) {
   }
   return r;
 }
-static BOOL unif_mkequ ( TYPE_SUBST_PTR ps_unif, TYPE_CONS_PTR pvar, TYPE_CONS_PTR pty_equ, SRC_POS_C pos ) {
+#else
+static BOOL chk_tyvar_occur ( const char *tyv_ident, TYPE_CONS_PTR pty ) { // REVISED.
   BOOL r = FALSE;
-  assert( ps_unif );  
-  assert( pty_equ );
+  assert( tyv_ident );
+  assert( pty );
   
+  switch( pty->type.ty ) {
+  case TY_INT:
+  case TY_CHAR:
+  case TY_STRING:
+    break;
+  case TY_LIST:
+    assert( pty->attrs.list.pty_elem );
+    r = chk_tyvar_occur( tyv_ident, pty->attrs.list.pty_elem );
+    break;
+  case TY_POLY:
+    assert( pty->type.tyvars.var.ident );
+    r = (strcmp( pty->type.tyvars.var.ident, tyv_ident ) == 0);
+    break;
+  case TY_GEN:
+    /* fall thru. */
+  case TY_OTHERS:
+    /* fall thru. */
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return r;
+}
+#endif
+static BOOL unif_mkequ ( TYPE_SUBST_PTR ps_unif, TYPE_CONS_PTR pvar, TYPE_CONS_PTR pty, SRC_POS_C pos ) { // CHECKED.
+  BOOL r = FALSE;
+  assert( ps_unif );
   assert( pvar );
+  assert( pty );
+  
   assert( pvar->type.ty == TY_POLY );
   assert( pvar->type.tyvars.var.ident );
-  if( chk_tyvar_occur( pvar->type.tyvars.var.ident, pty_equ ) ) {
-    subst_add( ps_unif, pvar->type.tyvars.var.ident, pty_equ, pos );
+  if( ! chk_tyvar_occur( pvar->type.tyvars.var.ident, pty ) ) {
+    subst_add( ps_unif, pvar->type.tyvars.var.ident, pty, pos );
     r = TRUE;
   }
   return r;
 }
 
+#if 0
 BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos ) {
   BOOL r = FALSE;
   assert( pps_unif );
