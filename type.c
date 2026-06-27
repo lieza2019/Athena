@@ -11,6 +11,7 @@ static struct {
 } tyvar_ctrl;
 const char *fresh_tyvar ( SRC_POS_C pos ) {
   const char *tyv_id = NULL;
+  
   const int n = strlen( tyvar_prefix );
   snprintf( &tyvar_ctrl.scratch[n], TYVER_SEQDIGITS_MAXLEN, "%d", tyvar_ctrl.seq++ );
   (&tyvar_ctrl.scratch[n])[TYVER_SEQDIGITS_MAXLEN] = 0;

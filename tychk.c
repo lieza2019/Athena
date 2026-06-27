@@ -509,8 +509,10 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
   return pexp_inf;
 }
 #endif
+#endif
 
-static char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
+#if 0
+static char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) { // OBSOLETE
   char *tv_ident = NULL;
   assert( pty_cons );
   
@@ -522,8 +524,9 @@ static char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
   }
   return tv_ident;
 }
-static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
+static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) { // OBSOLETE
   assert( pty_cons );
+  
   switch( pty_cons->type.ty ) {
 #if 0 // !!!!!
   case TY_EXPR:
@@ -535,7 +538,7 @@ static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) 
   case TY_INT:
   case TY_CHAR:
   case TY_STRING:
-    break;  
+    break;
   case TY_LIST:
     assert( pty_cons->attrs.list.pty_elem );
     if( pty_cons->attrs.list.car ) {
@@ -547,12 +550,11 @@ static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) 
 	pcell = pcell->attrs.list.cdr;
       } while( pcell );
     } else {
-      assert( pty_cons->attrs.list.cdr );
+      assert( ! pty_cons->attrs.list.cdr );
       travers_asgn_tyv( pty_cons->attrs.list.pty_elem, pos );
     }
     break;
   case TY_POLY:
-    assert( ! pty_cons->type.tyvars.var.pnext );
     asgn_fresh_tyvar( pty_cons, pos );
     assert( pty_cons->type.tyvars.var.ident );
     break;
@@ -568,13 +570,46 @@ static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) 
   return pty_cons;
 }
 #else
-static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
-  return NULL;
+static const char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) { // REVISED.
+  assert( pty_cons );
+  
+  if( ! pty_cons->type.tyvars.var.ident ) {
+    pty_cons->type.tyvars.var.ident = fresh_tyvar( pos );
+    assert( pty_cons->type.tyvars.var.ident );
+  }
+  return pty_cons->type.tyvars.var.ident;
+}
+static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) { // REVISED.
+  assert( pty_cons );
+  
+  switch( pty_cons->type.ty ) {
+  case TY_INT:
+  case TY_CHAR:
+  case TY_STRING:
+    break;
+  case TY_LIST:
+    assert( pty_cons->attrs.list.pty_elem );
+    travers_asgn_tyv( pty_cons->attrs.list.pty_elem, pos );
+    break;
+  case TY_POLY:
+    asgn_fresh_tyvar( pty_cons, pos );
+    assert( pty_cons->type.tyvars.var.ident );
+    break;
+  case TY_GEN:
+    /* fall thru. */
+  case TY_OTHERS:
+    /* fall thru. */
+  case END_OF_TYPE_CODE:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return pty_cons;
 }
 #endif
 
 #if 0
-static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) { // OBSOLETE
   TYPE_CONS_PTR pty_declvar = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
   EXPR_CONS_PTR pe_cnst = NULL;
@@ -640,7 +675,10 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, V
   return pty_declvar;
 }
 #else
-static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  return NULL;
+}
+static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR r = NULL;
   assert( ppsubst );
   assert( penv );
@@ -681,7 +719,7 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, V
 }
 #endif
 
-TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
+TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR r = NULL;
   TYPE_SUBST_PTR psubst = NULL;
   assert( pstmt );
