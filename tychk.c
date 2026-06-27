@@ -166,7 +166,32 @@ static TYPE_CONS_PTR enum_tvs ( TYPE_CONS_PTR *ppacc, TYPE_CONS_PTR pty, SRC_POS
   return *ppacc;
 }
 #endif
-TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+#if 0
+TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) { // OBSOLETE
+  TYPE_CONS_PTR ptvs = NULL;
+  assert( penv );
+  assert( pty );
+  
+  enum_tvs( &ptvs, pty, pos );
+  {
+    TYPE_CONS_PTR ptv = ptvs;
+    while( ptv ) {
+      assert( ptv->type.ty == TY_OTHERS );
+      assert( ptv->type.tyvars.var.ident );
+      if( ! env_lkup( penv, ptv->type.tyvars.var.ident ) ) {
+	TYPE_CONS_PTR pgv = ptv;
+	assert( pgv );
+	pgv->type.ty = TY_GEN;
+	pgv->type.tyvars.var.pnext = pty->type.tyvars.pgenvars;
+	pty->type.tyvars.pgenvars = pgv;
+      }
+      ptv = ptv->type.tyvars.var.pnext;
+    }
+  }
+  return pty;
+}
+#else
+TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR ptvs = NULL;
   assert( penv );
   assert( pty );
@@ -199,17 +224,16 @@ TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   }
   return pty;
 }
+#endif
 
-#if 0
-TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
+TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR pty_inst = NULL;
   TYPE_SUBST_PTR ps_inst = NULL;
   assert( pty );
   
   ps_inst = alloc_type_subst( pos );
   if( ps_inst ) {
-    TYPE_CONS_PTR pgv = NULL;
-    pgv = pty->type.tyvars.pgenvars;
+    TYPE_CONS_PTR pgv = pty->type.tyvars.pgenvars;
     while( pgv ) {
       TYPE_CONS_PTR ptyv_fresh = NULL;
       assert( pgv->type.tyvars.var.ident );
@@ -232,6 +256,7 @@ TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   return pty_inst;
 }
 
+#if 0
 static BOOL chk_tyvar_occur ( const char *tyvar_ident, TYPE_CONS_PTR pty ) {
   BOOL r = FALSE;
   assert( tyvar_ident );
