@@ -37,6 +37,9 @@ typedef struct expr_cons {
 	struct expr_cons *cdr;
 	struct expr_cons *plast;
       } list;
+      union {
+	struct pvar_attrib *pvar;
+      } refaddr;
     } body;
   } kids;
   TYPE_CONS_PTR ptype;

@@ -28,6 +28,7 @@ BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
   return r;
 }
 
+#if 0
 static TYPE_CONS_PTR add_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;
   assert( pptvs );
@@ -566,7 +567,13 @@ static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) 
   }
   return pty_cons;
 }
+#else
+static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  return NULL;
+}
+#endif
 
+#if 0
 static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_declvar = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
@@ -632,6 +639,47 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, V
     ath_abort( pos, ABORT_MEMLACK );
   return pty_declvar;
 }
+#else
+static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+  TYPE_CONS_PTR r = NULL;
+  assert( ppsubst );
+  assert( penv );
+  assert( pvar_attr );
+  
+  if( pvar_attr->pinit ) {
+    EXPR_CONS_PTR pe_asgn = NULL;
+    pe_asgn = alloc_expr_cons( pos );
+    if( pe_asgn ) {
+      EXPR_CONS_PTR pe_lval = NULL;
+      pe_asgn->pos = pos;
+      pe_asgn->mnemonic = MNC_ASGN;
+      pe_lval = alloc_expr_cons( pos );
+      if( pe_lval ) {
+	EXPR_CONS_PTR pvardecl_inf = NULL;
+	pe_lval->pos = pos;
+	pe_lval->mnemonic = MNC_LVALUE;
+	pe_lval->kids.body.refaddr.pvar = pvar_attr;
+	pe_lval->kids.pleft = NULL;
+	pe_lval->kids.pright = NULL;
+	pe_asgn->kids.pleft = pe_lval;
+	pe_asgn->kids.pright = pvar_attr->pinit;
+	pvardecl_inf = ty_infer( ppsubst, penv, pe_asgn, pos );
+	if( pvardecl_inf ) {
+	  assert( pvardecl_inf->ptype );
+	  pvar_attr->pinit = pvardecl_inf;
+	  pvar_attr->ptype = (pvar_attr->pinit)->ptype;
+	  r = pvar_attr->ptype;
+	}
+      } else
+	goto failed_memalloc;
+    } else
+    failed_memalloc:
+      ath_abort( pos, ABORT_MEMLACK );
+  } else
+    r = pvar_attr->ptype;
+  return r;
+}
+#endif
 
 TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
