@@ -686,7 +686,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
   return pexp_inf;
 }
 #else
-static EXPR_CONS_PTR ty_infer ( Type_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
   assert( ppsubst );
   assert( penv );
@@ -765,12 +765,8 @@ static EXPR_CONS_PTR ty_infer ( Type_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
 	      pe_infr_su->pos = pos;
 	      pe_infr_su->mnemonic = pe_infr->mnemonic;
 	      pe_infr_su->kids = pe_infr->kids;
-#if 0
-	      pe_infr_su->ptype = ty_subst( psubst_u, pe_infr->ptype, pos );
+	      pe_infr_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
 	      assert( pe_infr_su->ptype );
-#else
-	      ;
-#endif
 	      pexp_inf = pe_infr_su;
 	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
 	    } else
