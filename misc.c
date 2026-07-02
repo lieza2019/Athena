@@ -21,13 +21,13 @@ void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason ) {
 }
 
 static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
-  SRC_POS pos;
+  //SRC_POS pos;
   char *ps = NULL;
   assert( sbuf );
   assert( pval );
   assert( pval->ptype );
   
-  pos = pval->pos;
+  //pos = pval->pos;
   ps = sbuf;
   switch( (pval->ptype)->type.ty ) {
   case TY_INT:
@@ -117,13 +117,13 @@ static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
 }
 
 char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
-  SRC_POS pos;
+  //SRC_POS pos;
   char *ps = NULL;
   assert( sbuf );
   assert( pvar_attr );
   assert( pvar_attr->ptype );
   
-  pos = pvar_attr->pos;
+  //pos = pvar_attr->pos;
   ps = sbuf;
   strcpy( ps, pvar_attr->ident );
   ps += strlen( ps );
