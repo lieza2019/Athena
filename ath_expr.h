@@ -63,4 +63,7 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #else
 #define EXAM_ASGN_EXPR( e )						\
   (((e)->mnemonic == MNC_ASGN) && (((e)->kids.pleft) && ((e)->kids.pright)))
+#define EXAM_LVALUE_EXPR( e )						\
+  (((e)->mnemonic == MNC_LVALUE) && (e)->kids.body.refaddr.pvar &&	\
+   !((e)->kids.pleft) && !((e)->kids.pright))
 #endif

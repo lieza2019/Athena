@@ -780,8 +780,8 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
   case MNC_ARITH:
     break;
   case MNC_LVALUE:
-#if 0
     assert( EXAM_LVALUE_EXPR( pexpr ) );
+#if 0
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       VAR_ATTRIB_PTR pvar_attr = pexpr->kids.pdaugh;
@@ -792,6 +792,14 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
     } else
       ath_abort( pos, ABORT_MEMLACK );
 #endif
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_LVALUE;
+      pexp_inf->kids = pexpr->kids;
+      ;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_RVALUE:
     break;

@@ -3,12 +3,11 @@
 #include <assert.h>
 #include "athena.h"
 
-#define TYVAR_PREFIX_MAXLEN 2 // i.e. strlen( "t_" );
 #define TYVER_SEQDIGITS_MAXLEN 8
 const char tyvar_prefix[] = "t_";
 static struct {
   int seq;
-  char scratch[TYVAR_PREFIX_MAXLEN + (TYVER_SEQDIGITS_MAXLEN + 1)];
+  char scratch[sizeof(tyvar_prefix) + TYVER_SEQDIGITS_MAXLEN];
 } tyvar_ctrl;
 const char *fresh_tyvar ( SRC_POS_C pos ) {
   const char *tyv_id = NULL;
