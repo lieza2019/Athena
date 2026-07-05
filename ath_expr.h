@@ -17,9 +17,6 @@ typedef struct expr_cons {
   struct {
     struct expr_cons *pleft;
     struct expr_cons *pright;
-#if 0 // NOW OBSOLETE.
-    void *pdaugh;
-#endif
     union {
       struct {
 	struct {
@@ -38,11 +35,7 @@ typedef struct expr_cons {
 	struct expr_cons *plast;
       } list;
       union {
-#if 0
-	struct pvar_attrib *pvar;
-#else
 	VAR_ATTRIB var; // with MNC_LVALUE
-#endif
       } refaddr;
     } body;
   } kids;
@@ -51,22 +44,7 @@ typedef struct expr_cons {
 typedef const struct expr_cons EXPR_CONS_C;
 typedef struct expr_cons const *EXPR_CONS_PTR_C;
 
-#if 0
-#define EXAM_ASGN_EXPR( e )						\
-  (((e)->mnemonic == MNC_ASGN) &&					\
-   ((!((e)->kids.pdaugh)) && ((e)->kids.pleft) && ((e)->kids.pright))	\
-   )
-#define EXAM_CONST_EXPR( e )						\
-  (((e)->mnemonic == MNC_CONST) &&					\
-   (((e)->kids.pdaugh) && (!((e)->kids.pleft)) && (!((e)->kids.pright))) \
-   )
-#define EXAM_LVALUE_EXPR( e )						\
-  (((e)->mnemonic == MNC_LVALUE) &&					\
-   (((e)->kids.pdaugh) && (!((e)->kids.pleft)) && (!((e)->kids.pright))) \
-   )
-#else
 #define EXAM_ASGN_EXPR( e )						\
   (((e)->mnemonic == MNC_ASGN) && (((e)->kids.pleft) && ((e)->kids.pright)))
 #define EXAM_LVALUE_EXPR( e )						\
   (((e)->mnemonic == MNC_LVALUE) && (!((e)->kids.pleft) && !((e)->kids.pright)))
-#endif
