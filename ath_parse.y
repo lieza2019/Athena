@@ -73,7 +73,7 @@ statement : decl_var {
     assert( pstmt );
   } else
     ath_abort( pos, ABORT_MEMLACK );
-#if 0 // *****
+#if 1 // *****
   tychk_decl_var( pstmt, pos );
 #endif
   $$ = pstmt;

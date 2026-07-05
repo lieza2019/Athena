@@ -447,6 +447,8 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv,
   assert( ppsubst );
   assert( ppenv );
   assert( pvar_attr );
+  assert( pvar_attr->ident );
+  assert( pvar_attr->ptype );
   
   if( pvar_attr->pinit ) {
     EXPR_CONS_PTR pe_asgn = NULL;
@@ -477,8 +479,10 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv,
     } else
     failed_memalloc:
       ath_abort( pos, ABORT_MEMLACK );
-  } else
+  } else {
+    env_add( *ppenv, pvar_attr->ident, pvar_attr->ptype, pos );
     r = pvar_attr->ptype;
+  }
   return r;
 }
 
