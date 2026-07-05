@@ -5,7 +5,7 @@ typedef struct pvar_attrib {
   const char *ident;
   TYPE_CONS_PTR ptype;
 #if 1
-  EXPR_CONS_PTR pinit;
+  struct expr_cons *pinit; // EXPR_CONS_PTR pinit;
 #endif
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;

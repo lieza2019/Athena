@@ -139,34 +139,6 @@ TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) { // REVISED.
     ath_abort( pos, ABORT_MEMLACK );
   return pty_inst;
 }
-TYPE_CONS_PTR inst_gtvs1 ( EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
-  TYPE_CONS_PTR pty_inst = NULL;
-  assert( pexpr );
-  
-  assert( pexpr->ptype );
-  switch( (pexpr->ptype)->type.ty ) {
-  case TY_INT:
-  case TY_CHAR:
-  case TY_STRING:
-  case TY_LIST:
-  case TY_POLY:
-    assert( pexpr->kids.body.refaddr.pvar );
-    {
-      VAR_ATTRIB_PTR pvarattr = pexpr->kids.body.refaddr.pvar;
-      pty_inst = inst_gtvs( pvarattr->ptype, pos );
-    }
-    break;
-  case TY_GEN:
-    /* fall thru. */
-  case TY_OTHERS:
-    /* fall thru. */
-  case END_OF_TYPE_CODE:
-    /* fall thru. */
-  default:
-    assert( FALSE );
-  }
-  return pty_inst;
-}
 
 static BOOL chk_tyvar_occur ( const char *tyv_ident, TYPE_CONS_PTR pty ) { // REVISED.
   BOOL r = FALSE;
@@ -285,6 +257,7 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   return r;
 }
 
+#if 0
 static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
   assert( ppsubst );
@@ -299,14 +272,17 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
     {
       TYPE_SUBST_PTR psubst_l = NULL;
       EXPR_CONS_PTR pe_infl = NULL;
-      TYPE_SUBST_PTR psubst_r = NULL;
-      EXPR_CONS_PTR pe_infr = NULL;
-      pe_infl = ty_infer( &psubst_l, penv, pexpr->kids.pleft, pos );
+      TYPE_ENV_PTR penv_l = NULL;
+      penv_l = dup_env( penv, pos );
+      assert( penv_l );
+      pe_infl = ty_infer( &psubst_l, penv_l, pexpr->kids.pleft, pos );
       if( pe_infl ) {
+	TYPE_SUBST_PTR psubst_r = NULL;
+	EXPR_CONS_PTR pe_infr = NULL;
 	TYPE_ENV_PTR penv_r = NULL;
 	assert( pe_infl->ptype );
 	assert( psubst_l );
-	penv_r = dup_env( penv, pos );
+	penv_r = dup_env( penv_l, pos );
 	assert( penv_r );
 	penv_r = env_subst( penv_r, psubst_l, pos );
 	pe_infr = ty_infer( &psubst_r, penv_r, pexpr->kids.pright, pos );
@@ -318,17 +294,18 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
 	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
 	  assert( pty_infl_sr );
 	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
-	    EXPR_CONS_PTR pe_infr_su = NULL;
+	    EXPR_CONS_PTR pe_infl_su = NULL;
 	    assert( psubst_u );
-	    pe_infr_su = alloc_expr_cons( pos );
-	    if( pe_infr_su ) {
-	      pe_infr_su->pos = pos;
-	      pe_infr_su->mnemonic = pe_infr->mnemonic;
-	      pe_infr_su->kids = pe_infr->kids;
-	      pe_infr_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
-	      assert( pe_infr_su->ptype );
-	      pexp_inf = pe_infr_su;
+	    pe_infl_su = alloc_expr_cons( pos );
+	    if( pe_infl_su ) {
+	      pe_infl_su->pos = pos;
+	      pe_infl_su->mnemonic = MNC_ASGN;
+	      pe_infl_su->kids.pleft = pe_infl;
+	      pe_infl_su->kids.pright = pe_infr;
+	      pe_infl_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
+	      assert( pe_infl_su->ptype );
 	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
+	      pexp_inf = pe_infl_su;
 	    } else
 	      ath_abort( pos, ABORT_MEMLACK );
 	  }
@@ -345,7 +322,9 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
       pexp_inf->pos = pos;
       pexp_inf->mnemonic = MNC_LVALUE;
       pexp_inf->kids = pexpr->kids;
-      inst_gtvs( pexp_inf->ptype, pos );
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
     } else
       ath_abort( pos, ABORT_MEMLACK );
     break;
@@ -425,6 +404,155 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, EXPR
   }
   return pexp_inf;
 }
+#else
+static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pexp_inf = NULL;
+  assert( ppsubst );
+  assert( ppenv );
+  assert( pexpr );
+  
+  switch( pexpr->mnemonic ) {
+  case MNC_CALL:
+    break;
+  case MNC_ASGN:
+    assert( EXAM_ASGN_EXPR( pexpr ) );
+    {
+      TYPE_SUBST_PTR psubst_l = NULL;
+      EXPR_CONS_PTR pe_infl = NULL;
+      pe_infl = ty_infer( &psubst_l, ppenv, pexpr->kids.pleft, pos );
+      if( pe_infl ) {
+	TYPE_SUBST_PTR psubst_r = NULL;
+	EXPR_CONS_PTR pe_infr = NULL;
+	assert( pe_infl->ptype );
+	assert( psubst_l );
+	pe_infr = ty_infer( &psubst_r, ppenv, pexpr->kids.pright, pos );
+	if( pe_infr ) {
+	  TYPE_SUBST_PTR psubst_u = NULL;
+	  TYPE_CONS_PTR pty_infl_sr = NULL;
+	  assert( pe_infr->ptype );
+	  assert( psubst_r );
+	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
+	  assert( pty_infl_sr );
+	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
+	    EXPR_CONS_PTR pe_infl_su = NULL;
+	    assert( psubst_u );
+	    pe_infl_su = alloc_expr_cons( pos );
+	    if( pe_infl_su ) {
+	      pe_infl_su->pos = pos;
+	      pe_infl_su->mnemonic = MNC_ASGN;
+	      pe_infl_su->kids.pleft = pe_infl;
+	      pe_infl_su->kids.pright = pe_infr;
+	      pe_infl_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
+	      assert( pe_infl_su->ptype );
+	      {
+		TYPE_ENV_PTR penv_inf = NULL;
+		penv_inf = dup_env( *ppenv, pos );
+		assert( penv_inf );
+		*ppenv = env_subst( penv_inf, psubst_u, pos );
+		*ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
+		pexp_inf = pe_infl_su;
+	      }
+	    } else
+	      ath_abort( pos, ABORT_MEMLACK );
+	  }
+	}
+      }
+    }
+    break;
+  case MNC_ARITH:
+    break;
+  case MNC_LVALUE:
+    assert( EXAM_LVALUE_EXPR( pexpr ) );
+    assert( pexpr->kids.body.refaddr.var.ident );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_LVALUE;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      *ppenv = env_add( *ppenv, pexpr->kids.body.refaddr.var.ident, pexp_inf->ptype, pos );
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+    break;
+  case MNC_RVALUE:
+    break;
+  case MNC_LIST:
+    break;
+  case MNC_CONST:
+#if 0
+    assert( EXAM_CONST_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+#if 0 // !!!!!
+      EXPR_CONS_PTR pe_inf = NULL;
+#endif
+      TYPE_CONS_PTR pty_cnst = pexpr->kids.pdaugh;
+      assert( pty_cnst );
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_CONST;
+      switch( pty_cnst->type.ty ) {
+#if 0 // !!!!!
+      case TY_EXPR:
+	assert( pty_cnst->attrs.expr.pexpr );
+	pe_inf = ty_infer( ppsubst, penv, pty_cnst->attrs.expr.pexpr, pos );
+	assert( pe_inf );
+	assert( pe_inf->ptype );
+	if( pe_inf != pty_cnst->attrs.expr.pexpr ) {
+	  TYPE_CONS_PTR pty_cnst_inf = NULL;
+	  pty_cnst_inf = alloc_type_cons( pos );
+	  if( pty_cnst_inf ) {
+	    pty_cnst_inf->pos = pos;
+	    pty_cnst_inf->type = pty_cnst->type;
+	    pty_cnst_inf->attrs = pty_cnst->attrs;
+	    pty_cnst_inf->attrs.expr.pexpr = pe_inf;
+	    pexp_inf->kids.pdaugh = pty_cnst_inf;
+	    //pexp_inf->ptype = pe_inf->ptyep;
+	  } else
+	    ath_abort( pos, ABORT_MEMLACK );
+	} else
+	  pexp_inf = pexpr;
+#endif
+	break;
+      case TY_INT:
+      case TY_CHAR:
+      case TY_STRING:
+	pexp_inf = pexpr;
+	break;
+      case TY_LIST:
+	assert( pty_cnst->attrs.list.pty_elem );
+	
+	if( pty_cnst->attrs.list.car ) {
+	  TYPE_CONS_PTR pcell = pty_cnst->attrs.list.car;
+	  do {
+	    ;
+	  } while( pcell );
+	} else
+	  ;
+	break;
+      case TY_POLY:
+      case TY_GEN:
+	/* fall thru. */
+      case TY_OTHERS:
+	/* fall thru. */
+      case END_OF_TYPE_CODE:
+	/* fall thru. */
+      default:
+	assert( FALSE );
+      }
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+#endif
+    break;
+  case END_OF_MNEMONIC_CODE:
+    /* fall thru. */
+  default:
+    break;
+  }
+  return pexp_inf;
+}
+#endif
 
 static const char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) { // REVISED.
   assert( pty_cons );
@@ -463,10 +591,10 @@ static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) 
   return pty_cons;
 }
 
-static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) { // REVISED.
+static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR r = NULL;
   assert( ppsubst );
-  assert( penv );
+  assert( ppenv );
   assert( pvar_attr );
   
   if( pvar_attr->pinit ) {
@@ -481,12 +609,12 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR penv, V
 	EXPR_CONS_PTR pvardecl_inf = NULL;
 	pe_lval->pos = pos;
 	pe_lval->mnemonic = MNC_LVALUE;
-	pe_lval->kids.body.refaddr.pvar = pvar_attr;
+	pe_lval->kids.body.refaddr.var = *pvar_attr;
 	pe_lval->kids.pleft = NULL;
 	pe_lval->kids.pright = NULL;
 	pe_asgn->kids.pleft = pe_lval;
 	pe_asgn->kids.pright = pvar_attr->pinit;
-	pvardecl_inf = ty_infer( ppsubst, penv, pe_asgn, pos );
+	pvardecl_inf = ty_infer( ppsubst, ppenv, pe_asgn, pos );
 	if( pvardecl_inf ) {
 	  assert( pvardecl_inf->ptype );
 	  pvar_attr->pinit = pvardecl_inf;
@@ -517,7 +645,7 @@ TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) { // REVISED.
       break;
     case DECL_VAR:
       assert( (pstmt->u.pdecl)->u.variable.pvar );
-      r = tc_decl_var( &psubst, pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+      r = tc_decl_var( &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
       break;
     case END_OF_DECL_KIND:
       /* fall thru. */
@@ -526,7 +654,7 @@ TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) { // REVISED.
     }
     break;
   case STMT_EXPR:
-    ty_infer( &psubst, pstmt->penv, pstmt->u.pexpr, pos );
+    ty_infer( &psubst, &pstmt->penv, pstmt->u.pexpr, pos );
     break;
   case END_OF_STMT_SORT:
     /* fall thru. */
