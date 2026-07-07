@@ -444,45 +444,53 @@ static TYPE_CONS_PTR travers_asgn_tyv ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) 
 
 static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR r = NULL;
+  EXPR_CONS_PTR pvardecl_inf = NULL;
+  EXPR_CONS_PTR pe_lval = NULL;
   assert( ppsubst );
   assert( ppenv );
   assert( pvar_attr );
   assert( pvar_attr->ident );
   assert( pvar_attr->ptype );
   
-  if( pvar_attr->pinit ) {
-    EXPR_CONS_PTR pe_asgn = NULL;
-    pe_asgn = alloc_expr_cons( pos );
-    if( pe_asgn ) {
-      EXPR_CONS_PTR pe_lval = NULL;
-      pe_asgn->pos = pos;
-      pe_asgn->mnemonic = MNC_ASGN;
-      pe_lval = alloc_expr_cons( pos );
-      if( pe_lval ) {
-	EXPR_CONS_PTR pvardecl_inf = NULL;
-	pe_lval->pos = pos;
-	pe_lval->mnemonic = MNC_LVALUE;
-	pe_lval->kids.body.refaddr.var = *pvar_attr;
-	pe_lval->kids.pleft = NULL;
-	pe_lval->kids.pright = NULL;
+  pe_lval = alloc_expr_cons( pos );
+  if( pe_lval ) {
+    pe_lval->pos = pos;
+    pe_lval->mnemonic = MNC_LVALUE;
+    pe_lval->kids.pleft = NULL;
+    pe_lval->kids.pright = NULL;
+    pe_lval->kids.body.refaddr.var = *pvar_attr;
+    if( pvar_attr->pinit ) {
+      EXPR_CONS_PTR pe_asgn = NULL;
+      pe_asgn = alloc_expr_cons( pos );
+      if( pe_asgn ) {
+	pe_asgn->pos = pos;
+	pe_asgn->mnemonic = MNC_ASGN;
 	pe_asgn->kids.pleft = pe_lval;
 	pe_asgn->kids.pright = pvar_attr->pinit;
 	pvardecl_inf = ty_infer( ppsubst, ppenv, pe_asgn, pos );
 	if( pvardecl_inf ) {
+	  assert( EXAM_ASGN_EXPR( pvardecl_inf ) );
+	  assert( EXAM_LVALUE_EXPR( pvardecl_inf->kids.pleft ) );
 	  assert( pvardecl_inf->ptype );
-	  pvar_attr->pinit = pvardecl_inf;
-	  pvar_attr->ptype = (pvar_attr->pinit)->ptype;
+	  assert( pvardecl_inf->ptype == (pvardecl_inf->kids.pleft)->ptype );
+	  pvar_attr->ptype = pvardecl_inf->ptype;
+	  pvar_attr->pinit = pvardecl_inf->kids.pright;
 	  r = pvar_attr->ptype;
 	}
       } else
 	goto failed_memalloc;
-    } else
-    failed_memalloc:
-      ath_abort( pos, ABORT_MEMLACK );
-  } else {
-    env_add( *ppenv, pvar_attr->ident, pvar_attr->ptype, pos );
-    r = pvar_attr->ptype;
-  }
+    } else {
+      pvardecl_inf = ty_infer( ppsubst, ppenv, pe_lval, pos );
+      if( pvardecl_inf ) {
+	assert( EXAM_LVALUE_EXPR( pvardecl_inf ) );
+	assert( pvardecl_inf->ptype );
+	pvar_attr->ptype = pvardecl_inf->ptype;
+	r = pvar_attr->ptype;
+      }
+    }
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
   return r;
 }
 
