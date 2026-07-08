@@ -71,3 +71,5 @@ typedef struct type_subst {
   struct type_subst *pcomposit;
   TYPE_MAPSTO_PTR pmappings;
 } TYPE_SUBST, *TYPE_SUBST_PTR;
+
+#define SUBST_EMPTY(s) (!((s)->pmappings))

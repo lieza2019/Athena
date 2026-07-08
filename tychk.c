@@ -254,6 +254,11 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   default:
     assert( FALSE );
   }
+  if( r && !*pps_unif ) {
+    *pps_unif = alloc_type_subst( pos );
+    if( !*pps_unif )
+      ath_abort( pos, ABORT_MEMLACK );
+  }
   return r;
 }
 
@@ -333,8 +338,9 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
   case MNC_LIST:
     break;
   case MNC_CONST:
-#if 0
     assert( EXAM_CONST_EXPR( pexpr ) );
+    pexp_inf = pexpr;
+#if 0
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
 #if 0 // !!!!!
@@ -401,6 +407,11 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
     /* fall thru. */
   default:
     break;
+  }
+  if( pexp_inf && !*ppsubst ) {
+    *ppsubst = alloc_type_subst( pos );
+    if( !*ppsubst )
+      ath_abort( pos, ABORT_MEMLACK );
   }
   return pexp_inf;
 }

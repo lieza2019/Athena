@@ -283,18 +283,28 @@ TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2, SR
   assert( psubst_1 );
   assert( psubst_2 );
   
-  psub1_new = dup_subst( psubst_1, pos );
-  if( psub1_new ) {
-    psub2_new = dup_subst( psubst_2, pos );
-    if( psub2_new ) {
-      psub1_new->pcomposit = psub2_new;
-    } else {
-      psub1_new = NULL;
+  if( SUBST_EMPTY( psubst_1 ) ) {
+    psub1_new = dup_subst( psubst_2, pos );
+    if( !psub1_new )
       goto failed_memalloc;
-    }
-  } else
-  failed_memalloc:
-    ath_abort( pos, ABORT_MEMLACK );
+  } else if( SUBST_EMPTY( psubst_2 ) ) {
+    psub1_new = dup_subst( psubst_1, pos );
+    if( !psub1_new )
+      goto failed_memalloc;
+  } else {
+    psub1_new = dup_subst( psubst_1, pos );
+    if( psub1_new ) {
+      psub2_new = dup_subst( psubst_2, pos );
+      if( psub2_new ) {
+	psub1_new->pcomposit = psub2_new;
+      } else {
+	psub1_new = NULL;
+	goto failed_memalloc;
+      }
+    } else
+    failed_memalloc:
+      ath_abort( pos, ABORT_MEMLACK );
+  }
   return psub1_new;
 }
 
