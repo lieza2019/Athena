@@ -13,10 +13,11 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   
   pe_vardecl = alloc_type_env( pos );
   if( pe_vardecl ) {
-    assert( statements.phead );
-    assert( statements.plast );
-    assert( statements.plast->penv );
-    env_lnk( statements.plast->penv, pe_vardecl );
+    if( statements.plast ) {
+      assert( statements.phead );
+      env_lnk( statements.plast->penv, pe_vardecl );
+    } else
+      assert( ! statements.phead );
     pstmt->penv = pe_vardecl;
     r = typecheck2( pstmt, pos );
   } else
