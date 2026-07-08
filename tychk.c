@@ -230,6 +230,7 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
 	  ath_abort( pos, ABORT_MEMLACK );
       }
     }
+    break;
   case TY_LIST:
     assert( pty_1->attrs.list.pty_elem );
     if( pty_2->type.ty == TY_POLY ) {
