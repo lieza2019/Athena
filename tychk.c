@@ -340,68 +340,6 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
   case MNC_CONST:
     assert( EXAM_CONST_EXPR( pexpr ) );
     pexp_inf = pexpr;
-#if 0
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-#if 0 // !!!!!
-      EXPR_CONS_PTR pe_inf = NULL;
-#endif
-      TYPE_CONS_PTR pty_cnst = pexpr->kids.pdaugh;
-      assert( pty_cnst );
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_CONST;
-      switch( pty_cnst->type.ty ) {
-#if 0 // !!!!!
-      case TY_EXPR:
-	assert( pty_cnst->attrs.expr.pexpr );
-	pe_inf = ty_infer( ppsubst, penv, pty_cnst->attrs.expr.pexpr, pos );
-	assert( pe_inf );
-	assert( pe_inf->ptype );
-	if( pe_inf != pty_cnst->attrs.expr.pexpr ) {
-	  TYPE_CONS_PTR pty_cnst_inf = NULL;
-	  pty_cnst_inf = alloc_type_cons( pos );
-	  if( pty_cnst_inf ) {
-	    pty_cnst_inf->pos = pos;
-	    pty_cnst_inf->type = pty_cnst->type;
-	    pty_cnst_inf->attrs = pty_cnst->attrs;
-	    pty_cnst_inf->attrs.expr.pexpr = pe_inf;
-	    pexp_inf->kids.pdaugh = pty_cnst_inf;
-	    //pexp_inf->ptype = pe_inf->ptyep;
-	  } else
-	    ath_abort( pos, ABORT_MEMLACK );
-	} else
-	  pexp_inf = pexpr;
-#endif
-	break;
-      case TY_INT:
-      case TY_CHAR:
-      case TY_STRING:
-	pexp_inf = pexpr;
-	break;
-      case TY_LIST:
-	assert( pty_cnst->attrs.list.pty_elem );
-	
-	if( pty_cnst->attrs.list.car ) {
-	  TYPE_CONS_PTR pcell = pty_cnst->attrs.list.car;
-	  do {
-	    ;
-	  } while( pcell );
-	} else
-	  ;
-	break;
-      case TY_POLY:
-      case TY_GEN:
-	/* fall thru. */
-      case TY_OTHERS:
-	/* fall thru. */
-      case END_OF_TYPE_CODE:
-	/* fall thru. */
-      default:
-	assert( FALSE );
-      }
-    } else
-      ath_abort( pos, ABORT_MEMLACK );
-#endif
     break;
   case END_OF_MNEMONIC_CODE:
     /* fall thru. */
