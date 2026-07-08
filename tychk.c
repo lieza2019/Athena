@@ -3,31 +3,6 @@
 #include <assert.h>
 #include "athena.h"
 
-BOOL typecheck ( TYPE_CONS_PTR_C pty1, TYPE_CONS_PTR_C pty2 ) {
-  BOOL r = FALSE;
-  
-  assert( pty1 );
-  assert( pty2 );
-  if( pty1->type.ty == TY_LIST ) {
-    if( pty2->type.ty == TY_LIST ) {
-      assert( pty1->attrs.list.pty_elem );
-      assert( pty2->attrs.list.pty_elem );
-      r = typecheck( pty1->attrs.list.pty_elem, pty2->attrs.list.pty_elem );
-    }
-  } else {
-    assert( pty1->type.ty != TY_LIST );
-    switch( pty1->type.ty ) {
-    case TY_INT:
-    case TY_STRING:
-      r = (pty1->type.ty == pty2->type.ty);
-      break;
-    default:
-      assert( FALSE );
-    }
-  }
-  return r;
-}
-
 static TYPE_CONS_PTR add_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) { // CHECKED.
   BOOL found = FALSE;
   assert( pptvs );
@@ -444,7 +419,7 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv,
   return r;
 }
 
-TYPE_CONS_PTR typecheck2 ( STATEMENT_PTR pstmt, SRC_POS_C pos ) { // REVISED.
+TYPE_CONS_PTR typecheck ( STATEMENT_PTR pstmt, SRC_POS_C pos ) { // REVISED.
   TYPE_CONS_PTR r = NULL;
   TYPE_SUBST_PTR psubst = NULL;
   assert( pstmt );

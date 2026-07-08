@@ -19,7 +19,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     } else
       assert( ! statements.phead );
     pstmt->penv = pe_vardecl;
-    r = typecheck2( pstmt, pos );
+    r = typecheck( pstmt, pos );
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return r;
