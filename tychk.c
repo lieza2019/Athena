@@ -219,7 +219,12 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
     break;
   case TY_POLY:
     assert( pty_1->type.tyvars.var.ident );
-    r = unif_mkequ( *pps_unif, pty_1, pty_2, pos );
+    *pps_unif = alloc_type_subst( pos );
+    if( *pps_unif )
+      r = unif_mkequ( *pps_unif, pty_1, pty_2, pos );
+    else
+      ath_abort( pos, ABORT_MEMLACK );
+    assert( !r && *pps_unif );
     break;
   case TY_GEN:
     /* fall thru. */
