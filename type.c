@@ -20,6 +20,42 @@ const char *fresh_tyvar ( SRC_POS_C pos ) {
   return tyv_id;
 }
 
+static const char *asgn_fresh_tyvar ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
+  assert( pty_cons );
+  
+  if( ! pty_cons->type.tyvars.var.ident ) {
+    pty_cons->type.tyvars.var.ident = fresh_tyvar( pos );
+    assert( pty_cons->type.tyvars.var.ident );
+  }
+  return pty_cons->type.tyvars.var.ident;
+}
+TYPE_CONS_PTR ty_curve ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos ) {
+  if( pty_cons )
+    switch( pty_cons->type.ty ) {
+    case TY_INT:
+    case TY_CHAR:
+    case TY_STRING:
+      break;
+    case TY_LIST:
+      assert( pty_cons->attrs.list.pty_elem );
+      ty_curve( pty_cons->attrs.list.pty_elem, pos );
+      break;
+    case TY_POLY:
+      asgn_fresh_tyvar( pty_cons, pos );
+      assert( pty_cons->type.tyvars.var.ident );
+      break;
+    case TY_GEN:
+      /* fall thru. */
+    case TY_OTHERS:
+      /* fall thru. */
+    case END_OF_TYPE_CODE:
+      /* fall thru. */
+    default:
+      assert( FALSE );
+    }
+  return pty_cons;
+}
+
 static struct {
   TYPE_CONS_PTR pavail;
   TYPE_CONS_PTR palive;

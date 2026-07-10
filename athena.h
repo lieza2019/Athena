@@ -29,6 +29,7 @@ extern const char *find_literal ( const char *pname, SRC_POS_C pos );
 
 /* from type.c */
 extern const char *fresh_tyvar ( SRC_POS_C pos );
+extern TYPE_CONS_PTR ty_curve ( TYPE_CONS_PTR pty_cons, SRC_POS_C pos );
 extern TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos );
 extern void free_type_cons ( TYPE_CONS_PTR ptycons );
 extern TYPE_CONS_PTR dup_tydesc ( TYPE_CONS_PTR ptydesc_org, SRC_POS_C pos );
