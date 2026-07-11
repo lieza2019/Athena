@@ -32,19 +32,6 @@ typedef struct type_cons {
     struct type_cons *pstuck;
   } type;
   union {
-#if 0 // *****
-    struct {
-      struct {
-	int n;
-      } integer;
-      struct {
-	char c;
-      } character;
-      struct {
-	const char *s;
-      } string;
-    } literal;
-#endif
     struct {
       struct type_cons *pty_elem;
     } list;
