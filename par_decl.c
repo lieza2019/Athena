@@ -44,7 +44,9 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
       if( pty_int ) {
 	pty_int->pos = pos;
 	pty_int->type.ty = TY_INT;
+#if 0 // *****
 	pty_int->attrs.literal.integer.n = 0;
+#endif
       } else
 	goto failed_memalloc;
       pn_init = alloc_expr_cons( pos );

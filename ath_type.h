@@ -32,7 +32,7 @@ typedef struct type_cons {
     struct type_cons *pstuck;
   } type;
   union {
-#if 1 // *****
+#if 0 // *****
     struct {
       struct {
 	int n;
