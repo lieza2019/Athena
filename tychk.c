@@ -350,7 +350,6 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv,
 	  assert( pvardecl_inf->ptype == (pvardecl_inf->kids.pleft)->ptype );
 	  pvar_attr->ptype = pvardecl_inf->ptype;
 	  pvar_attr->pinit = pvardecl_inf->kids.pright;
-	  r = pvar_attr->ptype;
 	}
       } else
 	goto failed_memalloc;
@@ -360,9 +359,10 @@ static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv,
 	assert( EXAM_LVALUE_EXPR( pvardecl_inf ) );
 	assert( pvardecl_inf->ptype );
 	pvar_attr->ptype = pvardecl_inf->ptype;
-	r = pvar_attr->ptype;
+	
       }
     }
+    r = pvar_attr->ptype;
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
