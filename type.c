@@ -504,11 +504,12 @@ void free_type_env ( TYPE_ENV_PTR penv ) {
   }
 }
 
-TYPE_ENV_PTR env_lnk ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv_succ ) {
+TYPE_ENV_PTR env_lnk ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv ) {
   assert( penv_pred );
-  assert( penv_succ );
-  penv_succ->uplink = penv_pred;
-  return penv_succ->uplink;
+  assert( penv );
+  penv->uplink = penv_pred;
+  penv_pred->dnlink = penv;
+  return penv->uplink;
 }
 
 TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
@@ -555,6 +556,7 @@ TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR p
   return penv;
 }
 
+#if 0
 TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
   BOOL found = FALSE;
   TYENV_ELEM_PTR pe = NULL;
@@ -579,6 +581,45 @@ TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
     assert( pe );
   return pe;
 }
+#else
+static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOOL dir ) {
+  BOOL found = FALSE;
+  TYENV_ELEM_PTR pe = NULL;
+  assert( penv );
+  assert( var_ident );
+  
+  pe = penv->pmappings;
+  while( pe ) {
+    assert( pe->var.ident );
+    assert( pe->var.ptype );
+    if( strcmp( pe->var.ident, var_ident ) == 0 ) {
+      found = TRUE;
+      break;
+    }
+    pe = pe->pnext;
+  }
+  if( !found ) {
+    TYPE_ENV_PTR penv_succ = NULL;
+    assert( !pe );
+    if( dir ) // upward
+      penv_succ = penv->uplink;
+    else // downward
+      penv_succ = penv->dnlink;
+    if( penv_succ )
+      pe = env_search( penv_succ, var_ident, dir );
+  } else
+    assert( pe );
+  return pe;
+}
+TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
+  TYENV_ELEM_PTR pe_found = NULL;
+  assert( penv );
+  assert( var_ident );
+  
+  pe_found = env_search( penv, var_ident, TRUE );
+  return pe_found;
+}
+#endif
 
 TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
   TYPE_ENV_PTR penv = NULL;
@@ -593,6 +634,8 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
       pupps = dup_env( penv_org->uplink, pos );
       assert( pupps );
     }
+    penv->uplink = NULL;
+    penv->dnlink = NULL;
     penv->pmappings = NULL;    
     pmap = penv_org->pmappings;
     while( pmap ) {
@@ -614,13 +657,15 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
       pprev = pnew;
       pmap = pmap->pnext;
     }
-    penv->uplink = pupps;
+    if( pupps )
+      env_lnk( pupps, penv );
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
   return penv;
 }
 
+#if 0
 TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos ) {
   TYPE_ENV_PTR penv_s = NULL;
   assert( penv );
@@ -644,11 +689,57 @@ TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos
       pe->var.ptype = pty_s;
       pe = pe->pnext;
     }
-    penv_s->uplink = penv_u;
+    env_lnk( penv_u, penv_s );
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return penv_s; 
 }
+#else
+static TYPE_ENV_PTR env_subst_elem ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos ) {
+  TYENV_ELEM_PTR pe = NULL;
+  assert( penv );
+  assert( psubst );
+  
+  pe = penv->pmappings;
+  while( pe ) {
+    TYPE_CONS_PTR pty_s = NULL;
+    assert( pe->var.ident );
+    assert( pe->var.ptype );
+#if 1
+    if( penv->dnlink ) {
+      if( env_search( penv->dnlink, pe->var.ident, 0 ) ) {
+	pe = pe->pnext;
+	continue;
+      }
+    }
+#endif
+    pty_s = ty_subst( psubst, pe->var.ptype, pos );
+    assert( pty_s );
+    pe->var.ptype = pty_s;
+    pe = pe->pnext;
+  }
+  if( penv->uplink ) {
+    TYPE_ENV_PTR penv_u = NULL;
+    penv_u = env_subst( penv->uplink, psubst, pos );
+    assert( penv_u );
+    assert( penv_u->dnlink == penv );
+    assert( penv->uplink == penv_u );
+  }
+  return penv;
+}
+TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos ) {
+  TYPE_ENV_PTR penv_s = NULL;
+  assert( penv );
+  assert( psubst );
+  
+  penv_s = dup_env( penv, pos );
+  if( penv_s )
+    env_subst_elem( penv_s, psubst, pos );
+  else
+    ath_abort( pos, ABORT_MEMLACK );
+  return penv_s;
+}
+#endif
 
 char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
   //SRC_POS pos;

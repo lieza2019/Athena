@@ -19,6 +19,7 @@ typedef struct type_env_elem {
 typedef struct type_env {
   ALLOC_NODE_LINKS alloc;
   struct type_env *uplink;
+  struct type_env *dnlink;
   TYENV_ELEM_PTR pmappings;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
