@@ -66,6 +66,8 @@ TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos ) {
   ptycons = (TYPE_CONS_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail,
 				       (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive,
 				       sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
+  assert( ptycons );
+  bzero( &ptycons->pos, (sizeof(TYPE_CONS) - sizeof(ALLOC_NODE_LINKS)) );
   return ptycons;
 }
 

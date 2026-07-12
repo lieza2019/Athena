@@ -78,30 +78,6 @@ static TYPE_CONS_PTR env_enum_tvs ( TYPE_CONS_PTR *ppacc, TYPE_ENV_PTR penv, SRC
   return *ppacc;
 }
 
-#if 0
-TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
-  TYPE_CONS_PTR ptvs = NULL;
-  assert( penv );
-  assert( pty );
-  
-  ty_enum_tvs( &ptvs, pty, pos );
-  {
-    TYPE_CONS_PTR ptv = ptvs;
-    while( ptv ) {
-      TYPE_CONS_PTR pgv = ptv;
-      assert( ptv->type.ty == TY_OTHERS );
-      assert( ptv->type.tyvars.var.ident );
-      ptv = ptv->type.tyvars.var.pnext;
-      if( ! env_lkup( penv, pgv->type.tyvars.var.ident ) ) {
-	pgv->type.ty = TY_GEN;
-	pgv->type.tyvars.var.pnext = pty->type.tyvars.pgenvars;
-	pty->type.tyvars.pgenvars = pgv;
-      }
-    }
-  }
-  return pty;
-}
-#else
 static TYPE_CONS_PTR find_tyv ( TYPE_CONS_PTR ptvs, const char *tv_ident ) {
   TYPE_CONS_PTR ptv = NULL;
   
@@ -131,7 +107,7 @@ TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
       assert( ptv->type.ty == TY_OTHERS );
       assert( ptv->type.tyvars.var.ident );
       ptv = ptv->type.tyvars.var.pnext;      
-      if( ! find_tyv( ptvs_env, ptv->type.tyvars.var.ident, ) ) {
+      if( ! find_tyv( ptvs_env, ptv->type.tyvars.var.ident ) ) {
 	pgv->type.ty = TY_GEN;
 	pgv->type.tyvars.var.pnext = pty->type.tyvars.pgenvars;
 	pty->type.tyvars.pgenvars = pgv;
@@ -140,7 +116,6 @@ TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   }
   return pty;
 }
-#endif
 
 TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYPE_CONS_PTR pty_inst = NULL;
