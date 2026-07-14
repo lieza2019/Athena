@@ -66,8 +66,8 @@ TYPE_CONS_PTR alloc_type_cons ( SRC_POS_C pos ) {
   ptycons = (TYPE_CONS_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.pavail,
 				       (ALLOC_NODE_LINKS_PTR *)&type_cons_manage.palive,
 				       sizeof(TYPE_CONS), NUM_TYCONS_PER_ALLOC, pos );
-  assert( ptycons );
-  bzero( &ptycons->pos, (sizeof(TYPE_CONS) - sizeof(ALLOC_NODE_LINKS)) );
+  if( ptycons )
+    bzero( &ptycons->pos, (sizeof(TYPE_CONS) - sizeof(ALLOC_NODE_LINKS)) );
   return ptycons;
 }
 
@@ -200,6 +200,8 @@ TYPE_MAPSTO_PTR alloc_type_mapping ( SRC_POS_C pos ) {
   ptymap = (TYPE_MAPSTO_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.pavail,
 					(ALLOC_NODE_LINKS_PTR *)&type_subst_manage.mapping.palive,
 					sizeof(TYPE_MAPSTO), NUM_TYMAPS_PER_ALLOC, pos );
+  if( ptymap )
+    bzero( &ptymap->ident, (sizeof(TYPE_MAPSTO) - sizeof(ALLOC_NODE_LINKS)) );
   return ptymap;
 }
 
@@ -217,6 +219,8 @@ TYPE_SUBST_PTR alloc_type_subst ( SRC_POS_C pos ) {
   ptysubst = (TYPE_SUBST_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.pavail,
 					 (ALLOC_NODE_LINKS_PTR *)&type_subst_manage.subst.palive,
 					 sizeof(TYPE_SUBST), NUM_TYSUBSTS_PER_ALLOC, pos );
+  if( ptysubst )
+    bzero( &ptysubst->pcomposit, (sizeof(TYPE_SUBST) - sizeof(ALLOC_NODE_LINKS)) );
   return ptysubst;
 }
 
@@ -472,6 +476,8 @@ TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
   penv = (TYENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail,
 				     (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
 				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
+  if( penv )
+    bzero( &penv->var, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
   return penv;
 }
 
@@ -489,6 +495,8 @@ TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos ) {
   penv = (TYPE_ENV_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.pavail,
 				   (ALLOC_NODE_LINKS_PTR *)&type_env_manage.env.palive,
 				   sizeof(TYPE_ENV), NUM_TYENVS_PER_ALLOC, pos );
+  if( penv )
+    bzero( &penv->pmappings, (sizeof(TYPE_ENV) - sizeof(ALLOC_NODE_LINKS)) );
   return penv;
 }
 

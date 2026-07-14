@@ -18,9 +18,9 @@ typedef struct type_env_elem {
 #define NUM_TYENVS_PER_ALLOC 256
 typedef struct type_env {
   ALLOC_NODE_LINKS alloc;
+  TYENV_ELEM_PTR pmappings;
   struct type_env *uplink;
   struct type_env *dnlink;
-  TYENV_ELEM_PTR pmappings;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
 typedef enum decl_sort {
