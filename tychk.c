@@ -315,11 +315,15 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
       pexp_inf->pos = pos;
       pexp_inf->mnemonic = MNC_LVALUE;
       pexp_inf->kids = pexpr->kids;
+#if 1 // *****
       assert( pexp_inf->kids.body.refaddr.var.ptype );
       ty_curve( pexp_inf->kids.body.refaddr.var.ptype, pos );
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
       *ppenv = env_add( *ppenv, pexpr->kids.body.refaddr.var.ident, pexp_inf->ptype, pos );
+#else
+      ;
+#endif
     } else
       ath_abort( pos, ABORT_MEMLACK );
     break;

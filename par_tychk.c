@@ -19,6 +19,13 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     } else
       assert( ! statements.phead );
     pstmt->penv = pe_vardecl;
+    assert( (pstmt->u.pdecl->u.variable.pvar)->ident );
+    assert( (pstmt->u.pdecl->u.variable.pvar)->ptype );
+    ty_curve( (pstmt->u.pdecl->u.variable.pvar)->ptype, pos );
+    env_add( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident,
+	     (pstmt->u.pdecl->u.variable.pvar)->ptype, pos );
+    assert( pstmt->penv );
+    assert( env_lkup( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident ) );
     r = typecheck( pstmt, pos );
   } else
     ath_abort( pos, ABORT_MEMLACK );
