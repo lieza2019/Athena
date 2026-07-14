@@ -602,12 +602,12 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
   
   penv = alloc_type_env( pos );
   if( penv ) {
-    TYPE_ENV_PTR pupps = NULL;
+    TYPE_ENV_PTR penv_up = NULL;
     TYENV_ELEM_PTR pprev = NULL;
     TYENV_ELEM_PTR pmap = NULL;
     if( penv_org->uplink ) {
-      pupps = dup_env( penv_org->uplink, pos );
-      assert( pupps );
+      penv_up = dup_env( penv_org->uplink, pos );
+      assert( penv_up );
     }
     penv->uplink = NULL;
     penv->dnlink = NULL;
@@ -632,8 +632,8 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
       pprev = pnew;
       pmap = pmap->pnext;
     }
-    if( pupps )
-      env_lnk( pupps, penv );
+    if( penv_up )
+      env_lnk( penv_up, penv );
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
