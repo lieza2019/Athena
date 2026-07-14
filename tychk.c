@@ -134,10 +134,6 @@ TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos ) {
 	ptyv_fresh->type.ty = TY_POLY;
 	ptyv_fresh->type.tyvars.var.ident = fresh_tyvar( pos );
 	assert( ptyv_fresh->type.tyvars.var.ident );
-#if 0 // *****
-	ptyv_fresh->type.tyvars.var.pnext = NULL;
-	ptyv_fresh->tycons_directiv = SUBST_TYVAR_ONLYRENAMING;
-#endif
 	subst_add( ps_inst, pgv->type.tyvars.var.ident, ptyv_fresh, pos );
       } else
 	goto failed_memalloc;
@@ -298,21 +294,10 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
 	      pe_infl_su->kids.pright = pe_infr;
 	      pe_infl_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
 	      assert( pe_infl_su->ptype );
-#if 0 // *****
-	      {
-		TYPE_ENV_PTR penv_inf = NULL;
-		penv_inf = dup_env( *ppenv, pos );
-		assert( penv_inf );
-		*ppenv = env_subst( penv_inf, psubst_u, pos );
-		*ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
-		pexp_inf = pe_infl_su;
-	      }
-#else
 	      *ppenv = env_subst( *ppenv, psubst_u, pos );
 	      assert( *ppenv );
 	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
 	      pexp_inf = pe_infl_su;
-#endif
 	    } else
 	      ath_abort( pos, ABORT_MEMLACK );
 	  }
