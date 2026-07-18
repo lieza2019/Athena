@@ -3,20 +3,6 @@
 #include <assert.h>
 #include "athena.h"
 
-#if 0 // *****
-void err_redef ( DECLARATION_PTR pdecl ) {
-  int row;
-  int col;
-  assert( pdecl );
-  assert( pdecl->u.variable.pvar );
-  
-  row = (pdecl->u.variable.pvar)->pos.row;
-  col = (pdecl->u.variable.pvar)->pos.col;
-  assert( row > 0 );
-  assert( col > 0 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
-}
-#else
 void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
   assert( pdecl );
   assert( pdecl->u.variable.pvar );
@@ -26,7 +12,6 @@ void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
   printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col,
 	  pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
 }
-#endif
 
 static struct {
   struct {

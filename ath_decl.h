@@ -18,22 +18,13 @@ typedef enum decl_sort {
 #define NUM_TYELEMS_PER_ALLOC 256
 typedef struct type_env_elem {
   ALLOC_NODE_LINKS alloc;
-#if 0 // *****
-  VAR_ATTRIB var;
-  VAR_ATTRIB_PTR *ppsymtbl_lnk;
-#else
   DECL_SORT kind;
   union {
     struct {
       VAR_ATTRIB v;
-#if 0
-      VAR_ATTRIB_PTR *pplnk_symtbl;
-#else
       VAR_ATTRIB_PTR plnk_symtbl;
-#endif
     } var;
   } decl;
-#endif
   struct type_env_elem *pnext;
 } TYENV_ELEM, *TYENV_ELEM_PTR;
 #define NUM_TYENVS_PER_ALLOC 256
@@ -44,13 +35,6 @@ typedef struct type_env {
   struct type_env *dnlink;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
-#if 0 // *****
-typedef enum decl_sort {
-  DECL_FUN = 1,
-  DECL_VAR,
-  END_OF_DECL_KIND
-} DECL_SORT;
-#endif
 typedef struct declaration {
   SRC_POS pos;
   const char *ident;

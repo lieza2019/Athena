@@ -549,25 +549,7 @@ TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
   return penv;
 }
 
-#if 0 // *****
-TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
-  TYENV_ELEM_PTR pe = NULL;
-  assert( penv );
-  assert( var_ident );
-  assert( pty );
-  
-  pe = alloc_tyenv_elem( pos );
-  if( pe ) {
-    pe->decl.var.v.ident = var_ident;
-    pe->decl.var.v.ptype = pty;
-    pe->pnext = penv->pmappings;
-    penv->pmappings = pe;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  return penv;
-}
-#else
-TYPE_ENV_PTR env_add1 ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos ) {
+TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos ) {
   TYENV_ELEM_PTR pe = NULL;
   assert( penv );
   assert( pdecl );
@@ -586,7 +568,6 @@ TYPE_ENV_PTR env_add1 ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos 
     ath_abort( pos, ABORT_MEMLACK );
   return penv;
 }
-#endif
 
 static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOOL dir ) {
   BOOL found = FALSE;

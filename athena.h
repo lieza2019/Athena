@@ -51,11 +51,7 @@ extern TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos );
 extern void free_type_env ( TYPE_ENV_PTR penv );
 extern TYPE_ENV_PTR env_link ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv );
 extern TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident );
-#if 0 // *****
-extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR pty, SRC_POS_C pos );
-#else
-extern TYPE_ENV_PTR env_add1 ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos );
-#endif
+extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos );
 extern TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident );
 extern TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos );
 extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos );
@@ -72,11 +68,7 @@ extern EXPR_CONS_PTR alloc_expr_cons ( SRC_POS_C pos );
 extern void free_expr_cons ( EXPR_CONS_PTR pecons );
 
 /* from decl.c */
-#if 0
-extern void err_redef ( DECLARATION_PTR pdecl );
-#else
 extern void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos );
-#endif
 extern VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos );
 extern void free_var_addr ( VAR_ATTRIB_PTR pvattr );
 extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );

@@ -23,17 +23,12 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     assert( (pstmt->u.pdecl->u.variable.pvar)->ident );
     assert( (pstmt->u.pdecl->u.variable.pvar)->ptype );
     ty_curve( (pstmt->u.pdecl->u.variable.pvar)->ptype, pos );
-#if 0 // *****
-    env_add( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident, (pstmt->u.pdecl->u.variable.pvar)->ptype, pos );
-#else
-    env_add1( pstmt->penv, pstmt->u.pdecl, pos );
-#endif
+    env_add( pstmt->penv, pstmt->u.pdecl, pos );
     assert( pstmt->penv );
     assert( env_lkup( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident ) );
     r = typecheck( pstmt, pos );
     assert( pstmt );
     assert( pstmt->penv );
-#if 1 // *****
     if( r ) {
       TYENV_ELEM_PTR pe = (pstmt->penv)->pmappings;
       while( pe ) {
@@ -69,7 +64,6 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
       }
 #endif
     }
-#endif
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return r;
