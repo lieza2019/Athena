@@ -477,7 +477,7 @@ TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
 				     (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
 				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
   if( penv )
-    bzero( &penv->var, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
+    bzero( &penv->kind, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
   return penv;
 }
 
@@ -514,7 +514,7 @@ void free_type_env ( TYPE_ENV_PTR penv ) {
   }
 }
 
-TYPE_ENV_PTR env_lnk ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv ) {
+TYPE_ENV_PTR env_link ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv ) {
   assert( penv_pred );
   assert( penv );
   penv->uplink = penv_pred;
@@ -530,9 +530,9 @@ TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
   
   ppe = &penv->pmappings;
   while( *ppe ) {
-    assert( (*ppe)->var.ident );
-    assert( (*ppe)->var.ptype );
-    if( strcmp( (*ppe)->var.ident, var_ident ) == 0 ) {
+    assert( (*ppe)->decl.var.v.ident );
+    assert( (*ppe)->decl.var.v.ptype );
+    if( strcmp( (*ppe)->decl.var.v.ident, var_ident ) == 0 ) {
       found = TRUE;
       *ppe = (*ppe)->pnext;
       break;
@@ -549,6 +549,7 @@ TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
   return penv;
 }
 
+#if 0 // *****
 TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR pty, SRC_POS_C pos ) {
   TYENV_ELEM_PTR pe = NULL;
   assert( penv );
@@ -557,14 +558,35 @@ TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, const char *var_ident, TYPE_CONS_PTR p
   
   pe = alloc_tyenv_elem( pos );
   if( pe ) {
-    pe->var.ident = var_ident;
-    pe->var.ptype = pty;
+    pe->decl.var.v.ident = var_ident;
+    pe->decl.var.v.ptype = pty;
     pe->pnext = penv->pmappings;
     penv->pmappings = pe;
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return penv;
 }
+#else
+TYPE_ENV_PTR env_add1 ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos ) {
+  TYENV_ELEM_PTR pe = NULL;
+  assert( penv );
+  assert( pdecl );
+  assert( pdecl->ident );
+  
+  pe = alloc_tyenv_elem( pos );
+  if( pe ) {
+    pe->decl.var.v.ident = pdecl->ident;
+    assert( pdecl->u.variable.pvar );
+    assert( (pdecl->u.variable.pvar)->ptype );
+    pe->decl.var.v.ptype = (pdecl->u.variable.pvar)->ptype;
+    pe->decl.var.plnk_symtbl = pdecl->u.variable.pvar;
+    pe->pnext = penv->pmappings;
+    penv->pmappings = pe;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return penv;
+}
+#endif
 
 static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOOL dir ) {
   BOOL found = FALSE;
@@ -574,9 +596,9 @@ static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOO
   
   pe = penv->pmappings;
   while( pe ) {
-    assert( pe->var.ident );
-    assert( pe->var.ptype );
-    if( strcmp( pe->var.ident, var_ident ) == 0 ) {
+    assert( pe->decl.var.v.ident );
+    assert( pe->decl.var.v.ptype );
+    if( strcmp( pe->decl.var.v.ident, var_ident ) == 0 ) {
       found = TRUE;
       break;
     }
@@ -625,9 +647,9 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
       TYENV_ELEM_PTR pnew = NULL;
       pnew = alloc_tyenv_elem( pos );
       if( pnew ) {
-	assert( pmap->var.ident );
-	assert( pmap->var.ptype );
-	pnew->var = pmap->var;
+	assert( pmap->decl.var.v.ident );
+	assert( pmap->decl.var.v.ptype );
+	pnew->decl.var = pmap->decl.var;
 	pnew->pnext = NULL;
       } else {
 	penv = NULL;
@@ -641,7 +663,7 @@ TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos ) {
       pmap = pmap->pnext;
     }
     if( penv_up )
-      env_lnk( penv_up, penv );
+      env_link( penv_up, penv );
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
@@ -656,22 +678,22 @@ static TYPE_ENV_PTR env_subst_elem ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, S
   pe = penv->pmappings;
   while( pe ) {
     TYPE_CONS_PTR pty_s = NULL;
-    assert( pe->var.ident );
-    assert( pe->var.ptype );
+    assert( pe->decl.var.v.ident );
+    assert( pe->decl.var.v.ptype );
     if( penv->dnlink ) {
-      if( env_search( penv->dnlink, pe->var.ident, 0 ) ) {
+      if( env_search( penv->dnlink, pe->decl.var.v.ident, 0 ) ) {
 	pe = pe->pnext;
 	continue;
       }
     }
-    pty_s = ty_subst( psubst, pe->var.ptype, pos );
+    pty_s = ty_subst( psubst, pe->decl.var.v.ptype, pos );
     assert( pty_s );
-    pe->var.ptype = pty_s;
+    pe->decl.var.v.ptype = pty_s;
     pe = pe->pnext;
   }
   if( penv->uplink ) {
     TYPE_ENV_PTR penv_u = NULL;
-    penv_u = env_subst( penv->uplink, psubst, pos );
+    penv_u = env_subst_elem( penv->uplink, psubst, pos );
     assert( penv_u );
     assert( penv_u->dnlink == penv );
     assert( penv->uplink == penv_u );

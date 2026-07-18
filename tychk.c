@@ -69,8 +69,8 @@ static TYPE_CONS_PTR env_enum_tvs ( TYPE_CONS_PTR *ppacc, TYPE_ENV_PTR penv, SRC
   
   pe = penv->pmappings;
   while( pe ) {
-    if( pe->var.ptype )
-      ty_enum_tvs( ppacc, pe->var.ptype, pos );
+    if( pe->decl.var.v.ptype )
+      ty_enum_tvs( ppacc, pe->decl.var.v.ptype, pos );
     pe = pe->pnext;
   }
   if( penv->uplink )
@@ -316,7 +316,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
       pexp_inf->mnemonic = MNC_LVALUE;
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.body.refaddr.var.ptype );
-#if 1 // *****
+#if 0 // *****
       ty_curve( pexp_inf->kids.body.refaddr.var.ptype, pos );
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;

@@ -27,7 +27,7 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
     redef = decl_var( &pdecl, pvar_attr, pos );
     assert( pdecl );
     if( redef )
-      err_redef( pdecl );
+      err_redef( pdecl, pvar_attr->pos );
     (*ppstmt)->pos = pos;
     (*ppstmt)->sort = STMT_DECL;
     (*ppstmt)->u.pdecl = pdecl;

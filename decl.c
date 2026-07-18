@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0 // *****
 void err_redef ( DECLARATION_PTR pdecl ) {
   int row;
   int col;
@@ -11,10 +12,21 @@ void err_redef ( DECLARATION_PTR pdecl ) {
   
   row = (pdecl->u.variable.pvar)->pos.row;
   col = (pdecl->u.variable.pvar)->pos.col;
-  assert( row > 1 );
-  assert( col > 1 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );  
+  assert( row > 0 );
+  assert( col > 0 );
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", row, col, pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
 }
+#else
+void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
+  assert( pdecl );
+  assert( pdecl->u.variable.pvar );
+  
+  assert( (pdecl->u.variable.pvar)->pos.row > 0 );
+  assert( (pdecl->u.variable.pvar)->pos.col > 0 );
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col,
+	  pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
+}
+#endif
 
 static struct {
   struct {
@@ -63,32 +75,6 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
 	assert( ps->entity.kind == SYM_DECL );
 	assert( ps->entity.u.decl.kind == DECL_VAR );
 	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pvar_attr->pos ) );
-#if 0 /* NOW OBSOLETE, assuming the specific case of "int a = n", in below code. */
-	if( (pvar_attr->ptype)->type.ty == TY_INT ) {
-	  SRC_POS pos_ini = (pvar_attr->ptype)->pos;
-	  EXPR_CONS_PTR pasgn = alloc_expr_cons( pos_ini );
-	  if( pasgn ) {
-	    EXPR_CONS_PTR pl = alloc_expr_cons( pos_ini );
-	    EXPR_CONS_PTR pr = alloc_expr_cons( pos_ini );
-	    pasgn->pos = pvar_attr->pos;
-	    pasgn->mnemonic = MNC_ASGN;
-	    if( pl && pr ) {
-	      pl->pos = pvar_attr->pos;
-	      pl->mnemonic = MNC_LVALUE;
-	      pl->kids.pdaugh = pvar_attr;	  
-	      pr->pos = pos_ini;
-	      pr->mnemonic = MNC_CONST;
-	      pr->kids.pdaugh = pvar_attr->ptype;
-	      pasgn->kids.pleft = pl;
-	      pasgn->kids.pright = pr;
-	      ps->entity.u.decl.pinit = pasgn;
-	    } else
-	      goto failed_memalloc;
-	  } else
-	  failed_memalloc:
-	    ath_abort( pos_ini, ABORT_MEMLACK );
-	}
-#endif
       } else {
 	redef = TRUE;
 	// and release unused psym, here.
