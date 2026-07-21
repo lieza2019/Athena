@@ -13,6 +13,13 @@ void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
 	  pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
 }
 
+void err_nodef ( const char *ident, SRC_POS_C pos ) {
+  assert( ident );
+  assert( pos.row > 0 );
+  assert( pos.col > 0 );
+  printf( "(%d, %d): symbol %s has no definition.\n", pos.row, pos.col, ident );
+}
+
 static struct {
   struct {
     VAR_ATTRIB_PTR pavail;

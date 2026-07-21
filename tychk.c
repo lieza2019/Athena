@@ -309,7 +309,6 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
     break;
   case MNC_LVALUE:
     assert( EXAM_LVALUE_EXPR( pexpr ) );
-    assert( pexpr->kids.body.refaddr.var.ident );
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       pexp_inf->pos = pos;
@@ -320,6 +319,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
       ty_curve( pexp_inf->kids.body.refaddr.var.ptype, pos );
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      assert( pexpr->kids.body.refaddr.var.ident );
       *ppenv = env_add( *ppenv, pexpr->kids.body.refaddr.var.ident, pexp_inf->ptype, pos );
 #else
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
@@ -329,6 +329,17 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
       ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_RVALUE:
+    EXAM_RVALUE_EXPR( pexpr );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_RVALUE;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_LIST:
     break;

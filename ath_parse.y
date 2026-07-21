@@ -32,9 +32,9 @@
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
-%type <pvar_init> decl_var_init
-%type <pvar_init> decl_int_init decl_string_init
-%type <pvar_init> decl_list_init decl_list_init_elems decl_list_init_elems_tail
+%type <pvar_init> primary_expr
+%type <pvar_init> const_int const_str
+%type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
 %type <pty_list_elem> list_elem_type
 %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list
 %type <pstmt_last> statement statements
@@ -94,38 +94,37 @@ decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_POLY, NULL, NULL, pos );
  }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY decl_var_init {
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY TK_ASGN primary_expr TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_var_attrib( &$$, $1, TY_POLY, NULL, $4, pos );
+  decl_var_attrib( &$$, $1, TY_POLY, NULL, $5, pos );
  };
 
 decl_var_int : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_INT, NULL, NULL, pos );
  }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT decl_var_init {
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_INT TK_ASGN primary_expr TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_var_attrib( &$$, $1, TY_INT, NULL, $4, pos );
+  decl_var_attrib( &$$, $1, TY_INT, NULL, $5, pos );
  };
 
 decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_STRING, NULL, NULL, pos );
  }
-| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING decl_var_init {
+| TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING TK_ASGN primary_expr TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_var_attrib( &$$, $1, TY_STRING, NULL, $4, pos );
+  decl_var_attrib( &$$, $1, TY_STRING, NULL, $5, pos );
  };
 
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_LIST, $3, NULL, pos );
  }
-| TK_IDENT TK_KEYWORD_AS list_elem_type decl_var_init {
+| TK_IDENT TK_KEYWORD_AS list_elem_type TK_ASGN primary_expr TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  decl_var_attrib( &$$, $1, TY_LIST, $3, $4, pos );
+  decl_var_attrib( &$$, $1, TY_LIST, $3, $5, pos );
  };
-
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = var_list_type( NULL, TY_POLY, pos );
@@ -147,17 +146,51 @@ list_elem_type : TK_LSQBL TK_RSQBL {
   $$ = var_list_type( $2, TY_LIST, pos );
  };
 
-decl_var_init : decl_int_init {
+primary_expr : TK_IDENT {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  EXPR_CONS_PTR prval = NULL;
+  prval = alloc_expr_cons( pos );
+  if( prval ) {
+    SYM_ENTITY_PTR psym = NULL;
+    prval->pos = pos;
+    prval->mnemonic = MNC_RVALUE;
+    psym = find_symbol( $1 );
+    if( psym ) {
+      TYPE_ENV_PTR penv_last = NULL;
+      TYENV_ELEM_PTR pe_v = NULL;
+      assert( psym->u.decl.ident );
+      assert( strcmp( psym->u.decl.ident, $1 ) == 0 );
+      assert( psym->u.decl.u.variable.pvar );
+      assert( (psym->u.decl.u.variable.pvar)->ident );
+      assert( strcmp( psym->u.decl.ident, (psym->u.decl.u.variable.pvar)->ident ) == 0 );
+      assert( statements.phead && statements.plast );
+      assert( (statements.plast)->penv );
+      penv_last = (statements.plast)->penv;
+      pe_v = env_lkup( penv_last, $1 );
+      assert( pe_v );
+      assert( strcmp( pe_v->decl.var.v.ident, $1 ) == 0 );
+      assert( pe_v->decl.var.v.ptype );
+      assert( pe_v->decl.var.plnk_symtbl == psym->u.decl.u.variable.pvar );
+      prval->kids.body.refaddr.var = pe_v->decl.var.v;
+      prval->ptype = prval->kids.body.refaddr.var.ptype;
+      $$ = prval;
+    } else
+      err_nodef( $1, pos );
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  $$ = prval;
+ }
+| const_int {
   $$ = $1;
  }
-| decl_string_init {
+| const_str {
   $$ = $1;
  }
-| decl_list_init {
+| const_list {
   $$ = $1;
  };
 
-decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
+const_int : TK_INT_LITERAL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };  
   EXPR_CONS_PTR pval_int = NULL;
   pval_int = alloc_expr_cons( pos );
@@ -165,21 +198,21 @@ decl_int_init : TK_ASGN TK_INT_LITERAL TK_SMCL {
     TYPE_CONS_PTR pty_int = NULL;
     pval_int->pos = pos;
     pval_int->mnemonic = MNC_CONST;
-    pval_int->kids.body.literal.integer.n = $2;
+    pval_int->kids.body.literal.integer.n = $1;
     pty_int = alloc_type_cons( pos );
     if( pty_int ) {
       pty_int->pos = pos;
       pty_int->type.ty = TY_INT;
     } else
-      goto failed_memalloc_decl_int_init;
+      goto failed_memalloc_const_int;
     pval_int->ptype = pty_int;
   } else
-  failed_memalloc_decl_int_init:
+  failed_memalloc_const_int:
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_int;
  };
 
-decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
+const_str : TK_STR_LITERAL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   EXPR_CONS_PTR pval_string = NULL;
   pval_string = alloc_expr_cons( pos );
@@ -187,27 +220,28 @@ decl_string_init : TK_ASGN TK_STR_LITERAL TK_SMCL {
     TYPE_CONS_PTR pty_str = NULL;
     pval_string->pos = pos;
     pval_string->mnemonic = MNC_CONST;
-    pval_string->kids.body.literal.string.s = find_literal( $2, pos );
+    pval_string->kids.body.literal.string.s = find_literal( $1, pos );
     assert( pval_string->kids.body.literal.string.s );
     pty_str = alloc_type_cons( pos );
     if( pty_str ) {
       pty_str->pos = pos;
       pty_str->type.ty = TY_STRING;
     } else
-      goto failed_memalloc_decl_string_init;
+      goto failed_memalloc_const_str;
     pval_string->ptype = pty_str;
   } else
-  failed_memalloc_decl_string_init:
+  failed_memalloc_const_str:
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pval_string;
  };
 
-decl_list_init : TK_ASGN TK_LSQBL TK_RSQBL TK_SMCL {
+const_list : TK_LSQBL decl_list_init_elems {
+  $$ = $2;
+ }
+| TK_RSQBL {
   $$ = NULL;
  }
-| TK_ASGN TK_LSQBL decl_list_init_elems TK_SMCL {
-  $$ = $3;
- };
+
 decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_INT, &$1, $2, pos );
@@ -227,7 +261,6 @@ decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
   assert( (($2)->ptype)->type.ty == TY_LIST );
   $$ = value_list_elem( TY_LIST, $2, $3, pos );
  };
-
 decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
   $$ = $2;
 }

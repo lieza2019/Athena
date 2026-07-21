@@ -38,7 +38,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 	(pe->decl.var.plnk_symtbl)->ptype = pe->decl.var.v.ptype;
 	pe = pe->pnext;
       }
-#if 1 // for temoral debugging.
+#if 1 // for use of temporal debugging.
       {
 	const char *var_id = "a";
 	SYM_ENTITY_PTR psym = NULL;
@@ -53,7 +53,10 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 	    }
 	    pe = pe->pnext;
 	  }
-	  pev = pev->uplink;
+	  if( !found )
+	    pev = pev->uplink;
+	  else
+	    break;
 	}
 	if( found ) {
 	  psym = find_symbol( var_id );

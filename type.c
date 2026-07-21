@@ -586,14 +586,14 @@ static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOO
     pe = pe->pnext;
   }
   if( !found ) {
-    TYPE_ENV_PTR penv_succ = NULL;
+    TYPE_ENV_PTR penv_next = NULL;
     assert( !pe );
     if( dir ) // upward
-      penv_succ = penv->uplink;
+      penv_next = penv->uplink;
     else // downward
-      penv_succ = penv->dnlink;
-    if( penv_succ )
-      pe = env_search( penv_succ, var_ident, dir );
+      penv_next = penv->dnlink;
+    if( penv_next )
+      pe = env_search( penv_next, var_ident, dir );
   } else
     assert( pe );
   return pe;

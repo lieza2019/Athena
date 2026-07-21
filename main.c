@@ -18,8 +18,9 @@ int main ( void ) {
   yyin = fp_src;  
   r = yyparse();  
   {
+    const char var_print[] = "b";
     SYM_ENTITY_PTR psym = NULL;
-    psym = find_symbol( "a" );
+    psym = find_symbol( var_print );
     if( psym ) {
       char sbuf[8 * 1024] = "";
       show_var_decl( sbuf, psym->u.decl.u.variable.pvar );

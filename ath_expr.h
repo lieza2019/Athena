@@ -35,7 +35,11 @@ typedef struct expr_cons {
 	struct expr_cons *plast;
       } list;
       union {
+#if 1 // *****
 	VAR_ATTRIB var; // with MNC_LVALUE
+#else	
+	VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t.v -> t.
+#endif
       } refaddr;
     } body;
   } kids;
@@ -48,5 +52,7 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
   (((e)->mnemonic == MNC_ASGN) && (((e)->kids.pleft) && ((e)->kids.pright)))
 #define EXAM_LVALUE_EXPR( e )						\
   (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
+#define EXAM_RVALUE_EXPR( e )						\
+  (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
 #define EXAM_CONST_EXPR( e )						\
   (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
