@@ -329,7 +329,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
       ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_RVALUE:
-    EXAM_RVALUE_EXPR( pexpr );
+    assert( EXAM_RVALUE_EXPR( pexpr ) );
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       pexp_inf->pos = pos;
