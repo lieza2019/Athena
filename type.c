@@ -7,13 +7,15 @@
 const char tyvar_prefix[] = "t_";
 static struct {
   int seq;
-  char scratch[sizeof(tyvar_prefix) + TYVER_SEQDIGITS_MAXLEN];
+  char scratch[(sizeof(tyvar_prefix) + TYVER_SEQDIGITS_MAXLEN) + 1];
 } tyvar_ctrl;
 const char *fresh_tyvar ( SRC_POS_C pos ) {
   const char *tyv_id = NULL;
   
   const int n = strlen( tyvar_prefix );
-  snprintf( &tyvar_ctrl.scratch[n], TYVER_SEQDIGITS_MAXLEN, "%d", tyvar_ctrl.seq++ );
+  if( tyvar_ctrl.seq == 0 )
+    snprintf( tyvar_ctrl.scratch, (n + 1), "%s", tyvar_prefix );
+  snprintf( &tyvar_ctrl.scratch[n], (TYVER_SEQDIGITS_MAXLEN + 1), "%d", tyvar_ctrl.seq++ );
   (&tyvar_ctrl.scratch[n])[TYVER_SEQDIGITS_MAXLEN] = 0;
   tyv_id = find_literal( tyvar_ctrl.scratch, pos );
   assert( tyv_id );

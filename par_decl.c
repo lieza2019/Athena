@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   const char *pident = NULL;
   assert( pvar_attr );
@@ -23,11 +24,47 @@ static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CO
     } else
       assert( pinit->ptype );
     pvar_attr->pinit = pinit;
-    pvar_attr->ptype = (pinit ? pinit->ptype : pty_ply);
-    
+    pvar_attr->ptype = (pinit ? pinit->ptype : pty_ply);    
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
+#else
+static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
+  const char *pident = NULL;
+  assert( pvar_attr );
+  assert( pvar_name );
+  
+  pident = find_literal( pvar_name, pos );
+  if( pident ) {
+    TYPE_CONS_PTR ply = NULL;
+    pvar_attr->pos = pos;
+    pvar_attr->ident = pident;
+#if 0 // *****
+    if( !pinit ) {      
+      ply = alloc_type_cons( pos );
+      if( ply ) {
+	ply->pos = pos;
+	ply->type.ty = TY_POLY;
+      } else
+	ath_abort( pos, ABORT_MEMLACK );
+    } else
+      assert( pinit->ptype );
+    pvar_attr->pinit = pinit;
+    pvar_attr->ptype = (pinit ? pinit->ptype : ply);
+#else
+    ply = alloc_type_cons( pos );
+    if( ply ) {
+      ply->pos = pos;
+      ply->type.ty = TY_POLY;
+      pvar_attr->ptype = ply;
+      pvar_attr->pinit = pinit;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+#endif
+  } else
+    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
+}
+#endif
 
 static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pn_init, SRC_POS_C pos ) {
   const char *pident = NULL;
@@ -244,16 +281,16 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
 	if( !pelem_val ) {
 	  pty_e = alloc_type_cons( pos );
 	  if( pty_e ) {
-	    TYPE_CONS_PTR pty_ply = NULL;
+	    TYPE_CONS_PTR ply = NULL;
 	    pty_e->pos = pos;
 	    pty_e->type.ty = TY_LIST;
-	    pty_ply = alloc_type_cons( pos );
-	    if( pty_ply ) {
-	      pty_ply->pos = pos;
-	      pty_ply->type.ty = TY_POLY;
+	    ply = alloc_type_cons( pos );
+	    if( ply ) {
+	      ply->pos = pos;
+	      ply->type.ty = TY_POLY;
 	    } else
 	      goto failed_memalloc;
-	    pty_e->attrs.list.pty_elem = pty_ply;
+	    pty_e->attrs.list.pty_elem = ply;
 	    pelem->ptype = pty_e;
 	  } else
 	    goto failed_memalloc;
