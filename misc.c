@@ -133,11 +133,17 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   switch( (pvar_attr->ptype)->type.ty ) {
   case TY_INT:
     if( pvar_attr->pinit ) {
+#if 0 // *****
       assert( (pvar_attr->pinit)->ptype );
       assert( ((pvar_attr->pinit)->ptype)->type.ty == TY_INT );
       sprintf( ps, "%d", (pvar_attr->pinit)->kids.body.literal.integer.n );
+#else
+      EXPR_CONS_PTR pini = pvar_attr->pinit;
+      assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
+      ;
+#endif
     } else
-      strcpy( ps, "NO_DECL_INITVAL" );
+      strcpy( ps, "NO_DECL_INIVAL" );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps, ":int" );
@@ -158,7 +164,7 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
       strcpy( ps,  "\"" );
       ps++;
     } else {
-      strcpy( ps, "NO_DECL_INITVAL" );
+      strcpy( ps, "NO_DECL_INIVAL" );
       ps += strlen( ps );
       assert( *ps == 0 );
     }
@@ -173,7 +179,7 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
       ps = print_value_type( ps, pvar_attr->pinit );
       ps += strlen( ps );
     } else {
-      strcpy( ps, "NO_DECL_INITVAL:" );
+      strcpy( ps, "NO_DECL_INIVAL:" );
       ps += strlen( ps );
       assert( *ps == 0 );
       ps = print_type( ps, pvar_attr->ptype );
