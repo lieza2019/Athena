@@ -140,6 +140,21 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
 #else
       EXPR_CONS_PTR pini = pvar_attr->pinit;
       assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
+      if( pini->mnemonic == MNC_RVALUE ) {
+	EXAM_RVALUE_EXPR( pini );
+	if( pini->kids.body.refaddr.var.ident )
+	  sprintf( ps, "%s", pini->kids.body.refaddr.var.ident );
+	else
+	  goto invalid_decl_inival_int;
+      } else {
+	assert( pini->mnemonic == MNC_CONST );
+	EXAM_CONST_EXPR( pini );
+	if( (pini->ptype)->type.ty == TY_INT )
+	  sprintf( ps, "%d", pini->kids.body.literal.integer.n );
+	else
+	invalid_decl_inival_int:
+	  strcpy( ps, "INVALID_DECL_INIVAL" ); 
+      }
       ;
 #endif
     } else

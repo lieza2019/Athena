@@ -54,5 +54,11 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
   (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
 #define EXAM_RVALUE_EXPR( e )						\
   (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
+#if 0
 #define EXAM_CONST_EXPR( e )						\
   (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
+#else
+#define EXAM_CONST_EXPR( e )						\
+  ( (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
+    && ((e)->ptype) )
+#endif
