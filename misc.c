@@ -133,29 +133,24 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   switch( (pvar_attr->ptype)->type.ty ) {
   case TY_INT:
     if( pvar_attr->pinit ) {
-#if 0 // *****
       assert( (pvar_attr->pinit)->ptype );
+#if 0 // *****
       assert( ((pvar_attr->pinit)->ptype)->type.ty == TY_INT );
       sprintf( ps, "%d", (pvar_attr->pinit)->kids.body.literal.integer.n );
 #else
       EXPR_CONS_PTR pini = pvar_attr->pinit;
       assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
       if( pini->mnemonic == MNC_RVALUE ) {
-	EXAM_RVALUE_EXPR( pini );
-	if( pini->kids.body.refaddr.var.ident )
-	  sprintf( ps, "%s", pini->kids.body.refaddr.var.ident );
-	else
-	  goto invalid_decl_inival_int;
+	assert( EXAM_RVALUE_EXPR( pini ) );
+	sprintf( ps, "%s", pini->kids.body.refaddr.var.ident );
       } else {
 	assert( pini->mnemonic == MNC_CONST );
-	EXAM_CONST_EXPR( pini );
+	assert( EXAM_CONST_EXPR( pini ) );
 	if( (pini->ptype)->type.ty == TY_INT )
 	  sprintf( ps, "%d", pini->kids.body.literal.integer.n );
 	else
-	invalid_decl_inival_int:
 	  strcpy( ps, "INVALID_DECL_INIVAL" ); 
       }
-      ;
 #endif
     } else
       strcpy( ps, "NO_DECL_INIVAL" );
@@ -168,6 +163,7 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   case TY_STRING:
     if( pvar_attr->pinit ) {
       assert( (pvar_attr->pinit)->ptype );
+#if 0 // *****
       assert( ((pvar_attr->pinit)->ptype)->type.ty == TY_STRING );
       strcpy( ps,  "\"" );
       ps++;
@@ -178,6 +174,26 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
       assert( *ps == 0 );
       strcpy( ps,  "\"" );
       ps++;
+#else
+      EXPR_CONS_PTR pini = pvar_attr->pinit;
+      assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
+      if( pini->mnemonic == MNC_RVALUE ) {
+	assert( EXAM_RVALUE_EXPR( pini ) );
+	sprintf( ps, "%s", pini->kids.body.refaddr.var.ident );
+      } else {
+	assert( pini->mnemonic == MNC_CONST );
+	assert( EXAM_CONST_EXPR( pini ) );
+	if( (pini->ptype)->type.ty == TY_STRING ) {
+	  strcpy( ps++,  "\"" );
+	  if( pini->kids.body.literal.string.s ) {
+	    sprintf( ps, "%s", pini->kids.body.literal.string.s );
+	    ps += strlen( ps );
+	  } else
+	    ;
+	} else
+	  strcpy( ps, "INVALID_DECL_INIVAL" );
+      }
+#endif
     } else {
       strcpy( ps, "NO_DECL_INIVAL" );
       ps += strlen( ps );

@@ -51,10 +51,12 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #define EXAM_ASGN_EXPR( e )						\
   (((e)->mnemonic == MNC_ASGN) && (((e)->kids.pleft) && ((e)->kids.pright)))
 #define EXAM_LVALUE_EXPR( e )						\
-  (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
+  ( (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
+    && (e)->kids.body.refaddr.var.ident )
 #define EXAM_RVALUE_EXPR( e )						\
-  (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
-#if 0
+  ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
+    && (e)->kids.body.refaddr.var.ident )
+#if 0 // *****
 #define EXAM_CONST_EXPR( e )						\
   (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
 #else

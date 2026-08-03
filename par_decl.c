@@ -76,11 +76,11 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
     pvar_attr->pos = pos;
     pvar_attr->ident = pident;
     if( !pn_init ) {
-      TYPE_CONS_PTR pty_int = NULL;
-      pty_int = alloc_type_cons( pos );
-      if( pty_int ) {
-	pty_int->pos = pos;
-	pty_int->type.ty = TY_INT;
+      TYPE_CONS_PTR pty_ini = NULL;
+      pty_ini = alloc_type_cons( pos );
+      if( pty_ini ) {
+	pty_ini->pos = pos;
+	pty_ini->type.ty = TY_INT;
       } else
 	goto failed_memalloc;
       pn_init = alloc_expr_cons( pos );
@@ -88,16 +88,35 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
 	pn_init->pos = pos;
 	pn_init->mnemonic = MNC_CONST;
 	pn_init->kids.body.literal.integer.n = 0;
-	pn_init->ptype = pty_int;
+	pn_init->ptype = pty_ini;
       } else
+#if 0 // *****
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
+#else
+      goto failed_memalloc;
+#endif
     }
     assert( pn_init );
     assert( pn_init->ptype );
-    assert( (pn_init->ptype)->type.ty == TY_INT );
     pvar_attr->pinit = pn_init;
+#if 0 // *****
+    assert( (pn_init->ptype)->type.ty == TY_INT );
     pvar_attr->ptype = pn_init->ptype;
+#else
+    if( (pn_init->ptype)->type.ty != TY_INT ) {
+      TYPE_CONS_PTR pty_int = NULL;
+      pty_int = alloc_type_cons( pos );
+      if( pty_int ) {
+	pty_int->pos = pos;
+	pty_int->type.ty = TY_INT;
+      } else
+      failed_memalloc:
+	ath_abort( pos, ABORT_MEMLACK );
+      pvar_attr->ptype = pty_int;
+    } else
+      pvar_attr->ptype = pn_init->ptype;
+#endif
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
@@ -112,17 +131,17 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
     pvar_attr->pos = pos;
     pvar_attr->ident = pident;
     if( !ps_init ) {
-      TYPE_CONS_PTR pty_str = NULL;
+      TYPE_CONS_PTR pty_ini = NULL;
       char *e = NULL;
       e = new_memarea( 1 );
       if( e )
 	*e = 0;
       else
 	goto failed_memalloc;
-      pty_str = alloc_type_cons( pos );
-      if( pty_str ) {
-	pty_str->pos = pos;
-	pty_str->type.ty = TY_STRING;	
+      pty_ini = alloc_type_cons( pos );
+      if( pty_ini ) {
+	pty_ini->pos = pos;
+	pty_ini->type.ty = TY_STRING;
       } else
 	goto failed_memalloc;
       ps_init = alloc_expr_cons( pos );
@@ -130,16 +149,35 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
 	ps_init->pos = pos;
 	ps_init->mnemonic = MNC_CONST;
 	ps_init->kids.body.literal.string.s = e;
-	ps_init->ptype = pty_str;
+	ps_init->ptype = pty_ini;
       } else
-      failed_memalloc:	
+#if 0 // *****
+      failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
+#else
+      goto failed_memalloc;
+#endif
     }
     assert( ps_init );
     assert( ps_init->ptype );
-    assert( (ps_init->ptype)->type.ty == TY_STRING );
     pvar_attr->pinit = ps_init;
+#if 0 // *****
+    assert( (ps_init->ptype)->type.ty == TY_STRING );
     pvar_attr->ptype = ps_init->ptype;
+#else
+    if( (ps_init->ptype)->type.ty != TY_STRING ) {
+      TYPE_CONS_PTR pty_str = NULL;
+      pty_str = alloc_type_cons( pos );
+      if( pty_str ) {
+	pty_str->pos = pos;
+	pty_str->type.ty = TY_STRING;
+      } else
+      failed_memalloc:
+	ath_abort( pos, ABORT_MEMLACK );
+      pvar_attr->ptype = pty_str;
+    } else
+      pvar_attr->ptype = ps_init->ptype;
+#endif
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
