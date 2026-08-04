@@ -184,13 +184,16 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
 	assert( pini->mnemonic == MNC_CONST );
 	assert( EXAM_CONST_EXPR( pini ) );
 	if( (pini->ptype)->type.ty == TY_STRING ) {
-	  strcpy( ps++,  "\"" );
+	  strcpy( ps,  "\"" );
 	  if( pini->kids.body.literal.string.s ) {
-	    sprintf( ps, "%s", pini->kids.body.literal.string.s );
+	    sprintf( ++ps, "%s", pini->kids.body.literal.string.s );
 	    ps += strlen( ps );
 	  } else
-	    ;
+	    goto invalid_decl_inival_string;
+	  assert( *ps == 0 );
+	  strcpy( ps++,  "\"" );
 	} else
+	invalid_decl_inival_string:
 	  strcpy( ps, "INVALID_DECL_INIVAL" );
       }
 #endif
