@@ -110,9 +110,11 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
       if( pty_int ) {
 	pty_int->pos = pos;
 	pty_int->type.ty = TY_INT;
-      } else
+      } else {
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
+	return;
+      }
       pvar_attr->ptype = pty_int;
     } else
       pvar_attr->ptype = pn_init->ptype;
@@ -171,9 +173,11 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
       if( pty_str ) {
 	pty_str->pos = pos;
 	pty_str->type.ty = TY_STRING;
-      } else
+      } else {
       failed_memalloc:
 	ath_abort( pos, ABORT_MEMLACK );
+	return;
+      }
       pvar_attr->ptype = pty_str;
     } else
       pvar_attr->ptype = ps_init->ptype;
