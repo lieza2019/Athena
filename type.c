@@ -478,8 +478,13 @@ TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
   penv = (TYENV_ELEM_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.pavail,
 				     (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
 				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
-  if( penv )
+  if( penv ) {
+#if 0 // *****
     bzero( &penv->kind, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
+#else
+    bzero( &penv->decl, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
+#endif
+  }
   return penv;
 }
 

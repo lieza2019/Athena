@@ -18,7 +18,7 @@ int main ( void ) {
   yyin = fp_src;  
   r = yyparse();  
   {
-    const char var_print[] = "b";
+    const char var_print[] = "a";
     SYM_ENTITY_PTR psym = NULL;
     psym = find_symbol( var_print );
     if( psym ) {

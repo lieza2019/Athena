@@ -3,6 +3,21 @@
 #include <assert.h>
 #include "athena.h"
 
+static void reveal_env ( TYPE_ENV_PTR penv_stmt ) {
+  TYPE_ENV_PTR penv = penv_stmt;
+  while( penv ) {
+    TYENV_ELEM_PTR pelem = penv->pmappings;
+    while( pelem ) {
+      assert( pelem->decl.var.v.ident );
+      assert( pelem->decl.var.v.ptype );
+      assert( pelem->decl.var.plnk_symtbl );
+      (pelem->decl.var.plnk_symtbl)->ptype = pelem->decl.var.v.ptype;
+      pelem = pelem->pnext;
+    }
+    penv = penv->uplink;
+  }
+}
+
 TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   TYPE_ENV_PTR pe_vardecl = NULL;
@@ -30,6 +45,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     assert( pstmt );
     assert( pstmt->penv );
     if( r ) {
+#if 0 // *****
       TYENV_ELEM_PTR pe = (pstmt->penv)->pmappings;
       while( pe ) {
 	assert( pe->decl.var.plnk_symtbl );
@@ -38,6 +54,9 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 	(pe->decl.var.plnk_symtbl)->ptype = pe->decl.var.v.ptype;
 	pe = pe->pnext;
       }
+#else
+      reveal_env( pstmt->penv );
+#endif
 #if 1 // for use of temporal debugging.
       {
 	const char *var_id = "a";

@@ -18,7 +18,9 @@ typedef enum decl_sort {
 #define NUM_TYELEMS_PER_ALLOC 256
 typedef struct type_env_elem {
   ALLOC_NODE_LINKS alloc;
+#if 0 // *****
   DECL_SORT kind;
+#endif
   union {
     struct {
       VAR_ATTRIB v;
