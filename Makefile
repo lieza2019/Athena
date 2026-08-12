@@ -17,7 +17,7 @@ LEX = flex
 LFLAGS = -l
 
 #athena : main.o mem.o misc.o symtbl.o type.o decl.o expr.o lisp.o stmt.o par_decl.o y.tab.o lex.yy.o
-athena : main.o mem.o misc.o symtbl.o type.o decl.o expr.o lisp.o tychk.o stmt.o par_decl.o par_tychk.o y.tab.o lex.yy.o
+athena : main.o mem.o misc.o symtbl.o type.o decl.o expr.o lisp.o tychk.o stmt.o par_expr.o par_decl.o par_tychk.o y.tab.o lex.yy.o
 	$(LD) $(LDFLAGS) -o $@ $^
 
 main.o : main.c athena.h
@@ -39,6 +39,8 @@ lisp.o : lisp.c athena.h
 tychk.o : tychk.c athena.h
 	$(CC) $(CFLAGS) $<
 stmt.o : stmt.c athena.h
+	$(CC) $(CFLAGS) $<
+par_expr.o : par_expr.c athena.h
 	$(CC) $(CFLAGS) $<
 par_decl.o : par_decl.c athena.h
 	$(CC) $(CFLAGS) $<

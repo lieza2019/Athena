@@ -148,9 +148,9 @@ SYM_ENTITY_PTR find_symbol ( const char *ident ) {
   SYM_ENTITY_PTR pentry = NULL;
   SYMTBL_ENTRY_PTR psym = NULL;
   SYMTBL_SCOPE_PTR psco = NULL;  
+  assert( symtbl.pcrnt_scope );
   
   psco = symtbl.pcrnt_scope;
-  assert( psco );
   while( psco ) {
     assert( psco );
     psym = find_crnt_scope( psco, ident );

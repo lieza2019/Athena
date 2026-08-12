@@ -159,12 +159,12 @@ primary_expr : TK_IDENT {
       TYPE_ENV_PTR penv_last = NULL;
       TYENV_ELEM_PTR pe_v = NULL;
       assert( psym->u.decl.ident );
-      assert( strcmp( psym->u.decl.ident, $1 ) == 0 );
+      assert( strcmp( psym->u.decl.ident,$1 ) == 0 );
       assert( psym->u.decl.u.variable.pvar );
       assert( (psym->u.decl.u.variable.pvar)->ident );
-      assert( strcmp( psym->u.decl.ident, (psym->u.decl.u.variable.pvar)->ident ) == 0 );
+      assert( strcmp( psym->u.decl.ident, (psym->u.decl.u.variable.pvar)->ident ) == 0 );      
       assert( statements.phead && statements.plast );
-      assert( (statements.plast)->penv );
+      assert( (statements.plast)->penv );     
       penv_last = (statements.plast)->penv;
       pe_v = env_lkup( penv_last, $1 );
       assert( pe_v );
@@ -173,6 +173,7 @@ primary_expr : TK_IDENT {
       assert( pe_v->decl.var.plnk_symtbl == psym->u.decl.u.variable.pvar );
       prval->kids.body.refaddr.var = pe_v->decl.var.v;
       prval->ptype = prval->kids.body.refaddr.var.ptype;
+      
       $$ = prval;
     } else
       err_nodef( $1, pos );
