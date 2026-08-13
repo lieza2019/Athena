@@ -21,8 +21,8 @@ typedef struct sym_entity {
   } u;
 } SYM_ENTITY, *SYM_ENTITY_PTR;
 typedef struct symtbl_entry {
-  const char *ident;
   SYM_ENTITY entity;
+  const char *ident;
   struct symtbl_entry *passoc;
   struct symtbl_entry *pnext;
 } SYMTBL_ENTRY, *SYMTBL_ENTRY_PTR;

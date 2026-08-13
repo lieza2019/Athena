@@ -24,6 +24,7 @@ extern void free_node ( ALLOC_NODE_LINKS_PTR *ppavail, ALLOC_NODE_LINKS_PTR *ppa
 extern SYMTBL_SCOPE_PTR enter_scope ( void );
 extern SYMTBL_SCOPE_PTR leave_scope ( void );
 extern SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym );
+extern SYM_ENTITY_PTR find_symbol_again ( SYM_ENTITY_PTR pprev, const char *ident );
 extern SYM_ENTITY_PTR find_symbol ( const char *ident );
 extern const char *find_literal ( const char *pname, SRC_POS_C pos );
 

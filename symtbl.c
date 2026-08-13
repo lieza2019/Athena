@@ -112,7 +112,7 @@ static SYMTBL_ENTRY_PTR find_crnt_scope ( SYMTBL_SCOPE_PTR psco, const char *ide
     assert( psym );
     if( strcmp( psym->ident, ident ) == 0 )
       break;
-    psym = psym->pnext;    
+    psym = psym->pnext;
   }
   return psym;
 }
@@ -144,6 +144,7 @@ SYMTBL_ENTRY_PTR reg_symbol ( SYMTBL_ENTRY_PTR psym ) {
   return pfound;
 }
 
+#if 0 // *****
 SYM_ENTITY_PTR find_symbol ( const char *ident ) {
   SYM_ENTITY_PTR pentry = NULL;
   SYMTBL_ENTRY_PTR psym = NULL;
@@ -166,6 +167,47 @@ SYM_ENTITY_PTR find_symbol ( const char *ident ) {
   } 
   return pentry;
 }
+#else
+SYM_ENTITY_PTR find_symbol_again ( SYM_ENTITY_PTR pprev, const char *ident ) {
+  SYM_ENTITY_PTR pentry = NULL;
+  SYMTBL_ENTRY_PTR psym = NULL;
+  assert( ident );
+  
+  if( pprev ){
+    psym = ((SYMTBL_ENTRY_PTR)pprev)->pnext;
+    while( psym ) {
+      assert( psym );
+      if( strcmp( psym->ident, ident ) == 0 ) {
+	pentry = &psym->entity;
+	break;
+      }
+      psym = psym->pnext;
+    }
+    if( psym )
+      assert( pentry );
+  } else {
+    SYMTBL_SCOPE_PTR psco = NULL;  
+    assert( symtbl.pcrnt_scope );
+    psco = symtbl.pcrnt_scope;
+    while( psco ) {
+      assert( psco );
+      psym = find_crnt_scope( psco, ident );
+      if( psym )
+	break;
+      psco = psco->decend;
+    }
+    if( psco ) {
+      assert( psym );
+      pentry = &psym->entity;
+    }
+  }
+  return pentry;
+}
+SYM_ENTITY_PTR find_symbol ( const char *ident ) {
+  assert( ident );
+  return find_symbol_again( NULL, ident );
+}
+#endif
 
 static SYMTBL_ENTRY_PTR reg_literal ( const char *pname, SRC_POS_C pos ) {
   SYMTBL_ENTRY_PTR pliter = NULL;
