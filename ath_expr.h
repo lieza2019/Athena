@@ -1,9 +1,13 @@
 typedef enum mnemonic_code {
   MNC_CALL = 1,
   MNC_ASGN,
+#if 0 // NOW OBSOLETE
   MNC_ARITH,
+#endif
   MNC_LVALUE,
   MNC_RVALUE,
+  MNC_DECL,
+  MNC_INCL,
   MNC_LIST,
   MNC_CONST,
   END_OF_MNEMONIC_CODE

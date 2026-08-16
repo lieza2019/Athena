@@ -40,15 +40,17 @@ tychk.o : tychk.c athena.h
 	$(CC) $(CFLAGS) $<
 stmt.o : stmt.c athena.h
 	$(CC) $(CFLAGS) $<
-par_expr.o : par_expr.c athena.h
+par_expr.o : par_expr.c athena.h y.tab.h
 	$(CC) $(CFLAGS) $<
-par_decl.o : par_decl.c athena.h
+par_decl.o : par_decl.c athena.h y.tab.h
 	$(CC) $(CFLAGS) $<
-par_tychk.o : par_tychk.c athena.h
+par_tychk.o : par_tychk.c athena.h y.tab.h
 	$(CC) $(CFLAGS) $<
 y.tab.o : y.tab.c
 	$(CC) $(CFLAGS_YACC) $<
 y.tab.c : ath_parse.y athena.h
+	$(YACC) $(YFLAGS) $<
+y.tab.h : ath_parse.y athena.h
 	$(YACC) $(YFLAGS) $<
 lex.yy.o : lex.yy.c athena.h
 	$(CC) $(CFLAGS_YACC) $<
