@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include "athena.h"
+#include "y.tab.h"
 
 #if 0
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {

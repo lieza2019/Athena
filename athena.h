@@ -51,9 +51,9 @@ extern void free_tyenv_elems ( TYENV_ELEM_PTR pelem );
 extern TYPE_ENV_PTR alloc_type_env ( SRC_POS_C pos );
 extern void free_type_env ( TYPE_ENV_PTR penv );
 extern TYPE_ENV_PTR env_link ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv );
-extern TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident );
+extern TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *ident );
 extern TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos );
-extern TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident );
+extern TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *ident );
 extern TYPE_ENV_PTR dup_env ( TYPE_ENV_PTR penv_org, SRC_POS_C pos );
 extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos );
 extern char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
@@ -81,10 +81,14 @@ extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC
 
 /* from lisp.c */
 
+/* from par_tychk.c */
+TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
+
 /* from par_decl.c */
 extern VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos );
 extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type, SRC_POS_C pos );
 extern EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PTR psucc_cs, SRC_POS_C pos );
 
-/* from par_tychk.c */
-TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
+/* from par_expr.c */
+extern EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos );
+extern EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos );

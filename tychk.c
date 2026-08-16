@@ -305,8 +305,10 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
       }
     }
     break;
+#if 0 // NOW OBSOLETE
   case MNC_ARITH:
     break;
+#endif
   case MNC_LVALUE:
     assert( EXAM_LVALUE_EXPR( pexpr ) );
     pexp_inf = alloc_expr_cons( pos );
@@ -360,7 +362,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
   return pexp_inf;
 }
 
-static TYPE_CONS_PTR tc_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+static TYPE_CONS_PTR tyinf_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   EXPR_CONS_PTR pvardecl_inf = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
@@ -426,7 +428,7 @@ TYPE_CONS_PTR typecheck ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
       break;
     case DECL_VAR:
       assert( (pstmt->u.pdecl)->u.variable.pvar );
-      r = tc_decl_var( &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+      r = tyinf_decl_var( &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
       break;
     case END_OF_DECL_KIND:
       /* fall thru. */

@@ -529,17 +529,17 @@ TYPE_ENV_PTR env_link ( TYPE_ENV_PTR penv_pred, TYPE_ENV_PTR penv ) {
   return penv->uplink;
 }
 
-TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
+TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *ident ) {
   BOOL found = FALSE;
   TYENV_ELEM_PTR *ppe = NULL;
   assert( penv );
-  assert( var_ident );
+  assert( ident );
   
   ppe = &penv->pmappings;
   while( *ppe ) {
     assert( (*ppe)->decl.var.v.ident );
     assert( (*ppe)->decl.var.v.ptype );
-    if( strcmp( (*ppe)->decl.var.v.ident, var_ident ) == 0 ) {
+    if( strcmp( (*ppe)->decl.var.v.ident, ident ) == 0 ) {
       found = TRUE;
       *ppe = (*ppe)->pnext;
       break;
@@ -549,7 +549,7 @@ TYPE_ENV_PTR env_rid ( TYPE_ENV_PTR penv, const char *var_ident ) {
   if( !found ) {
     assert( ! *ppe );
     if( penv->uplink )
-      penv = env_rid( penv->uplink, var_ident );
+      penv = env_rid( penv->uplink, ident );
     else
       penv = NULL;
   }
@@ -576,17 +576,17 @@ TYPE_ENV_PTR env_add ( TYPE_ENV_PTR penv, DECLARATION_PTR pdecl, SRC_POS_C pos )
   return penv;
 }
 
-static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOOL dir ) {
+static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *ident, BOOL dir ) {
   BOOL found = FALSE;
   TYENV_ELEM_PTR pe = NULL;
   assert( penv );
-  assert( var_ident );
+  assert( ident );
   
   pe = penv->pmappings;
   while( pe ) {
     assert( pe->decl.var.v.ident );
     assert( pe->decl.var.v.ptype );
-    if( strcmp( pe->decl.var.v.ident, var_ident ) == 0 ) {
+    if( strcmp( pe->decl.var.v.ident, ident ) == 0 ) {
       found = TRUE;
       break;
     }
@@ -600,17 +600,17 @@ static TYENV_ELEM_PTR env_search ( TYPE_ENV_PTR penv, const char *var_ident, BOO
     else // downward
       penv_next = penv->dnlink;
     if( penv_next )
-      pe = env_search( penv_next, var_ident, dir );
+      pe = env_search( penv_next, ident, dir );
   } else
     assert( pe );
   return pe;
 }
-TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *var_ident ) {
+TYENV_ELEM_PTR env_lkup ( TYPE_ENV_PTR penv, const char *ident ) {
   TYENV_ELEM_PTR pe_found = NULL;
   assert( penv );
-  assert( var_ident );
+  assert( ident );
   
-  pe_found = env_search( penv, var_ident, TRUE );
+  pe_found = env_search( penv, ident, TRUE );
   return pe_found;
 }
 

@@ -41,6 +41,23 @@ int yywrap( void ) {
   return TK_ASGN;
 }
 
+"--" {
+  yylloc.first_column += strlen( "--" );
+  return TK_DECL;
+}
+"-" {
+  yylloc.first_column += strlen( "+" );
+  return TK_MINUS;
+}
+"++" {
+  yylloc.first_column += strlen( "++" );
+  return TK_INCL;
+}
+"+" {
+  yylloc.first_column += strlen( "+" );
+  return TK_CROSS;
+}
+
 "as" {
   yylloc.first_column += strlen( yytext );
   return TK_KEYWORD_AS;

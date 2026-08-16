@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include "athena.h"
+#include "y.tab.h"
 
 static void reveal_env ( TYPE_ENV_PTR penv_stmt ) {
   TYPE_ENV_PTR penv = penv_stmt;
@@ -41,7 +42,12 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     env_add( pstmt->penv, pstmt->u.pdecl, pos );
     assert( pstmt->penv );
     assert( env_lkup( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident ) );
+#if 1 // *****
     r = typecheck( pstmt, pos );
+#else
+    assert( (pstmt->u.pdecl)->u.variable.pvar );
+    r = tyinf_decl_var( &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+#endif
     assert( pstmt );
     assert( pstmt->penv );
     if( r ) {
