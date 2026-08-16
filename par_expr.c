@@ -7,7 +7,6 @@
 EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_una = NULL;
   assert( pexpr );
-  
   pe_una = alloc_expr_cons( pos );
   if( pe_una ) {
     pe_una->pos = pos;
