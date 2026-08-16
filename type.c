@@ -690,14 +690,14 @@ static TYPE_ENV_PTR env_subst_elem ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, S
 }
 TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos ) {
   TYPE_ENV_PTR penv_s = NULL;
-  assert( penv );
   assert( psubst );
-  
-  penv_s = dup_env( penv, pos );
-  if( penv_s )
-    env_subst_elem( penv_s, psubst, pos );
-  else
-    ath_abort( pos, ABORT_MEMLACK );
+  if( penv ) {
+    penv_s = dup_env( penv, pos );
+    if( penv_s )
+      env_subst_elem( penv_s, psubst, pos );
+    else
+      ath_abort( pos, ABORT_MEMLACK );
+  }
   return penv_s;
 }
 

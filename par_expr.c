@@ -7,8 +7,10 @@
 EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_una = NULL;
   assert( pexpr );
+  
   pe_una = alloc_expr_cons( pos );
   if( pe_una ) {
+    TYPE_SUBST_PTR psubst = NULL;
     pe_una->pos = pos;
     switch( unary_ope ) {
     case TK_DECL:
@@ -22,6 +24,7 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     default:
       assert( FALSE );
     }
+    pe_una = ty_infer( &psubst, (statements.plast ? &(statements.plast)->penv : NULL), pe_una, pos );
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return pe_una;

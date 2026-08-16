@@ -255,10 +255,12 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   return r;
 }
 
-static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
   assert( ppsubst );
+#if 0 // *****
   assert( ppenv );
+#endif
   assert( pexpr );
   
   switch( pexpr->mnemonic ) {
@@ -294,8 +296,15 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
 	      pe_infl_su->kids.pright = pe_infr;
 	      pe_infl_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
 	      assert( pe_infl_su->ptype );
+#if 0 // *****
 	      *ppenv = env_subst( *ppenv, psubst_u, pos );
 	      assert( *ppenv );
+#else
+	      if( *ppenv ) {
+		*ppenv = env_subst( *ppenv, psubst_u, pos );
+		assert( *ppenv );
+	      }
+#endif
 	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
 	      pexp_inf = pe_infl_su;
 	    } else
@@ -343,6 +352,31 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
     } else
       ath_abort( pos, ABORT_MEMLACK );
     break;
+  case MNC_DECL:
+    assert( EXAM_DECL_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_DECL;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      {
+	EXPR_CONS_PTR pe_infl = NULL;
+	pe_infl = ty_infer( ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+	if( pe_infl && pe_infl->ptype ) {
+	  if( (pe_infl->ptype)->type.ty == TY_INT )
+	    ;
+	}
+      }
+      pexp_inf->kids.pleft = 
+      assert( pexp_inf->kids.pleft );
+      pexp_inf->ptype = (pexp_inf->kids.pleft)->ptype;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+    break;
+  case MNC_INCL:
+    assert( EXAM_INCL_EXPR( pexpr ) );
+    break;
   case MNC_LIST:
     break;
   case MNC_CONST:
@@ -362,7 +396,7 @@ static EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EX
   return pexp_inf;
 }
 
-static TYPE_CONS_PTR tyinf_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+TYPE_CONS_PTR tyinf_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   EXPR_CONS_PTR pvardecl_inf = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
@@ -414,6 +448,7 @@ static TYPE_CONS_PTR tyinf_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppe
   return r;
 }
 
+#if 0 // NOW OBSOLETE.
 TYPE_CONS_PTR typecheck ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   TYPE_SUBST_PTR psubst = NULL;
@@ -446,3 +481,4 @@ TYPE_CONS_PTR typecheck ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   }
   return r;
 }
+#endif

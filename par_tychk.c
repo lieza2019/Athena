@@ -30,6 +30,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   
   pe_vardecl = alloc_type_env( pos );
   if( pe_vardecl ) {
+    TYPE_SUBST_PTR psubst = NULL;
     if( statements.plast ) {
       assert( statements.phead );
       env_link( statements.plast->penv, pe_vardecl );
@@ -42,10 +43,9 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     env_add( pstmt->penv, pstmt->u.pdecl, pos );
     assert( pstmt->penv );
     assert( env_lkup( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident ) );
-#if 1 // *****
+#if 0 // *****
     r = typecheck( pstmt, pos );
 #else
-    assert( (pstmt->u.pdecl)->u.variable.pvar );
     r = tyinf_decl_var( &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
 #endif
     assert( pstmt );
