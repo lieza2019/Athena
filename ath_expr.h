@@ -1,4 +1,3 @@
-
 typedef enum mnemonic_code {
   MNC_CALL = 1,
   MNC_ASGN,
