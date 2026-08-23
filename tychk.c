@@ -308,7 +308,7 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
 	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
 	      pexp_inf = pe_infl_su;
 	    } else
-	      ath_abort( pos, ABORT_MEMLACK );
+	      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
 	  }
 	}
       }
@@ -337,7 +337,7 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
 #endif
     } else
-      ath_abort( pos, ABORT_MEMLACK );
+      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_RVALUE:
     assert( EXAM_RVALUE_EXPR( pexpr ) );
@@ -350,29 +350,29 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
     } else
-      ath_abort( pos, ABORT_MEMLACK );
+      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_DECL:
     assert( EXAM_DECL_EXPR( pexpr ) );
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
+      EXPR_CONS_PTR pe_infl = NULL;
       pexp_inf->pos = pos;
       pexp_inf->mnemonic = MNC_DECL;
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.pleft );
-      {
-	EXPR_CONS_PTR pe_infl = NULL;
-	pe_infl = ty_infer( ppsubst, ppenv, pexp_inf->kids.pleft, pos );
-	if( pe_infl && pe_infl->ptype ) {
-	  if( (pe_infl->ptype)->type.ty == TY_INT )
-	    ;
-	}
-      }
-      pexp_inf->kids.pleft = 
-      assert( pexp_inf->kids.pleft );
-      pexp_inf->ptype = (pexp_inf->kids.pleft)->ptype;
+      pe_infl = ty_infer( ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	assert( pe_infl->ptype );
+	if( (pe_infl->ptype)->type.ty == TY_INT ) {
+	  (pexp_inf->ptype)->type.ty = (pe_infl->ptype)->type.ty;
+	  pexp_inf->kids.pleft = pe_infl;
+	} else
+	  ;
+      } else
+	pexp_inf = NULL;
     } else
-      ath_abort( pos, ABORT_MEMLACK );
+      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
   case MNC_INCL:
     assert( EXAM_INCL_EXPR( pexpr ) );
@@ -391,6 +391,7 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
   if( pexp_inf && !*ppsubst ) {
     *ppsubst = alloc_type_subst( pos );
     if( !*ppsubst )
+    memlack:
       ath_abort( pos, ABORT_MEMLACK );
   }
   return pexp_inf;
