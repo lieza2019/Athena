@@ -30,6 +30,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   
   pe_vardecl = alloc_type_env( pos );
   if( pe_vardecl ) {
+    TYCON_MISMATCH_REASON reason = TYCON_WELLTYPED;
     TYPE_SUBST_PTR psubst = NULL;
     if( statements.plast ) {
       assert( statements.phead );
@@ -46,7 +47,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 #if 0 // *****
     r = typecheck( pstmt, pos );
 #else
-    r = tyinf_decl_var( &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+    r = tyinf_decl_var( &reason, &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
 #endif
     assert( pstmt );
     assert( pstmt->penv );

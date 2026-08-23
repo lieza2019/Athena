@@ -21,12 +21,12 @@ typedef struct src_pos const *SRC_POS_PTR_C;
 
 #define SRCPOS_ROW( pos ) ((pos).row)
 #define SRCPOS_COL( pos ) ((pos).col)
-#define CMP_SRCPOS( pos1, pos2 ) \
+#define CMP_SRCPOS( pos1, pos2 )					\
   ((SRCPOS_ROW(pos1) == SRCPOS_ROW(pos2)) && (SRCPOS_COL(pos1) == SRCPOS_COL(pos2)))
 
 #ifndef ath_printf
 #define ath_printf( pos, args_printf ) {		\
-  printf( "(%d, %d): ", (pos).row, (pos).col );		\
-  printf( "%s.\n", (args_printf) );		\
+    printf( "(%d, %d): ", (pos).row, (pos).col );	\
+    printf( "%s.\n", (args_printf) );			\
   }
 #endif // ath_printf

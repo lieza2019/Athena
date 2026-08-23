@@ -14,7 +14,10 @@
 /* from misc.c */
 extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
 extern char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr );
-  
+
+/* from err.c */
+extern void err_print( SRC_POS_C pos, const char *perr_msg );
+
 /* from mem.c */
 extern void *new_memarea ( int size );
 extern ALLOC_NODE_LINKS_PTR alloc_node ( ALLOC_NODE_LINKS_PTR *ppavail, ALLOC_NODE_LINKS_PTR *ppalive, const int node_size, const int nnodes_alloc, SRC_POS_C pos );
@@ -59,14 +62,17 @@ extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_PO
 extern char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
 /* from tychk.c */
+extern char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR pexpr );
 extern TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos );
 #if 0 // *****
 extern TYPE_CONS_PTR typecheck ( STATEMENT_PTR pstmt, SRC_POS_C pos );
 #else
-extern EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
-extern TYPE_CONS_PTR tyinf_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+//extern EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
+extern EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
+//extern TYPE_CONS_PTR tyinf_decl_var ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+extern TYPE_CONS_PTR tyinf_decl_var ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
 #endif
 
 /* from expr.c */

@@ -10,6 +10,7 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
   
   pe_una = alloc_expr_cons( pos );
   if( pe_una ) {
+    TYCON_MISMATCH_REASON reason = TYCON_WELLTYPED;
     TYPE_SUBST_PTR psubst = NULL;
     pe_una->pos = pos;
     switch( unary_ope ) {
@@ -24,7 +25,16 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     default:
       assert( FALSE );
     }
-    pe_una = ty_infer( &psubst, (statements.plast ? &(statements.plast)->penv : NULL), pe_una, pos );
+    {
+      EXPR_CONS_PTR pe_u = NULL;
+      pe_u = ty_infer( &reason, &psubst, (statements.plast ? &(statements.plast)->penv : NULL), pe_una, pos );
+      if( pe_u )
+	pe_una = pe_u;
+      else {
+	assert( reason != TYCON_WELLTYPED );
+	;
+      }
+    }
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return pe_una;

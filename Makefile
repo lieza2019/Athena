@@ -16,15 +16,16 @@ YFLAGS = -dy -Wconflicts-sr -Wconflicts-rr -Wcounterexamples -Wother
 LEX = flex
 LFLAGS = -l
 
-#athena : main.o mem.o misc.o symtbl.o type.o decl.o expr.o lisp.o stmt.o par_decl.o y.tab.o lex.yy.o
-athena : main.o mem.o misc.o symtbl.o type.o decl.o expr.o lisp.o tychk.o stmt.o par_expr.o par_decl.o par_tychk.o y.tab.o lex.yy.o
+athena : main.o misc.o err.o mem.o symtbl.o type.o decl.o expr.o lisp.o tychk.o stmt.o par_expr.o par_decl.o par_tychk.o y.tab.o lex.yy.o
 	$(LD) $(LDFLAGS) -o $@ $^
 
 main.o : main.c athena.h
 	$(CC) $(CFLAGS) $<
-mem.o : mem.c ath_mem.h
-	$(CC) $(CFLAGS) $<
 misc.o : misc.c athena.h
+	$(CC) $(CFLAGS) $<
+err.o : err.c athena.h
+	$(CC) $(CFLAGS) $<
+mem.o : mem.c ath_mem.h
 	$(CC) $(CFLAGS) $<
 symtbl.o : symtbl.c athena.h
 	$(CC) $(CFLAGS) $<

@@ -1,3 +1,9 @@
+typedef enum tycon_mismatch_reason {
+  TYCON_WELLTYPED = 1,
+  TYCON_UNAEXPR_ILLOPERAND,
+  END_OF_TYCON_MISMATCH_REASON
+} TYCON_MISMATCH_REASON;
+
 typedef enum type_code {
   TY_INT = 1,
   TY_CHAR,
