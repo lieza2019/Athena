@@ -6,8 +6,8 @@ typedef enum mnemonic_code {
 #endif
   MNC_LVALUE,
   MNC_RVALUE,
-  MNC_DECL,
-  MNC_INCL,
+  MNC_DECR,
+  MNC_INCR,
   MNC_LIST,
   MNC_CONST,
   END_OF_MNEMONIC_CODE
@@ -60,10 +60,10 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #define EXAM_RVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && (e)->kids.body.refaddr.var.ident )
-#define EXAM_DECL_EXPR( e )						\
-  ( ((e)->mnemonic == MNC_DECL) && (((e)->kids.pleft) && !((e)->kids.pright)) )
-#define EXAM_INCL_EXPR( e )						\
-  ( ((e)->mnemonic == MNC_INCL) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_DECR_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_DECR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_INCR_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_INCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #if 0 // *****
 #define EXAM_CONST_EXPR( e )						\
   (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))

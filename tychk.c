@@ -352,13 +352,13 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
     } else
       goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
-  case MNC_DECL:
-    assert( EXAM_DECL_EXPR( pexpr ) );
+  case MNC_DECR:
+    assert( EXAM_DECR_EXPR( pexpr ) );
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       EXPR_CONS_PTR pe_infl = NULL;
       pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_DECL;
+      pexp_inf->mnemonic = MNC_DECR;
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ppsubst, ppenv, pexp_inf->kids.pleft, pos );
@@ -374,8 +374,8 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
     } else
       goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
-  case MNC_INCL:
-    assert( EXAM_INCL_EXPR( pexpr ) );
+  case MNC_INCR:
+    assert( EXAM_INCR_EXPR( pexpr ) );
     break;
   case MNC_LIST:
     break;

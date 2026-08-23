@@ -14,11 +14,11 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     pe_una->pos = pos;
     switch( unary_ope ) {
     case TK_DECL:
-      pe_una->mnemonic = MNC_DECL;
+      pe_una->mnemonic = MNC_DECR;
       pe_una->kids.pleft = pexpr;
       break;
     case TK_INCL:
-      pe_una->mnemonic = MNC_INCL;
+      pe_una->mnemonic = MNC_INCR;
       pe_una->kids.pleft = pexpr;
       break;
     default:
