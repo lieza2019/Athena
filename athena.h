@@ -1,4 +1,5 @@
 #include "ath_misc.h"
+#include "ath_err.h"
 #include "ath_mem.h"
 #include "ath_type.h"
 #include "ath_decl.h"

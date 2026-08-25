@@ -32,7 +32,7 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 	pe_una = pe_u;
       else {
 	assert( reason != TYCON_WELLTYPED );
-	;
+	ERRMSG_TYCON_MISMATCH( reason, pe_una, pos );
       }
     }
   } else
