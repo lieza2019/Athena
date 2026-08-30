@@ -5,13 +5,16 @@
 
 char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR pexpr ) {
   assert( sbuf );
-  sprintf( sbuf, "type constraint mismatched with " );
+  sprintf( sbuf, "type constraint mismatched " );
   switch( reason ) {
   case TYCON_WELLTYPED:
     sprintf( sbuf, "%s", "" );
     break;
+  case TYCON_ASGN_TYPEMISMATCH:
+    strcat( sbuf, "on assignment from incompatible type.\n" );
+    break;
   case TYCON_UNAEXPR_ILLOPERAND:
-    strcat( sbuf, "its operand.\n" );
+    strcat( sbuf, "with its invalid operand type.\n" );
     break;
   case END_OF_TYCON_MISMATCH_REASON:
     /* fall thru. */
@@ -417,6 +420,7 @@ EXPR_CONS_PTR ty_infer ( TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS
 #else
 EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
+  assert( preason );
   assert( ppsubst );
 #if 0 // *****
   assert( ppenv );
@@ -467,9 +471,11 @@ EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst
 #endif
 	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
 	      pexp_inf = pe_infl_su;
+	      *preason = TYCON_WELLTYPED;
 	    } else
 	      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
-	  }
+	  } else
+	    *preason = TYCON_ASGN_TYPEMISMATCH;
 	}
       }
     }
@@ -495,6 +501,7 @@ EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst
 #else
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      *preason = TYCON_WELLTYPED;
 #endif
     } else
       goto memlack; // ath_abort( pos, ABORT_MEMLACK );
@@ -509,6 +516,7 @@ EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst
       assert( pexp_inf->kids.body.refaddr.var.ptype );
       inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      *preason = TYCON_WELLTYPED;
     } else
       goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
@@ -527,10 +535,11 @@ EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst
 	if( (pe_infl->ptype)->type.ty == TY_INT ) {
 	  (pexp_inf->ptype)->type.ty = (pe_infl->ptype)->type.ty;
 	  pexp_inf->kids.pleft = pe_infl;
-	} else
-	  ;
-      } else
-	pexp_inf = NULL;
+	} else {
+	  pexp_inf = NULL;
+	  *preason = TYCON_UNAEXPR_ILLOPERAND;
+	}
+      }
     } else
       goto memlack; // ath_abort( pos, ABORT_MEMLACK );
     break;
@@ -588,7 +597,6 @@ TYPE_CONS_PTR tyinf_decl_var ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *p
 	  assert( EXAM_ASGN_EXPR( pvardecl_inf ) );
 	  assert( EXAM_LVALUE_EXPR( pvardecl_inf->kids.pleft ) );
 	  assert( pvardecl_inf->ptype );
-	  //assert( pvardecl_inf->ptype == (pvardecl_inf->kids.pleft)->ptype );
 	  pvar_attr->ptype = pvardecl_inf->ptype;
 	  pvar_attr->pinit = pvardecl_inf->kids.pright;
 	}
@@ -600,7 +608,6 @@ TYPE_CONS_PTR tyinf_decl_var ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *p
 	assert( EXAM_LVALUE_EXPR( pvardecl_inf ) );
 	assert( pvardecl_inf->ptype );
 	pvar_attr->ptype = pvardecl_inf->ptype;
-	
       }
     }
     r = pvar_attr->ptype;

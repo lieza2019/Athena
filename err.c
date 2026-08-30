@@ -6,6 +6,8 @@
 ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE];
 
 void err_print( SRC_POS_C pos, const char *perr_msg ) {
-  ;
+  assert( perr_msg );
+  printf( "(%d, %d): ", SRCPOS_ROW(pos), SRCPOS_COL(pos) );
+  printf( "%s\n", perr_msg );
 }
 

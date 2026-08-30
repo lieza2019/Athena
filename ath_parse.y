@@ -197,7 +197,6 @@ primary_expr : TK_IDENT {
     ath_abort( pos, ABORT_MEMLACK );
   $$ = prval;
 #else
-  /* extern EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ); */
   $$ = rval_primary_expr( $1, pos );
 #endif
  }

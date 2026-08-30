@@ -28,12 +28,22 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     {
       EXPR_CONS_PTR pe_u = NULL;
       pe_u = ty_infer( &reason, &psubst, (statements.plast ? &(statements.plast)->penv : NULL), pe_una, pos );
+#if 0 // *****
       if( pe_u )
 	pe_una = pe_u;
       else {
 	assert( reason != TYCON_WELLTYPED );
 	ERRMSG_TYCON_MISMATCH( reason, pe_una, pos );
       }
+#else
+      if( pe_u )
+	pe_una = pe_u;
+      else
+	assert( reason != TYCON_WELLTYPED );
+      if( reason != TYCON_WELLTYPED ) {
+	ERRMSG_TYCON_MISMATCH( reason, pe_una, pos );
+      }
+#endif
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
