@@ -64,7 +64,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 #else
       if( reason != TYCON_WELLTYPED ) {
 	assert( ((pstmt->u.pdecl)->u.variable.pvar)->pinit );
-	ERRMSG_TYCON_MISMATCH( reason, ((pstmt->u.pdecl)->u.variable.pvar)->pinit, pos );
+	//ERRMSG_TYCON_MISMATCH( reason, ((pstmt->u.pdecl)->u.variable.pvar)->pinit, pos );
       }
       reveal_env( pstmt->penv );
 #endif

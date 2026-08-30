@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0 // *****
 char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR pexpr ) {
   assert( sbuf );
   sprintf( sbuf, "type constraint mismatched " );
@@ -23,6 +24,29 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EX
   }
   return sbuf;
 }
+#else
+char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, TYPE_CONS_PTR pty_reason_arg[], int nargs ) {
+  assert( sbuf );
+  sprintf( sbuf, "type constraint mismatched " );
+  switch( reason ) {
+  case TYCON_WELLTYPED:
+    sprintf( sbuf, "%s", "" );
+    break;
+  case TYCON_ASGN_TYPEMISMATCH:
+    strcat( sbuf, "on assignment from incompatible type.\n" );
+    break;
+  case TYCON_UNAEXPR_ILLOPERAND:
+    strcat( sbuf, "with its invalid operand type.\n" );
+    break;
+  case END_OF_TYCON_MISMATCH_REASON:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return sbuf;
+}
+#endif
+
 static TYPE_CONS_PTR acc_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;
   assert( pptvs );
@@ -538,6 +562,160 @@ EXPR_CONS_PTR ty_infer ( TYCON_MISMATCH_REASON *preason, TYPE_SUBST_PTR *ppsubst
 	} else {
 	  pexp_inf = NULL;
 	  *preason = TYCON_UNAEXPR_ILLOPERAND;
+	}
+      }
+    } else
+      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
+    break;
+  case MNC_INCR:
+    assert( EXAM_INCR_EXPR( pexpr ) );
+    break;
+  case MNC_LIST:
+    break;
+  case MNC_CONST:
+    assert( EXAM_CONST_EXPR( pexpr ) );
+    pexp_inf = pexpr;
+    break;
+  case END_OF_MNEMONIC_CODE:
+    /* fall thru. */
+  default:
+    break;
+  }
+  if( pexp_inf && !*ppsubst ) {
+    *ppsubst = alloc_type_subst( pos );
+    if( !*ppsubst )
+    memlack:
+      ath_abort( pos, ABORT_MEMLACK );
+  }
+  return pexp_inf;
+}
+EXPR_CONS_PTR ty_infer1 ( TYCHK_RESULT_DESC_PTR preason, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pexp_inf = NULL;
+  assert( preason );
+  assert( ppsubst );
+#if 0 // *****
+  assert( ppenv );
+#endif
+  assert( pexpr );
+  
+  switch( pexpr->mnemonic ) {
+  case MNC_CALL:
+    break;
+  case MNC_ASGN:
+    assert( EXAM_ASGN_EXPR( pexpr ) );
+    {
+      TYPE_SUBST_PTR psubst_l = NULL;
+      EXPR_CONS_PTR pe_infl = NULL;
+      pe_infl = ty_infer1( preason, &psubst_l, ppenv, pexpr->kids.pleft, pos );
+      if( pe_infl ) {
+	TYPE_SUBST_PTR psubst_r = NULL;
+	EXPR_CONS_PTR pe_infr = NULL;
+	assert( pe_infl->ptype );
+	assert( psubst_l );
+	pe_infr = ty_infer1( preason, &psubst_r, ppenv, pexpr->kids.pright, pos );
+	if( pe_infr ) {
+	  TYPE_SUBST_PTR psubst_u = NULL;
+	  TYPE_CONS_PTR pty_infl_sr = NULL;
+	  assert( pe_infr->ptype );
+	  assert( psubst_r );
+	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
+	  assert( pty_infl_sr );
+	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
+	    EXPR_CONS_PTR pe_infl_su = NULL;
+	    assert( psubst_u );
+	    pe_infl_su = alloc_expr_cons( pos );
+	    if( pe_infl_su ) {
+	      pe_infl_su->pos = pos;
+	      pe_infl_su->mnemonic = MNC_ASGN;
+	      pe_infl_su->kids.pleft = pe_infl;
+	      pe_infl_su->kids.pright = pe_infr;
+	      pe_infl_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
+	      assert( pe_infl_su->ptype );
+#if 0 // *****
+	      *ppenv = env_subst( *ppenv, psubst_u, pos );
+	      assert( *ppenv );
+#else
+	      if( *ppenv ) {
+		*ppenv = env_subst( *ppenv, psubst_u, pos );
+		assert( *ppenv );
+	      }
+#endif
+	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
+	      pexp_inf = pe_infl_su;
+	      preason->reason = TYCON_WELLTYPED;
+	    } else
+	      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
+	  } else {
+	    preason->reason = TYCON_ASGN_TYPEMISMATCH;
+	    preason->pty_mismatch[0] = pty_infl_sr;
+	    preason->pty_mismatch[1] = pe_infr->ptype;
+	    preason->nargs = 2;
+	  }
+	}
+      }
+    }
+    break;
+#if 0 // NOW OBSOLETE
+  case MNC_ARITH:
+    break;
+#endif
+  case MNC_LVALUE:
+    assert( EXAM_LVALUE_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_LVALUE;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+#if 0 // *****
+      ty_curve( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      assert( pexpr->kids.body.refaddr.var.ident );
+      *ppenv = env_add( *ppenv, pexpr->kids.body.refaddr.var.ident, pexp_inf->ptype, pos );
+#else
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      preason->reason = TYCON_WELLTYPED;
+#endif
+    } else
+      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
+    break;
+  case MNC_RVALUE:
+    assert( EXAM_RVALUE_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_RVALUE;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      preason->reason = TYCON_WELLTYPED;
+    } else
+      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
+    break;
+  case MNC_DECR:
+    assert( EXAM_DECR_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_DECR;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      pe_infl = ty_infer1( preason, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	assert( pe_infl->ptype );
+	if( (pe_infl->ptype)->type.ty == TY_INT ) {
+	  (pexp_inf->ptype)->type.ty = (pe_infl->ptype)->type.ty;
+	  pexp_inf->kids.pleft = pe_infl;
+	  preason->reason = TYCON_WELLTYPED;
+	} else {
+	  preason->reason = TYCON_UNAEXPR_ILLOPERAND;
+	  preason->pty_mismatch[0] = pe_infl->ptype;
+	  preason->nargs = 1;
+	  pexp_inf = NULL;
 	}
       }
     } else

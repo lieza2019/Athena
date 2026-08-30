@@ -41,7 +41,8 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
       else
 	assert( reason != TYCON_WELLTYPED );
       if( reason != TYCON_WELLTYPED ) {
-	ERRMSG_TYCON_MISMATCH( reason, pe_una, pos );
+	TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
+	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
       }
 #endif
     }
