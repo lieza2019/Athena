@@ -72,11 +72,3 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
   ( (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && ((e)->ptype) )
 #endif
-
-#define TYCON_MISMATCH_REASON_ARGS 4
-typedef struct tychk_result_desc {
-  TYCON_MISMATCH_REASON reason;
-  int nargs;
-  //EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
-  TYPE_CONS_PTR pty_mismatch[TYCON_MISMATCH_REASON_ARGS];
-} TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;

@@ -1,10 +1,3 @@
-typedef enum tycon_mismatch_reason {
-  TYCON_WELLTYPED = 1,
-  TYCON_ASGN_TYPEMISMATCH,
-  TYCON_UNAEXPR_ILLOPERAND,
-  END_OF_TYCON_MISMATCH_REASON
-} TYCON_MISMATCH_REASON;
-
 typedef enum type_code {
   TY_INT = 1,
   TY_CHAR,
@@ -46,6 +39,23 @@ typedef TYPE_CONS LIST_CELL;
 typedef LIST_CELL *LIST_CELL_PTR;
 typedef const LIST_CELL LIST_CELL_C;
 typedef LIST_CELL const *LIST_CELL_PTR_C;
+
+typedef enum tycon_mismatch_reason {
+  TYCON_WELLTYPED = 1,
+  TYCON_ASGN_TYPEMISMATCH,
+  TYCON_UNAEXPR_ILLOPERAND,
+  END_OF_TYCON_MISMATCH_REASON
+} TYCON_MISMATCH_REASON;
+
+#define TYCON_MISMATCH_REASON_ARGS 4
+typedef struct tychk_result_desc {
+  TYCON_MISMATCH_REASON reason;
+  int nargs;
+  //EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
+  TYPE_CONS_PTR pty_mismatch[TYCON_MISMATCH_REASON_ARGS];
+} TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;
+
+#define TYCHK_RESULT_WELLTYPED(res) ((res).reason == TYCON_WELLTYPED)
 
 #define NUM_TYMAPS_PER_ALLOC 256
 typedef struct type_mapsto {

@@ -30,7 +30,8 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   
   pe_vardecl = alloc_type_env( pos );
   if( pe_vardecl ) {
-    TYCON_MISMATCH_REASON reason = TYCON_WELLTYPED;
+    //TYCON_MISMATCH_REASON reason = TYCON_WELLTYPED;
+    TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
     TYPE_SUBST_PTR psubst = NULL;
     if( statements.plast ) {
       assert( statements.phead );
@@ -47,7 +48,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 #if 0 // *****
     r = typecheck( pstmt, pos );
 #else
-    r = tyinf_decl_var( &reason, &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
+    r = tyinf_decl_var( &tychk_res, &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
 #endif
     assert( pstmt );
     assert( pstmt->penv );
@@ -62,10 +63,16 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
 	pe = pe->pnext;
       }
 #else
+#if 0 // *****
       if( reason != TYCON_WELLTYPED ) {
 	assert( ((pstmt->u.pdecl)->u.variable.pvar)->pinit );
 	//ERRMSG_TYCON_MISMATCH( reason, ((pstmt->u.pdecl)->u.variable.pvar)->pinit, pos );
       }
+#else
+      if( tychk_res.reason != TYCON_WELLTYPED ) {
+	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
+      }
+#endif
       reveal_env( pstmt->penv );
 #endif
 #if 1 // for use of temporal debugging.
