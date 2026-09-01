@@ -54,7 +54,9 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 	pe_una->ptype = alloc_type_cons( pos );
 	if( pe_una->ptype ) {
 	  (pe_una->ptype)->type.ty = TY_INT;
+#if 0 // *****
 	  (pe_una->ptype)->pexpr = pe_una;
+#endif
 	} else
 	  goto failed_memalloc;
       }

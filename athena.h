@@ -64,7 +64,11 @@ extern char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
 /* from tychk.c */
 //extern char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR pexpr );
+#if 0 // *****
 extern char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, TYPE_CONS_PTR reason_args[], int nargs );
+#else
+extern char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR reason_args[], int nargs );
+#endif
 extern TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos );

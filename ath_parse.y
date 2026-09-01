@@ -160,7 +160,11 @@ expression : primary_expr {
 unary_expr : TK_DECL expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = rval_unary_expr( $2, TK_DECL, pos );
-};
+}
+| TK_INCL expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_unary_expr( $2, TK_INCL, pos );
+ };
 
 primary_expr : TK_IDENT {
   SRC_POS_C pos = { @1.first_line, @1.first_column };

@@ -64,6 +64,7 @@ athena.h : ath_misc.h ath_err.h ath_mem.h ath_type.h ath_decl.h ath_expr.h ath_s
 .PHONY : clean
 clean:
 	$(RM) -f ./a.out
+	$(RM) -f ./*.core
 	$(RM) -f ./*.o
 	$(RM) -f ./*~
 	$(RM) -f ./#*#

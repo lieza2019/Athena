@@ -30,7 +30,9 @@ typedef struct type_cons {
       struct type_cons *pty_elem;
     } list;
   } attrs;
+#if 0 // *****
   struct expr_cons *pexpr;
+#endif
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;
@@ -46,14 +48,6 @@ typedef enum tycon_mismatch_reason {
   TYCON_UNAEXPR_ILLOPERAND,
   END_OF_TYCON_MISMATCH_REASON
 } TYCON_MISMATCH_REASON;
-
-#define TYCON_MISMATCH_REASON_ARGS 4
-typedef struct tychk_result_desc {
-  TYCON_MISMATCH_REASON reason;
-  int nargs;
-  //EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
-  TYPE_CONS_PTR pty_mismatch[TYCON_MISMATCH_REASON_ARGS];
-} TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;
 
 #define TYCHK_RESULT_WELLTYPED(res) ((res).reason == TYCON_WELLTYPED)
 

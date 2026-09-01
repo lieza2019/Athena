@@ -11,6 +11,7 @@ extern ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE];
     }									\
   }
 #else
+#if 0 // *****
 #define ERRMSG_TYCON_MISMATCH(pres, pos) {				\
     assert( (pres) );							\
     print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres)->reason, (pres)->pty_mismatch, (pres)->nargs ); \
@@ -18,4 +19,13 @@ extern ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE];
       err_print( (pos), (ERRMSG_BUF_NAME) );				\
     }									\
   }
+#else
+#define ERRMSG_TYCON_MISMATCH(pres, pos) {				\
+    assert( (pres) );							\
+    print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres)->reason, (pres)->pe_mismatch, (pres)->nargs ); \
+    if( strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) {		\
+      err_print( (pos), (ERRMSG_BUF_NAME) );				\
+    }									\
+  }
+#endif
 #endif

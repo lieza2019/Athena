@@ -25,6 +25,7 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EX
   return sbuf;
 }
 #else
+#if 0 // *****
 char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, TYPE_CONS_PTR reason_args[], int nargs ) {
   assert( sbuf );
   sprintf( sbuf, "type constraint mismatched " );
@@ -45,6 +46,29 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, TY
   }
   return sbuf;
 }
+#else
+char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR reason_args[], int nargs ) {
+  assert( sbuf );
+  assert( reason_args );
+  sprintf( sbuf, "type constraint mismatched " );
+  switch( reason ) {
+  case TYCON_WELLTYPED:
+    sprintf( sbuf, "%s", "" );
+    break;
+  case TYCON_ASGN_TYPEMISMATCH:
+    strcat( sbuf, "on assignment from incompatible type." );
+    break;
+  case TYCON_UNAEXPR_ILLOPERAND:
+    strcat( sbuf, "with its invalid operand type." );
+    break;
+  case END_OF_TYCON_MISMATCH_REASON:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  return sbuf;
+}
+#endif
 #endif
 
 static TYPE_CONS_PTR acc_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
@@ -650,8 +674,13 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
 	  } else {
 	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
+#if 0 // *****
 	    ptychk_res->pty_mismatch[0] = pty_infl_sr;
 	    ptychk_res->pty_mismatch[1] = pe_infr->ptype;
+#else
+	    ptychk_res->pe_mismatch[0] = pe_infl;
+	    ptychk_res->pe_mismatch[1] = pe_infr;
+#endif
 	    ptychk_res->nargs = 2;
 	  }
 	}
@@ -709,14 +738,21 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
       if( pe_infl ) {
-	assert( pe_infl->ptype );
 	if( (pe_infl->ptype)->type.ty == TY_INT ) {
+#if 0 // *****
 	  (pexp_inf->ptype)->type.ty = (pe_infl->ptype)->type.ty;
+#else
+	  pexp_inf->ptype = pe_infl->ptype;
+#endif
 	  pexp_inf->kids.pleft = pe_infl;
 	  ptychk_res->reason = TYCON_WELLTYPED;
 	} else {
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+#if 0 // *****
 	  ptychk_res->pty_mismatch[0] = pe_infl->ptype;
+#else
+	  ptychk_res->pe_mismatch[0] = pe_infl;
+#endif
 	  ptychk_res->nargs = 1;
 	  pexp_inf = NULL;
 	}
@@ -726,6 +762,32 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     break;
   case MNC_INCR:
     assert( EXAM_INCR_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_INCR;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	if( (pe_infl->ptype)->type.ty == TY_INT ) {
+	  pexp_inf->ptype = pe_infl->ptype;
+	  pexp_inf->kids.pleft = pe_infl;
+	  ptychk_res->reason = TYCON_WELLTYPED;
+	} else {
+	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+#if 0 // *****
+	  ptychk_res->pty_mismatch[0] = pe_infl->ptype;
+#else
+	  ptychk_res->pe_mismatch[0] = pe_infl;
+#endif
+	  ptychk_res->nargs = 1;
+	  pexp_inf = NULL;
+	}
+      }
+    } else
+      goto memlack;
     break;
   case MNC_LIST:
     break;
@@ -738,12 +800,24 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
   default:
     break;
   }
+#if 0 // *****
   if( pexp_inf && !*ppsubst ) {
     *ppsubst = alloc_type_subst( pos );
     if( !*ppsubst )
     memlack:
       ath_abort( pos, ABORT_MEMLACK );
   }
+#else
+  if( pexp_inf ) {
+    assert( pexp_inf->ptype );
+    if( ! *ppsubst ) {
+      *ppsubst = alloc_type_subst( pos );
+      if( ! *ppsubst )
+      memlack:
+	ath_abort( pos, ABORT_MEMLACK );
+    }
+  }
+#endif
   return pexp_inf;
 }
 #endif
