@@ -49,15 +49,24 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 #else
       if( pe_u )
 	pe_una = pe_u;
-      else
+      else {
 	assert( tychk_res.reason != TYCON_WELLTYPED );
+	pe_una->ptype = alloc_type_cons( pos );
+	if( pe_una->ptype ) {
+	  (pe_una->ptype)->type.ty = TY_INT;
+	  (pe_una->ptype)->pexpr = pe_una;
+	} else
+	  goto failed_memalloc;
+      }
       if( tychk_res.reason != TYCON_WELLTYPED ) {
 	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
       }
+      assert( pe_una->ptype );
 #endif
 #endif
     }
   } else
+  failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );
   return pe_una;
 }

@@ -33,10 +33,10 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, TY
     sprintf( sbuf, "%s", "" );
     break;
   case TYCON_ASGN_TYPEMISMATCH:
-    strcat( sbuf, "on assignment from incompatible type.\n" );
+    strcat( sbuf, "on assignment from incompatible type." );
     break;
   case TYCON_UNAEXPR_ILLOPERAND:
-    strcat( sbuf, "with its invalid operand type.\n" );
+    strcat( sbuf, "with its invalid operand type." );
     break;
   case END_OF_TYCON_MISMATCH_REASON:
     /* fall thru. */
