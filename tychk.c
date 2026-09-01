@@ -696,7 +696,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
       ptychk_res->reason = TYCON_WELLTYPED;
     } else
-      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
+      goto memlack; // ath_abort( pos,ABORT_MEMLACK );
     break;
   case MNC_DECR:
     assert( EXAM_DECR_EXPR( pexpr ) );

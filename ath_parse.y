@@ -157,9 +157,9 @@ expression : primary_expr {
   $$ = $1;
  };
 
-unary_expr : TK_INCL expression {
+unary_expr : TK_DECL expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $2, TK_INCL, pos );
+  $$ = rval_unary_expr( $2, TK_DECL, pos );
 };
 
 primary_expr : TK_IDENT {
