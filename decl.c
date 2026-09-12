@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -29,14 +30,16 @@ static struct {
 VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos ) {
   VAR_ATTRIB_PTR pvattr = NULL;
   
-  pvattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail, (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive,
+  pvattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail,
+				       (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive,
 				       sizeof(VAR_ATTRIB), NUM_DECLATTR_VAR_PAR_ALLOC, pos );
   return pvattr;
 }
 
 void free_var_addr ( VAR_ATTRIB_PTR pvattr ) {
   if( pvattr ) {
-    free_node ( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail, (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive, (ALLOC_NODE_LINKS_PTR)pvattr );
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail,
+		(ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive, (ALLOC_NODE_LINKS_PTR)pvattr );
   }
 }
 

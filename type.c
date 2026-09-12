@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -479,11 +480,7 @@ TYENV_ELEM_PTR alloc_tyenv_elem ( SRC_POS_C pos ) {
 				     (ALLOC_NODE_LINKS_PTR *)&type_env_manage.mapping.palive,
 				     sizeof(TYENV_ELEM), NUM_TYELEMS_PER_ALLOC, pos );
   if( penv ) {
-#if 0 // *****
-    bzero( &penv->kind, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
-#else
     bzero( &penv->decl, (sizeof(TYENV_ELEM) - sizeof(ALLOC_NODE_LINKS)) );
-#endif
   }
   return penv;
 }
@@ -702,13 +699,11 @@ TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_POS_C pos
 }
 
 char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc ) {
-  //SRC_POS pos;
   char *ps = NULL;  
   assert( sbuf );
   assert( pty_desc );
   
   ps = sbuf;
-  //pos = pty_desc->pos;
   switch( pty_desc->type.ty ) {
   case TY_INT:
     strcpy( ps, "int" );

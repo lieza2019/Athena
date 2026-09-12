@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 typedef enum const_kind {
   CONST_STR = 1,
   CONST_INT,

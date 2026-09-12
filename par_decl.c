@@ -1,35 +1,10 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include "athena.h"
 #include "y.tab.h"
 
-#if 0
-static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
-  const char *pident = NULL;
-  assert( pvar_attr );
-  assert( pvar_name );
-  
-  pident = find_literal( pvar_name, pos );
-  if( pident ) {
-    TYPE_CONS_PTR pty_ply = NULL;
-    pvar_attr->pos = pos;
-    pvar_attr->ident = pident;
-    if( !pinit ) {      
-      pty_ply = alloc_type_cons( pos );
-      if( pty_ply ) {
-	pty_ply->pos = pos;
-	pty_ply->type.ty = TY_POLY;
-      } else
-	ath_abort( pos, ABORT_MEMLACK );
-    } else
-      assert( pinit->ptype );
-    pvar_attr->pinit = pinit;
-    pvar_attr->ptype = (pinit ? pinit->ptype : pty_ply);    
-  } else
-    ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
-}
-#else
 static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   const char *pident = NULL;
   assert( pvar_attr );
@@ -40,19 +15,6 @@ static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CO
     TYPE_CONS_PTR ply = NULL;
     pvar_attr->pos = pos;
     pvar_attr->ident = pident;
-#if 0 // *****
-    if( !pinit ) {      
-      ply = alloc_type_cons( pos );
-      if( ply ) {
-	ply->pos = pos;
-	ply->type.ty = TY_POLY;
-      } else
-	ath_abort( pos, ABORT_MEMLACK );
-    } else
-      assert( pinit->ptype );
-    pvar_attr->pinit = pinit;
-    pvar_attr->ptype = (pinit ? pinit->ptype : ply);
-#else
     ply = alloc_type_cons( pos );
     if( ply ) {
       ply->pos = pos;
@@ -61,11 +23,9 @@ static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CO
       pvar_attr->pinit = pinit;
     } else
       ath_abort( pos, ABORT_MEMLACK );
-#endif
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
-#endif
 
 static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CONS_PTR pn_init, SRC_POS_C pos ) {
   const char *pident = NULL;
@@ -91,20 +51,11 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
 	pn_init->kids.body.literal.integer.n = 0;
 	pn_init->ptype = pty_ini;
       } else
-#if 0 // *****
-      failed_memalloc:
-	ath_abort( pos, ABORT_MEMLACK );
-#else
       goto failed_memalloc;
-#endif
     }
     assert( pn_init );
     assert( pn_init->ptype );
     pvar_attr->pinit = pn_init;
-#if 0 // *****
-    assert( (pn_init->ptype)->type.ty == TY_INT );
-    pvar_attr->ptype = pn_init->ptype;
-#else
     if( (pn_init->ptype)->type.ty != TY_INT ) {
       TYPE_CONS_PTR pty_int = NULL;
       pty_int = alloc_type_cons( pos );
@@ -119,7 +70,6 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
       pvar_attr->ptype = pty_int;
     } else
       pvar_attr->ptype = pn_init->ptype;
-#endif
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
@@ -154,20 +104,11 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
 	ps_init->kids.body.literal.string.s = e;
 	ps_init->ptype = pty_ini;
       } else
-#if 0 // *****
-      failed_memalloc:
-	ath_abort( pos, ABORT_MEMLACK );
-#else
       goto failed_memalloc;
-#endif
     }
     assert( ps_init );
     assert( ps_init->ptype );
     pvar_attr->pinit = ps_init;
-#if 0 // *****
-    assert( (ps_init->ptype)->type.ty == TY_STRING );
-    pvar_attr->ptype = ps_init->ptype;
-#else
     if( (ps_init->ptype)->type.ty != TY_STRING ) {
       TYPE_CONS_PTR pty_str = NULL;
       pty_str = alloc_type_cons( pos );
@@ -182,12 +123,12 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
       pvar_attr->ptype = pty_str;
     } else
       pvar_attr->ptype = ps_init->ptype;
-#endif
   } else
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pty_list, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
+static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CONS_PTR pty_list,
+			      EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   const char *pident = NULL;
   assert( pvar_attr );
   assert( pvar_name );
@@ -220,7 +161,8 @@ static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CO
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );
 }
 
-VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
+VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name,
+				 TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos ) {
   assert( pvar_attr );
   assert( pvar_name );
   switch( var_type ) {

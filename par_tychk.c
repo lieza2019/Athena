@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -45,36 +46,14 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     env_add( pstmt->penv, pstmt->u.pdecl, pos );
     assert( pstmt->penv );
     assert( env_lkup( pstmt->penv, (pstmt->u.pdecl->u.variable.pvar)->ident ) );
-#if 0 // *****
-    r = typecheck( pstmt, pos );
-#else
     r = tyinf_decl_var( &tychk_res, &psubst, &pstmt->penv, (pstmt->u.pdecl)->u.variable.pvar, pos );
-#endif
     assert( pstmt );
     assert( pstmt->penv );
     if( r ) {
-#if 0 // *****
-      TYENV_ELEM_PTR pe = (pstmt->penv)->pmappings;
-      while( pe ) {
-	assert( pe->decl.var.plnk_symtbl );
-	assert( pe->decl.var.v.ident );
-	assert( pe->decl.var.v.ptype );
-	(pe->decl.var.plnk_symtbl)->ptype = pe->decl.var.v.ptype;
-	pe = pe->pnext;
-      }
-#else
-#if 0 // *****
-      if( reason != TYCON_WELLTYPED ) {
-	assert( ((pstmt->u.pdecl)->u.variable.pvar)->pinit );
-	//ERRMSG_TYCON_MISMATCH( reason, ((pstmt->u.pdecl)->u.variable.pvar)->pinit, pos );
-      }
-#else
       if( tychk_res.reason != TYCON_WELLTYPED ) {
 	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
       }
-#endif
       reveal_env( pstmt->penv );
-#endif
 #if 1 // for use of temporal debugging.
       {
 	const char *var_id = "a";

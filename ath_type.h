@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 typedef enum type_code {
   TY_INT = 1,
   TY_CHAR,
@@ -30,9 +31,6 @@ typedef struct type_cons {
       struct type_cons *pty_elem;
     } list;
   } attrs;
-#if 0 // *****
-  struct expr_cons *pexpr;
-#endif
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;
 typedef struct type_cons const *TYPE_CONS_PTR_C;

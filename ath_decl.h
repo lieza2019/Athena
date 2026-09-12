@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #define NUM_DECLATTR_VAR_PAR_ALLOC 256
 typedef struct pvar_attrib {
   ALLOC_NODE_LINKS alloc;
@@ -18,9 +19,6 @@ typedef enum decl_sort {
 #define NUM_TYELEMS_PER_ALLOC 256
 typedef struct type_env_elem {
   ALLOC_NODE_LINKS alloc;
-#if 0 // *****
-  DECL_SORT kind;
-#endif
   union {
     struct {
       VAR_ATTRIB v;

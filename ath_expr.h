@@ -1,9 +1,7 @@
+/* purged, 2026/9/12 */
 typedef enum mnemonic_code {
   MNC_CALL = 1,
   MNC_ASGN,
-#if 0 // NOW OBSOLETE
-  MNC_ARITH,
-#endif
   MNC_LVALUE,
   MNC_RVALUE,
   MNC_DECR,
@@ -64,22 +62,13 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
   ( ((e)->mnemonic == MNC_DECR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #define EXAM_INCR_EXPR( e )						\
   ( ((e)->mnemonic == MNC_INCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
-#if 0 // *****
-#define EXAM_CONST_EXPR( e )						\
-  (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright))))
-#else
 #define EXAM_CONST_EXPR( e )						\
   ( (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && ((e)->ptype) )
-#endif
 
 #define TYCON_MISMATCH_REASON_ARGS 4
 typedef struct tychk_result_desc {
   TYCON_MISMATCH_REASON reason;
   int nargs;
-#if 1 // *****
   EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
-#else
-  TYPE_CONS_PTR pty_mismatch[TYCON_MISMATCH_REASON_ARGS];
-#endif
 } TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;

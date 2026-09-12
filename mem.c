@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +58,8 @@ void *new_memarea ( int size ) {
   return r;
 }
 
-ALLOC_NODE_LINKS_PTR alloc_node ( ALLOC_NODE_LINKS_PTR *ppavail, ALLOC_NODE_LINKS_PTR *ppalive, const int node_size, const int nnodes_alloc, SRC_POS_C pos ) {
+ALLOC_NODE_LINKS_PTR alloc_node ( ALLOC_NODE_LINKS_PTR *ppavail, ALLOC_NODE_LINKS_PTR *ppalive,
+				  const int node_size, const int nnodes_alloc, SRC_POS_C pos ) {
   ALLOC_NODE_LINKS_PTR r = NULL;
   assert( ppavail );
   assert( ppalive );

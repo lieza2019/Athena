@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,13 +22,11 @@ void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason ) {
 }
 
 static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
-  //SRC_POS pos;
   char *ps = NULL;
   assert( sbuf );
   assert( pval );
   assert( pval->ptype );
   
-  //pos = pval->pos;
   ps = sbuf;
   switch( (pval->ptype)->type.ty ) {
   case TY_INT:
@@ -117,13 +116,11 @@ static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
 }
 
 char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
-  //SRC_POS pos;
   char *ps = NULL;
   assert( sbuf );
   assert( pvar_attr );
   assert( pvar_attr->ptype );
   
-  //pos = pvar_attr->pos;
   ps = sbuf;
   strcpy( ps, pvar_attr->ident );
   ps += strlen( ps );
@@ -134,10 +131,6 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   case TY_INT:
     if( pvar_attr->pinit ) {
       assert( (pvar_attr->pinit)->ptype );
-#if 0 // *****
-      assert( ((pvar_attr->pinit)->ptype)->type.ty == TY_INT );
-      sprintf( ps, "%d", (pvar_attr->pinit)->kids.body.literal.integer.n );
-#else
       EXPR_CONS_PTR pini = pvar_attr->pinit;
       assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
       if( pini->mnemonic == MNC_RVALUE ) {
@@ -151,7 +144,6 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
 	else
 	  strcpy( ps, "INVALID_DECL_INIVAL" ); 
       }
-#endif
     } else
       strcpy( ps, "NO_DECL_INIVAL" );
     ps += strlen( ps );
@@ -163,18 +155,6 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   case TY_STRING:
     if( pvar_attr->pinit ) {
       assert( (pvar_attr->pinit)->ptype );
-#if 0 // *****
-      assert( ((pvar_attr->pinit)->ptype)->type.ty == TY_STRING );
-      strcpy( ps,  "\"" );
-      ps++;
-      if( (pvar_attr->pinit)->kids.body.literal.string.s ) {
-	sprintf( ps, "%s", (pvar_attr->pinit)->kids.body.literal.string.s );
-	ps += strlen( ps );
-      }
-      assert( *ps == 0 );
-      strcpy( ps,  "\"" );
-      ps++;
-#else
       EXPR_CONS_PTR pini = pvar_attr->pinit;
       assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
       if( pini->mnemonic == MNC_RVALUE ) {
@@ -196,7 +176,6 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
 	invalid_decl_inival_string:
 	  strcpy( ps, "INVALID_DECL_INIVAL" );
       }
-#endif
     } else {
       strcpy( ps, "NO_DECL_INIVAL" );
       ps += strlen( ps );

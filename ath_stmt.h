@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #define MAX_STATEMENTS 64
 
 typedef enum stmt_sort {

@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 %{
   int yylex();
   int yyerror ( const char *s );
@@ -168,41 +169,7 @@ unary_expr : TK_DECL expression {
 
 primary_expr : TK_IDENT {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-#if 0 // *****
-  EXPR_CONS_PTR prval = NULL;
-  prval = alloc_expr_cons( pos );
-  if( prval ) {
-    SYM_ENTITY_PTR psym = NULL;
-    prval->pos = pos;
-    prval->mnemonic = MNC_RVALUE;
-    psym = find_symbol( $1 );
-    if( psym ) {
-      TYPE_ENV_PTR penv_last = NULL;
-      TYENV_ELEM_PTR pe_v = NULL;
-      assert( psym->u.decl.ident );
-      assert( strcmp( psym->u.decl.ident,$1 ) == 0 );
-      assert( psym->u.decl.u.variable.pvar );
-      assert( (psym->u.decl.u.variable.pvar)->ident );
-      assert( strcmp( psym->u.decl.ident, (psym->u.decl.u.variable.pvar)->ident ) == 0 );      
-      assert( statements.phead && statements.plast );
-      assert( (statements.plast)->penv );     
-      penv_last = (statements.plast)->penv;
-      pe_v = env_lkup( penv_last, $1 );
-      assert( pe_v );
-      assert( strcmp( pe_v->decl.var.v.ident, $1 ) == 0 );
-      assert( pe_v->decl.var.v.ptype );
-      assert( pe_v->decl.var.plnk_symtbl == psym->u.decl.u.variable.pvar );
-      prval->kids.body.refaddr.var = pe_v->decl.var.v;
-      prval->ptype = prval->kids.body.refaddr.var.ptype;
-      $$ = prval;
-    } else
-      err_nodef( $1, pos );
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  $$ = prval;
-#else
   $$ = rval_primary_expr( $1, pos );
-#endif
  }
 | const_int {
   $$ = $1;

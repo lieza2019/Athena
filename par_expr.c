@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -10,7 +11,6 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
   
   pe_una = alloc_expr_cons( pos );
   if( pe_una ) {
-    //TYCON_MISMATCH_REASON reason = TYCON_WELLTYPED;
     TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
     TYPE_SUBST_PTR psubst = NULL;
     pe_una->pos = pos;
@@ -29,24 +29,6 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     {
       EXPR_CONS_PTR pe_u = NULL;
       pe_u = ty_infer( &tychk_res, &psubst, (statements.plast ? &(statements.plast)->penv : NULL), pe_una, pos );
-#if 0 // *****
-      if( pe_u )
-	pe_una = pe_u;
-      else {
-	assert( reason != TYCON_WELLTYPED );
-	ERRMSG_TYCON_MISMATCH( reason, pe_una, pos );
-      }
-#else
-#if 0 // *****
-      if( pe_u )
-	pe_una = pe_u;
-      else
-	assert( reason != TYCON_WELLTYPED );
-      if( reason != TYCON_WELLTYPED ) {
-	TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
-	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
-      }
-#else
       if( pe_u )
 	pe_una = pe_u;
       else {
@@ -54,9 +36,6 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 	pe_una->ptype = alloc_type_cons( pos );
 	if( pe_una->ptype ) {
 	  (pe_una->ptype)->type.ty = TY_INT;
-#if 0 // *****
-	  (pe_una->ptype)->pexpr = pe_una;
-#endif
 	} else
 	  goto failed_memalloc;
       }
@@ -64,8 +43,6 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
       }
       assert( pe_una->ptype );
-#endif
-#endif
     }
   } else
   failed_memalloc:

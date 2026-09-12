@@ -1,3 +1,4 @@
+/* purged, 2026/9/12 */
 #define BOOL int
 #define TRUE 1
 #define FALSE 0
