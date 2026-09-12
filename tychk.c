@@ -738,21 +738,28 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
       if( pe_infl ) {
-	if( (pe_infl->ptype)->type.ty == TY_INT ) {
+	if( pe_infl->mnemonic == MNC_RVALUE ) {
+	  if( (pe_infl->ptype)->type.ty == TY_INT ) {
 #if 0 // *****
-	  (pexp_inf->ptype)->type.ty = (pe_infl->ptype)->type.ty;
+	    (pexp_inf->ptype)->type.ty = (pe_infl->ptype)->type.ty;
 #else
-	  pexp_inf->ptype = pe_infl->ptype;
+	    pexp_inf->ptype = pe_infl->ptype;
 #endif
-	  pexp_inf->kids.pleft = pe_infl;
-	  ptychk_res->reason = TYCON_WELLTYPED;
+	    pexp_inf->kids.pleft = pe_infl;
+	    ptychk_res->reason = TYCON_WELLTYPED;
+	  } else {
+	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+#if 0 // *****
+	    ptychk_res->pty_mismatch[0] = pe_infl->ptype;
+#else
+	    ptychk_res->pe_mismatch[0] = pe_infl;
+#endif
+	    ptychk_res->nargs = 1;
+	    pexp_inf = NULL;
+	  }
 	} else {
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-#if 0 // *****
-	  ptychk_res->pty_mismatch[0] = pe_infl->ptype;
-#else
 	  ptychk_res->pe_mismatch[0] = pe_infl;
-#endif
 	  ptychk_res->nargs = 1;
 	  pexp_inf = NULL;
 	}
