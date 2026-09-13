@@ -26,9 +26,9 @@
 %token TK_DQUOT
 %token TK_LSQBL TK_RSQBL
 %token TK_ASGN
-%token TK_DECL TK_PREDECL TK_PSTDECL
+%token TK_DECR TK_PREDECR TK_PSTDECR
 %token TK_MINUS
-%token TK_INCL TK_PREINCL TK_PSTINCL
+%token TK_INCR TK_PREINCR TK_PSTINCR
 %token TK_CROSS
 %token TK_KEYWORD_AS
 %token TK_KEYWORD_INT
@@ -38,7 +38,7 @@
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
 
-%right TK_DECL TK_INCL
+%right TK_DECR TK_INCR
 
 %type <pvar_init> expression unary_expr primary_expr
 %type <pvar_init> const_int const_str
@@ -161,22 +161,22 @@ expression : primary_expr {
   $$ = $1;
  };
 
-unary_expr : TK_DECL expression {
+unary_expr : TK_DECR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $2, TK_PREDECL, pos );
+  $$ = rval_unary_expr( $2, TK_PREDECR, pos );
  }
-| expression TK_DECL {
+| expression TK_DECR {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $1, TK_PSTDECL, pos );
+  $$ = rval_unary_expr( $1, TK_PSTDECR, pos );
   ;
  }
-| TK_INCL expression {
+| TK_INCR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $2, TK_PREINCL, pos );
+  $$ = rval_unary_expr( $2, TK_PREINCR, pos );
  }
-| expression TK_INCL {
+| expression TK_INCR {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $1, TK_PSTINCL, pos );
+  $$ = rval_unary_expr( $1, TK_PSTINCR, pos );
  };
 
 primary_expr : TK_IDENT {

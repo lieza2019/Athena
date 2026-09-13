@@ -77,6 +77,6 @@ typedef struct tychk_result_desc {
   TYCON_MISMATCH_REASON reason;
   COMPILE_ERROR_FATALITY err_lv;
   BOOL suppress;
-  EXPR_CONS_PTR _pexpr;
+  EXPR_CONS_PTR pexpr;
   const char *errmsg;
 } TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;

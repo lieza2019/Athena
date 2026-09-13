@@ -44,7 +44,7 @@ int yywrap( void ) {
 
 "--" {
   yylloc.first_column += strlen( "--" );
-  return TK_DECL;
+  return TK_DECR;
 }
 "-" {
   yylloc.first_column += strlen( "+" );
@@ -52,7 +52,7 @@ int yywrap( void ) {
 }
 "++" {
   yylloc.first_column += strlen( "++" );
-  return TK_INCL;
+  return TK_INCR;
 }
 "+" {
   yylloc.first_column += strlen( "+" );

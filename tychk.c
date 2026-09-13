@@ -520,7 +520,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  } else {
 	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
 	    ptychk_res->err_lv = COMP_ERROR_FATAL;
-	    ptychk_res->_pexpr = pexp_inf;
+	    ptychk_res->pexpr = pexp_inf;
 	    ptychk_res->errmsg = NULL;
 	    pexp_inf = NULL;
 	  }
@@ -565,10 +565,10 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     break;
   case MNC_PREDECR:
     assert( EXAM_PREDECR_EXPR( pexpr ) );
-    goto tyinf_decl;
+    goto tyinf_decr;
   case MNC_PSTDECR:
     assert( EXAM_PSTDECR_EXPR( pexpr ) );
-  tyinf_decl:
+  tyinf_decr:
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       EXPR_CONS_PTR pe_infl = NULL;
@@ -592,14 +592,14 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  } else {
 	    const char *errmsg = "wrong type for decrement operation.";
 	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	    ptychk_res->_pexpr = pexp_inf;
+	    ptychk_res->pexpr = pexp_inf;
 	    ptychk_res->errmsg = find_literal( errmsg, pos );
 	    pexp_inf = NULL;
 	  }
 	} else {
 	  const char *errmsg = "operand is requred as decrement operation.";
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	  ptychk_res->_pexpr = pexp_inf;
+	  ptychk_res->pexpr = pexp_inf;
 	  ptychk_res->errmsg = find_literal( errmsg, pos );
 	  pexp_inf = NULL;
 	}
@@ -612,10 +612,10 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     break;
   case MNC_PREINCR:
     assert( EXAM_PREINCR_EXPR( pexpr ) );
-    goto tyinf_incl;
+    goto tyinf_incr;
   case MNC_PSTINCR:
     assert( EXAM_PSTINCR_EXPR( pexpr ) );
-  tyinf_incl:
+  tyinf_incr:
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       EXPR_CONS_PTR pe_infl = NULL;
@@ -639,14 +639,14 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  } else {
 	    const char *errmsg = "wrong type for increment operation.";
 	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	    ptychk_res->_pexpr = pexp_inf;
+	    ptychk_res->pexpr = pexp_inf;
 	    ptychk_res->errmsg = find_literal( errmsg, pos );
 	    pexp_inf = NULL;
 	  }
 	} else {
 	  const char *errmsg = "operand is requred as increment operation.";
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	  ptychk_res->_pexpr = pexp_inf;
+	  ptychk_res->pexpr = pexp_inf;
 	  ptychk_res->errmsg = find_literal( errmsg, pos );
 	  pexp_inf = NULL;
 	}
