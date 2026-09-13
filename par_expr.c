@@ -15,12 +15,26 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     TYPE_SUBST_PTR psubst = NULL;
     pe_una->pos = pos;
     switch( unary_ope ) {
-    case TK_DECL:
-      pe_una->mnemonic = MNC_DECR;
+    case TK_PREDECL:
+      /* fall thru. */
+    case TK_PSTDECL:
+      if( unary_ope == TK_PSTDECL )
+	pe_una->mnemonic = MNC_PSTDECR;
+      else {
+	assert( unary_ope == TK_PREDECL );
+	pe_una->mnemonic = MNC_PREDECR;
+      }
       pe_una->kids.pleft = pexpr;
       break;
-    case TK_INCL:
-      pe_una->mnemonic = MNC_INCR;
+    case TK_PREINCL:
+      /* fall thru. */
+    case TK_PSTINCL:
+      if( unary_ope == TK_PSTINCL )
+	pe_una->mnemonic = MNC_PSTINCR;
+      else {
+	assert( unary_ope == TK_PREINCL );
+	pe_una->mnemonic = MNC_PREINCR;
+      }
       pe_una->kids.pleft = pexpr;
       break;
     default:

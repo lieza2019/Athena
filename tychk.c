@@ -283,7 +283,8 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
 }
 
 #if 0
-EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
+			 TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
   assert( ptychk_res );
   assert( TYCHK_RESULT_WELLTYPED(*ptychk_res) );
@@ -562,13 +563,22 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     } else
       goto memlack;
     break;
-  case MNC_DECR:
-    assert( EXAM_DECR_EXPR( pexpr ) );
+  case MNC_PREDECR:
+    assert( EXAM_PREDECR_EXPR( pexpr ) );
+    goto tyinf_decl;
+  case MNC_PSTDECR:
+    assert( EXAM_PSTDECR_EXPR( pexpr ) );
+  tyinf_decl:
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       EXPR_CONS_PTR pe_infl = NULL;
       pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_DECR;
+      if( pexpr->mnemonic == MNC_PSTDECR )
+	pexp_inf->mnemonic = MNC_PSTDECR;
+      else {
+	assert( pexpr->mnemonic == MNC_PSTDECR );
+	pexp_inf->mnemonic = MNC_PSTDECR;
+      }
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
@@ -600,13 +610,22 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     } else
       goto memlack;
     break;
-  case MNC_INCR:
-    assert( EXAM_INCR_EXPR( pexpr ) );
+  case MNC_PREINCR:
+    assert( EXAM_PREINCR_EXPR( pexpr ) );
+    goto tyinf_incl;
+  case MNC_PSTINCR:
+    assert( EXAM_PSTINCR_EXPR( pexpr ) );
+  tyinf_incl:
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       EXPR_CONS_PTR pe_infl = NULL;
       pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_INCR;
+      if( pexpr->mnemonic == MNC_PSTINCR )
+	pexp_inf->mnemonic = MNC_PSTINCR;
+      else {
+	assert( pexpr->mnemonic == MNC_PREINCR );
+	pexp_inf->mnemonic = MNC_PREINCR;
+      }
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
@@ -662,7 +681,8 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 }
 #endif
 
-TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
+			       TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   EXPR_CONS_PTR pvardecl_inf = NULL;
   EXPR_CONS_PTR pe_lval = NULL;

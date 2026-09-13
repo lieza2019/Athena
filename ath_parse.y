@@ -26,9 +26,9 @@
 %token TK_DQUOT
 %token TK_LSQBL TK_RSQBL
 %token TK_ASGN
-%token TK_DECL
+%token TK_DECL TK_PREDECL TK_PSTDECL
 %token TK_MINUS
-%token TK_INCL
+%token TK_INCL TK_PREINCL TK_PSTINCL
 %token TK_CROSS
 %token TK_KEYWORD_AS
 %token TK_KEYWORD_INT
@@ -37,6 +37,9 @@
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
+
+%right TK_DECL TK_INCL
+
 %type <pvar_init> expression unary_expr primary_expr
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
@@ -160,11 +163,20 @@ expression : primary_expr {
 
 unary_expr : TK_DECL expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $2, TK_DECL, pos );
-}
+  $$ = rval_unary_expr( $2, TK_PREDECL, pos );
+ }
+| expression TK_DECL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_unary_expr( $1, TK_PSTDECL, pos );
+  ;
+ }
 | TK_INCL expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  $$ = rval_unary_expr( $2, TK_INCL, pos );
+  $$ = rval_unary_expr( $2, TK_PREINCL, pos );
+ }
+| expression TK_INCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_unary_expr( $1, TK_PSTINCL, pos );
  };
 
 primary_expr : TK_IDENT {

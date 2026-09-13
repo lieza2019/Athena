@@ -4,8 +4,10 @@ typedef enum mnemonic_code {
   MNC_ASGN,
   MNC_LVALUE,
   MNC_RVALUE,
-  MNC_DECR,
-  MNC_INCR,
+  MNC_PREDECR,
+  MNC_PSTDECR,
+  MNC_PREINCR,
+  MNC_PSTINCR,
   MNC_LIST,
   MNC_CONST,
   END_OF_MNEMONIC_CODE
@@ -58,10 +60,14 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #define EXAM_RVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && (e)->kids.body.refaddr.var.ident )
-#define EXAM_DECR_EXPR( e )						\
-  ( ((e)->mnemonic == MNC_DECR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
-#define EXAM_INCR_EXPR( e )						\
-  ( ((e)->mnemonic == MNC_INCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_PREDECR_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_PREDECR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_PSTDECR_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_PSTDECR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_PREINCR_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_PREINCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_PSTINCR_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_PSTINCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #define EXAM_CONST_EXPR( e )						\
   ( (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && ((e)->ptype) )
@@ -71,11 +77,6 @@ typedef struct tychk_result_desc {
   TYCON_MISMATCH_REASON reason;
   COMPILE_ERROR_FATALITY err_lv;
   BOOL suppress;
-#if 0 // *****
-  int nargs;
-  EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
-#else
   EXPR_CONS_PTR _pexpr;
   const char *errmsg;
-#endif
 } TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;
