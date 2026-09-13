@@ -69,6 +69,12 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #define TYCON_MISMATCH_REASON_ARGS 4
 typedef struct tychk_result_desc {
   TYCON_MISMATCH_REASON reason;
+  COMPILE_ERROR_FATALITY err_lv;
+#if 0 // *****
   int nargs;
   EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
+#else
+  EXPR_CONS_PTR _pexpr;
+  const char *errmsg;
+#endif
 } TYCHK_RESULT_DESC, *TYCHK_RESULT_DESC_PTR;

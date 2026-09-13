@@ -4,7 +4,9 @@
 #include <assert.h>
 #include "athena.h"
 
-char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR reason_args[], int nargs ) {
+#if 0 // *****
+char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason,
+				    EXPR_CONS_PTR reason_args[], int nargs ) {
   assert( sbuf );
   assert( reason_args );
   sprintf( sbuf, "type constraint mismatched " );
@@ -25,6 +27,33 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EX
   }
   return sbuf;
 }
+#else
+char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res ) {
+  assert( sbuf );
+  assert( ptychk_res );
+  sprintf( sbuf, "type constraint mismatched " );
+  switch( ptychk_res->reason ) {
+  case TYCON_WELLTYPED:
+    sprintf( sbuf, "%s", "" );
+    break;
+  case TYCON_ASGN_TYPEMISMATCH:
+    strcat( sbuf, "on assignment from incompatible type." );
+    break;
+  case TYCON_UNAEXPR_ILLOPERAND:
+    strcat( sbuf, "with its invalid operand type." );
+    break;
+  case END_OF_TYCON_MISMATCH_REASON:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  if( ptychk_res->errmsg ) {
+    strcat( sbuf, " " );
+    strcat( sbuf, ptychk_res->errmsg );
+  }
+  return sbuf;
+}
+#endif
 
 static TYPE_CONS_PTR acc_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;
@@ -278,6 +307,7 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   return r;
 }
 
+#if 0
 EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
   assert( ptychk_res );
@@ -329,9 +359,14 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
 	  } else {
 	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
+#if 0 // *****
 	    ptychk_res->pe_mismatch[0] = pe_infl;
 	    ptychk_res->pe_mismatch[1] = pe_infr;
 	    ptychk_res->nargs = 2;
+#else
+	    ptychk_res->pexpr = NULL;
+	    ptychk_res->errmsg = NULL;
+#endif
 	  }
 	}
       }
@@ -383,14 +418,24 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    ptychk_res->reason = TYCON_WELLTYPED;
 	  } else {
 	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+#if 0 // *****
 	    ptychk_res->pe_mismatch[0] = pe_infl;
 	    ptychk_res->nargs = 1;
+#else
+	    ptychk_res->pexpr = NULL;
+	    ptychk_res->errmsg = NULL;
+#endif
 	    pexp_inf = NULL;
 	  }
 	} else {
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+#if 0 // *****
 	  ptychk_res->pe_mismatch[0] = pe_infl;
 	  ptychk_res->nargs = 1;
+#else
+	  ptychk_res->pexpr = NULL;
+	  ptychk_res->errmsg = NULL;
+#endif
 	  pexp_inf = NULL;
 	}
       }
@@ -414,8 +459,13 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  ptychk_res->reason = TYCON_WELLTYPED;
 	} else {
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+#if 0 // *****
 	  ptychk_res->pe_mismatch[0] = pe_infl;
 	  ptychk_res->nargs = 1;
+#else
+	  ptychk_res->pexpr = NULL;
+	  ptychk_res->errmsg = NULL;
+#endif
 	  pexp_inf = NULL;
 	}
       }
@@ -444,6 +494,188 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
   }
   return pexp_inf;
 }
+#else
+EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
+			 TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pexp_inf = NULL;
+  assert( ptychk_res );
+  assert( TYCHK_RESULT_WELLTYPED(*ptychk_res) );
+  assert( ppsubst );
+  assert( pexpr );
+  
+  switch( pexpr->mnemonic ) {
+  case MNC_CALL:
+    break;
+  case MNC_ASGN:
+    assert( EXAM_ASGN_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      TYPE_SUBST_PTR psubst_l = NULL;
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_ASGN;
+      pe_infl = ty_infer( ptychk_res, &psubst_l, ppenv, pexpr->kids.pleft, pos );
+      if( pe_infl ) {
+	TYPE_SUBST_PTR psubst_r = NULL;
+	EXPR_CONS_PTR pe_infr = NULL;
+	assert( pe_infl->ptype );
+	assert( psubst_l );
+	pe_infr = ty_infer( ptychk_res, &psubst_r, ppenv, pexpr->kids.pright, pos );
+	if( pe_infr ) {
+	  TYPE_SUBST_PTR psubst_u = NULL;
+	  TYPE_CONS_PTR pty_infl_sr = NULL;
+	  assert( pe_infr->ptype );
+	  assert( psubst_r );
+	  pexp_inf->kids.pleft = pe_infl;
+	  pexp_inf->kids.pright = pe_infr;
+	  pexp_inf->ptype = pe_infl->ptype;
+	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
+	  assert( pty_infl_sr );
+	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
+	    assert( psubst_u );
+	    pexp_inf->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
+	    assert( pexp_inf->ptype );
+	    if( *ppenv ) {
+	      *ppenv = env_subst( *ppenv, psubst_u, pos );
+	      assert( *ppenv );
+	    }
+	    *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
+	    ptychk_res->reason = TYCON_WELLTYPED;
+	  } else {
+	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
+	    ptychk_res->err_lv = COMP_ERROR_FATAL;
+	    ptychk_res->_pexpr = pexp_inf;
+	    ptychk_res->errmsg = NULL;
+	    pexp_inf = NULL;
+	  }
+	} else
+	  pexp_inf = NULL;
+      } else
+	pexp_inf = NULL;
+    } else
+      goto memlack;
+    break;
+  case MNC_LVALUE:
+    assert( EXAM_LVALUE_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_LVALUE;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      ptychk_res->reason = TYCON_WELLTYPED;
+    } else
+      goto memlack;
+    break;
+  case MNC_RVALUE:
+    assert( EXAM_RVALUE_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_RVALUE;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.body.refaddr.var.ptype );
+      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+      ptychk_res->reason = TYCON_WELLTYPED;
+    } else
+      goto memlack;
+    break;
+  case MNC_DECR:
+    assert( EXAM_DECR_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_DECR;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	assert( pe_infl->ptype );
+	pexp_inf->kids.pleft = pe_infl;
+	pexp_inf->ptype = pe_infl->ptype;
+	if( pe_infl->mnemonic == MNC_RVALUE ) {
+	  if( (pe_infl->ptype)->type.ty == TY_INT ) {
+	    ptychk_res->reason = TYCON_WELLTYPED;
+	  } else {
+	    const char *errmsg = "wrong type for decrement operation.";
+	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	    ptychk_res->_pexpr = pexp_inf;
+	    ptychk_res->errmsg = find_literal( errmsg, pos );
+	    pexp_inf = NULL;
+	  }
+	} else {
+	  const char *errmsg = "operand is requred as decrement operation.";
+	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	  ptychk_res->_pexpr = pexp_inf;
+	  ptychk_res->errmsg = find_literal( errmsg, pos );
+	  pexp_inf = NULL;
+	}
+      }
+    } else
+      goto memlack;
+    break;
+  case MNC_INCR:
+    assert( EXAM_INCR_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_INCR;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	assert( pe_infl->ptype );
+	pexp_inf->kids.pleft = pe_infl;
+	pexp_inf->ptype = pe_infl->ptype;
+	if( pe_infl->mnemonic == MNC_RVALUE ) {
+	  if( (pe_infl->ptype)->type.ty == TY_INT ) {
+	    ptychk_res->reason = TYCON_WELLTYPED;
+	  } else {
+	    const char *errmsg = "wrong type for increment operation.";
+	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	    ptychk_res->_pexpr = pexp_inf;
+	    ptychk_res->errmsg = find_literal( errmsg, pos );
+	    pexp_inf = NULL;
+	  }
+	} else {
+	  const char *errmsg = "operand is requred as increment operation.";
+	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	  ptychk_res->_pexpr = pexp_inf;
+	  ptychk_res->errmsg = find_literal( errmsg, pos );
+	  pexp_inf = NULL;
+	}
+      }
+    } else
+      goto memlack;
+    break;
+  case MNC_LIST:
+    break;
+  case MNC_CONST:
+    assert( EXAM_CONST_EXPR( pexpr ) );
+    pexp_inf = pexpr;
+    break;
+  case END_OF_MNEMONIC_CODE:
+    /* fall thru. */
+  default:
+    break;
+  }
+  if( pexp_inf ) {
+    assert( pexp_inf->ptype );
+    if( ! *ppsubst ) {
+      *ppsubst = alloc_type_subst( pos );
+      if( ! *ppsubst )
+      memlack:
+	ath_abort( pos, ABORT_MEMLACK );
+    }
+  }
+  return pexp_inf;
+}
+#endif
 
 TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
