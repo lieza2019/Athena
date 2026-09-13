@@ -548,10 +548,14 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    ptychk_res->errmsg = NULL;
 	    pexp_inf = NULL;
 	  }
-	} else
+	} else {
+	  ERRMSG_SUPPRESS( ptychk_res );
 	  pexp_inf = NULL;
-      } else
+	}
+      } else {
+	ERRMSG_SUPPRESS( ptychk_res );
 	pexp_inf = NULL;
+      }
     } else
       goto memlack;
     break;
@@ -614,6 +618,9 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  ptychk_res->errmsg = find_literal( errmsg, pos );
 	  pexp_inf = NULL;
 	}
+      } else {
+	ERRMSG_SUPPRESS( ptychk_res );
+	pexp_inf = NULL;
       }
     } else
       goto memlack;
@@ -649,6 +656,9 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  ptychk_res->errmsg = find_literal( errmsg, pos );
 	  pexp_inf = NULL;
 	}
+      } else {
+	ERRMSG_SUPPRESS( ptychk_res );
+	pexp_inf = NULL;
       }
     } else
       goto memlack;

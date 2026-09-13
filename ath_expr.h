@@ -70,6 +70,7 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 typedef struct tychk_result_desc {
   TYCON_MISMATCH_REASON reason;
   COMPILE_ERROR_FATALITY err_lv;
+  BOOL suppress;
 #if 0 // *****
   int nargs;
   EXPR_CONS_PTR pe_mismatch[TYCON_MISMATCH_REASON_ARGS];
