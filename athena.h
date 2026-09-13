@@ -63,7 +63,6 @@ extern TYPE_ENV_PTR env_subst ( TYPE_ENV_PTR penv, TYPE_SUBST_PTR psubst, SRC_PO
 extern char *print_type ( char *sbuf, TYPE_CONS_PTR_C pty_desc );
 
 /* from tychk.c */
-//extern char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason, EXPR_CONS_PTR reason_args[], int nargs );
 extern char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res );
 extern TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos );

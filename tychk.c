@@ -4,30 +4,6 @@
 #include <assert.h>
 #include "athena.h"
 
-#if 0 // *****
-char *print_tycon_mismatch_reason ( char *sbuf, TYCON_MISMATCH_REASON reason,
-				    EXPR_CONS_PTR reason_args[], int nargs ) {
-  assert( sbuf );
-  assert( reason_args );
-  sprintf( sbuf, "type constraint mismatched " );
-  switch( reason ) {
-  case TYCON_WELLTYPED:
-    sprintf( sbuf, "%s", "" );
-    break;
-  case TYCON_ASGN_TYPEMISMATCH:
-    strcat( sbuf, "on assignment from incompatible type." );
-    break;
-  case TYCON_UNAEXPR_ILLOPERAND:
-    strcat( sbuf, "with its invalid operand type." );
-    break;
-  case END_OF_TYCON_MISMATCH_REASON:
-    /* fall thru. */
-  default:
-    assert( FALSE );
-  }
-  return sbuf;
-}
-#else
 char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res ) {
   assert( sbuf );
   assert( ptychk_res );
@@ -53,7 +29,6 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res
   }
   return sbuf;
 }
-#endif
 
 static TYPE_CONS_PTR acc_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;

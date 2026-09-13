@@ -31,7 +31,6 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   
   pe_vardecl = alloc_type_env( pos );
   if( pe_vardecl ) {
-    //TYCON_MISMATCH_REASON reason = TYCON_WELLTYPED;
     TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
     TYPE_SUBST_PTR psubst = NULL;
     if( statements.plast ) {
