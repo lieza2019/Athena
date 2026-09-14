@@ -576,8 +576,8 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       if( pexpr->mnemonic == MNC_PSTDECR )
 	pexp_inf->mnemonic = MNC_PSTDECR;
       else {
-	assert( pexpr->mnemonic == MNC_PSTDECR );
-	pexp_inf->mnemonic = MNC_PSTDECR;
+	assert( pexpr->mnemonic == MNC_PREDECR );
+	pexp_inf->mnemonic = MNC_PREDECR;
       }
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.pleft );
@@ -587,14 +587,26 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	pexp_inf->kids.pleft = pe_infl;
 	pexp_inf->ptype = pe_infl->ptype;
 	if( pe_infl->mnemonic == MNC_RVALUE ) {
-	  if( (pe_infl->ptype)->type.ty == TY_INT ) {
-	    ptychk_res->reason = TYCON_WELLTYPED;
-	  } else {
-	    const char *errmsg = "wrong type for decrement operation.";
-	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	    ptychk_res->pexpr = pexp_inf;
-	    ptychk_res->errmsg = find_literal( errmsg, pos );
-	    pexp_inf = NULL;
+	  TYPE_CONS_PTR pty_int = NULL;
+	  pty_int = alloc_type_cons( pos );
+	  
+	  if( pty_int ) {
+	    TYPE_SUBST_PTR psubst_u = NULL;
+	    pty_int->type.ty = TY_INT;
+	    if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
+	      assert( psubst_u );
+	      pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
+	      assert( pe_infl->ptype );
+	      assert( (pe_infl->ptype)->type.ty == TY_INT );
+	      pexp_inf->ptype = pe_infl->ptype;
+	      ptychk_res->reason = TYCON_WELLTYPED;
+	    } else {
+	      const char *errmsg = "wrong type for decrement operation.";
+	      ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	      ptychk_res->pexpr = pexp_inf;
+	      ptychk_res->errmsg = find_literal( errmsg, pos );
+	      pexp_inf = NULL;
+	    }
 	  }
 	} else {
 	  const char *errmsg = "operand is requred as decrement operation.";
@@ -634,15 +646,27 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	pexp_inf->kids.pleft = pe_infl;
 	pexp_inf->ptype = pe_infl->ptype;
 	if( pe_infl->mnemonic == MNC_RVALUE ) {
-	  if( (pe_infl->ptype)->type.ty == TY_INT ) {
-	    ptychk_res->reason = TYCON_WELLTYPED;
-	  } else {
-	    const char *errmsg = "wrong type for increment operation.";
-	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	    ptychk_res->pexpr = pexp_inf;
-	    ptychk_res->errmsg = find_literal( errmsg, pos );
-	    pexp_inf = NULL;
-	  }
+	  TYPE_CONS_PTR pty_int = NULL;
+	  pty_int = alloc_type_cons( pos );
+	  if( pty_int ) {
+	    TYPE_SUBST_PTR psubst_u = NULL;
+	    pty_int->type.ty = TY_INT;
+	    if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
+	      assert( psubst_u );
+	      pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
+	      assert( pe_infl->ptype );
+	      assert( (pe_infl->ptype)->type.ty == TY_INT );
+	      pexp_inf->ptype = pe_infl->ptype;
+	      ptychk_res->reason = TYCON_WELLTYPED;
+	    } else {
+	      const char *errmsg = "wrong type for increment operation.";
+	      ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	      ptychk_res->pexpr = pexp_inf;
+	      ptychk_res->errmsg = find_literal( errmsg, pos );
+	      pexp_inf = NULL;
+	    }
+	  } else
+	    goto memlack;
 	} else {
 	  const char *errmsg = "operand is requred as increment operation.";
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;

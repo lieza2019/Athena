@@ -1,3 +1,11 @@
+/*
+  -----------
+  (2026/9/14)
+  a as poly;
+  n as int := ++a;
+  a := UNKNOWN_VALUE:poly
+  -----------
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
