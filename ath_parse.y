@@ -38,6 +38,7 @@
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
 
+%left TK_MINUS
 %right TK_DECR TK_INCR
 
 %type <pvar_init> expression unary_expr primary_expr
@@ -161,7 +162,11 @@ expression : primary_expr {
   $$ = $1;
  };
 
-unary_expr : TK_DECR expression {
+unary_expr : TK_MINUS expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_unary_expr( $2, TK_MINUS, pos );
+ }
+| TK_DECR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = rval_unary_expr( $2, TK_PREDECR, pos );
  }

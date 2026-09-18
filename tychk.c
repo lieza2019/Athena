@@ -563,6 +563,48 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     } else
       goto memlack;
     break;
+  case MNC_NEG:
+    assert( EXAM_NEG_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_NEG;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	TYPE_CONS_PTR pty_int = NULL;
+	assert( pe_infl->ptype );
+	pexp_inf->kids.pleft = pe_infl;
+	pexp_inf->ptype = pe_infl->ptype;
+	pty_int = alloc_type_cons( pos );
+	if( pty_int ) {
+	  TYPE_SUBST_PTR psubst_u = NULL;
+	  pty_int->type.ty = TY_INT;
+	  if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
+	    assert( psubst_u );
+	    pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
+	    assert( pe_infl->ptype );
+	    assert( (pe_infl->ptype)->type.ty == TY_INT );
+	    pexp_inf->ptype = pe_infl->ptype;
+	    ptychk_res->reason = TYCON_WELLTYPED;
+	  } else {
+	    const char *errmsg = "wrong type for negate operation.";
+	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
+	    ptychk_res->pexpr = pexp_inf;
+	    ptychk_res->errmsg = find_literal( errmsg, pos );
+	    pexp_inf = NULL;
+	  }
+	} else
+	  goto memlack;
+      } else {
+	ERRMSG_SUPPRESS( ptychk_res );
+	pexp_inf = NULL;
+      }
+    } else
+      goto memlack;
+    break;
   case MNC_PREDECR:
     assert( EXAM_PREDECR_EXPR( pexpr ) );
     goto tyinf_decr;
@@ -589,7 +631,6 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	if( pe_infl->mnemonic == MNC_RVALUE ) {
 	  TYPE_CONS_PTR pty_int = NULL;
 	  pty_int = alloc_type_cons( pos );
-	  
 	  if( pty_int ) {
 	    TYPE_SUBST_PTR psubst_u = NULL;
 	    pty_int->type.ty = TY_INT;
@@ -607,7 +648,8 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	      ptychk_res->errmsg = find_literal( errmsg, pos );
 	      pexp_inf = NULL;
 	    }
-	  }
+	  } else
+	    goto memlack;
 	} else {
 	  const char *errmsg = "operand is requred as decrement operation.";
 	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;

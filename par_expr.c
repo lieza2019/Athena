@@ -15,6 +15,10 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     TYPE_SUBST_PTR psubst = NULL;
     pe_una->pos = pos;
     switch( unary_ope ) {
+    case TK_MINUS:
+      pe_una->mnemonic = MNC_NEG;
+      pe_una->kids.pleft = pexpr;
+      break;
     case TK_PREDECR:
       /* fall thru. */
     case TK_PSTDECR:

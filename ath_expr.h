@@ -4,6 +4,7 @@ typedef enum mnemonic_code {
   MNC_ASGN,
   MNC_LVALUE,
   MNC_RVALUE,
+  MNC_NEG,
   MNC_PREDECR,
   MNC_PSTDECR,
   MNC_PREINCR,
@@ -60,6 +61,8 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #define EXAM_RVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && (e)->kids.body.refaddr.var.ident )
+#define EXAM_NEG_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_NEG) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #define EXAM_PREDECR_EXPR( e )						\
   ( ((e)->mnemonic == MNC_PREDECR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #define EXAM_PSTDECR_EXPR( e )						\
