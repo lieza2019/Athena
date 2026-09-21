@@ -6,12 +6,12 @@
   a := UNKNOWN_VALUE:poly
   -----------
   (2026/9/14)
-  substitution imposing is missing for the case of MNC_NEG,
-   MNC_PREDECR/MNC_PSTDECR, MNC_PREINCR/MNC_PSTINCR in ty_infer() @tychk.c
-  substitution hasn't applied current type-environment, to record latest
-   type for each type-variable.
-  Only the type-variables belonging to functions, should be generalized,
-   and instantiated also, in tychk.c
+  #substitution imposing is missing for the case of MNC_NEG,
+  # MNC_PREDECR/MNC_PSTDECR, MNC_PREINCR/MNC_PSTINCR in ty_infer() @tychk.c
+  #substitution hasn't applied current type-environment, to record latest
+  # type for each type-variable.
+  #Only the type-variables belonging to functions, should be generalized,
+  # and instantiated also, in tychk.c
   -----------
  */
 #include <stdio.h>

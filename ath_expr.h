@@ -9,6 +9,10 @@ typedef enum mnemonic_code {
   MNC_PSTDECR,
   MNC_PREINCR,
   MNC_PSTINCR,
+  MNC_MUL,
+  MNC_DIV,
+  MNC_ADD,
+  MNC_SUB,
   MNC_LIST,
   MNC_CONST,
   END_OF_MNEMONIC_CODE

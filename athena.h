@@ -96,5 +96,6 @@ extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type
 extern EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PTR psucc_cs, SRC_POS_C pos );
 
 /* from par_expr.c */
+extern EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope, SRC_POS_C pos );			 
 extern EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos );
 extern EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos );

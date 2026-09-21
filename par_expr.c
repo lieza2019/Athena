@@ -5,6 +5,64 @@
 #include "athena.h"
 #include "y.tab.h"
 
+EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope,
+				 SRC_POS_C pos ) {
+  EXPR_CONS_PTR pe_bin = NULL;
+  assert( pexpr1 );
+  assert( pexpr2 );
+  pe_bin = alloc_expr_cons( pos );
+  if( pe_bin ) {
+    TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
+    TYPE_SUBST_PTR psubst = NULL;
+    switch( binary_ope ) {
+    case TK_STAR:
+      pe_bin->mnemonic = MNC_MUL;
+      pe_bin->kids.pleft = pexpr1;
+      pe_bin->kids.pright = pexpr2;
+      break;
+    case TK_SLASH:
+      pe_bin->mnemonic = MNC_DIV;
+      pe_bin->kids.pleft = pexpr1;
+      pe_bin->kids.pright = pexpr2;
+      break;
+    case TK_CROSS:
+      pe_bin->mnemonic = MNC_ADD;
+      pe_bin->kids.pleft = pexpr1;
+      pe_bin->kids.pright = pexpr2;
+      break;
+    case TK_MINUS:
+      pe_bin->mnemonic = MNC_SUB;
+      pe_bin->kids.pleft = pexpr1;
+      pe_bin->kids.pright = pexpr2;
+      break;
+    default:
+      assert( FALSE );
+    }
+    {
+      EXPR_CONS_PTR pe_b = NULL;
+      pe_b = ty_infer( &tychk_res, &psubst,(statements.plast ? &(statements.plast)->penv : NULL),
+		       pe_bin, pos );
+      if( pe_b )
+	pe_bin = pe_b;
+      else {
+	assert( tychk_res.reason != TYCON_WELLTYPED );
+	pe_bin->ptype = alloc_type_cons( pos );
+	if( pe_bin->ptype )
+	  (pe_bin->ptype)->type.ty = TY_INT;
+	else
+	  goto failed_memalloc;
+      }
+      if( tychk_res.reason != TYCON_WELLTYPED ) {
+	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
+      }
+    }
+    assert( pe_bin->ptype );
+  } else
+  failed_memalloc:
+    ath_abort( pos, ABORT_MEMLACK );
+  return pe_bin;
+}
+
 EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_una = NULL;
   assert( pexpr );
@@ -46,22 +104,23 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     }
     {
       EXPR_CONS_PTR pe_u = NULL;
-      pe_u = ty_infer( &tychk_res, &psubst, (statements.plast ? &(statements.plast)->penv : NULL), pe_una, pos );
+      pe_u = ty_infer( &tychk_res, &psubst,(statements.plast ? &(statements.plast)->penv : NULL),
+		       pe_una, pos );
       if( pe_u )
 	pe_una = pe_u;
       else {
 	assert( tychk_res.reason != TYCON_WELLTYPED );
 	pe_una->ptype = alloc_type_cons( pos );
-	if( pe_una->ptype ) {
+	if( pe_una->ptype )
 	  (pe_una->ptype)->type.ty = TY_INT;
-	} else
+	else
 	  goto failed_memalloc;
       }
       if( tychk_res.reason != TYCON_WELLTYPED ) {
 	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
       }
-      assert( pe_una->ptype );
     }
+    assert( pe_una->ptype );
   } else
   failed_memalloc:
     ath_abort( pos, ABORT_MEMLACK );

@@ -41,7 +41,14 @@ int yywrap( void ) {
   yylloc.first_column += strlen( ":=" );
   return TK_ASGN;
 }
-
+"/" {
+  yylloc.first_column += strlen( "/" );
+  return TK_SLASH;
+}
+"*" {
+  yylloc.first_column += strlen( "*" );
+  return TK_STAR;
+}
 "--" {
   yylloc.first_column += strlen( "--" );
   return TK_DECR;

@@ -22,6 +22,7 @@ typedef struct type_cons {
 	const char *ident;
 	struct type_cons *pnext;
       } var;
+      BOOL gencond;
       struct type_cons *pgenvars;
     } tyvars;
     struct type_cons *pstuck;

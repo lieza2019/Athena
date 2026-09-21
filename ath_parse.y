@@ -26,6 +26,8 @@
 %token TK_DQUOT
 %token TK_LSQBL TK_RSQBL
 %token TK_ASGN
+%token TK_STAR
+%token TK_SLASH
 %token TK_DECR TK_PREDECR TK_PSTDECR
 %token TK_MINUS
 %token TK_INCR TK_PREINCR TK_PSTINCR
@@ -38,10 +40,11 @@
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
 
-%left TK_MINUS
+%left TK_CROSS TK_MINUS
+%left TK_STAR TK_SLASH
 %right TK_DECR TK_INCR
 
-%type <pvar_init> expression unary_expr primary_expr
+%type <pvar_init> expression unary_expr primary_expr binary_expr
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
 %type <pty_list_elem> list_elem_type
@@ -155,12 +158,31 @@ list_elem_type : TK_LSQBL TK_RSQBL {
   $$ = var_list_type( $2, TY_LIST, pos );
  };
 
-expression : primary_expr {
-  $$ = $1;
+expression : binary_expr {
  }
 | unary_expr {
   $$ = $1;
+ }
+| primary_expr {
+  $$ = $1;
  };
+
+binary_expr : expression TK_STAR expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_binary_expr( $1, $3, TK_STAR, pos );
+ }
+| expression TK_SLASH expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_binary_expr( $1, $3, TK_SLASH, pos );
+ }
+| expression TK_CROSS expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_binary_expr( $1, $3, TK_CROSS, pos );
+ }
+| expression TK_MINUS expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_binary_expr( $1, $3, TK_MINUS, pos );
+};
 
 unary_expr : TK_MINUS expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -173,7 +195,6 @@ unary_expr : TK_MINUS expression {
 | expression TK_DECR {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = rval_unary_expr( $1, TK_PSTDECR, pos );
-  ;
  }
 | TK_INCR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
