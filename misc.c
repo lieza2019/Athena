@@ -115,6 +115,7 @@ static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
   return ps;
 }
 
+#if 0 // *****
 char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   char *ps = NULL;
   assert( sbuf );
@@ -146,6 +147,9 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
       }
     } else
       strcpy( ps, "NO_DECL_INIVAL" );
+    ps += strlen( ps );
+    assert( *ps == 0 );
+    ps = print_value_type( ps, pvar_attr->pinit );
     ps += strlen( ps );
     assert( *ps == 0 );
     strcpy( ps, ":int" );
@@ -197,7 +201,6 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
       assert( *ps == 0 );
       ps = print_type( ps, pvar_attr->ptype );
     }
-    assert( *ps == 0 );
     break;
   case TY_POLY:
     strcpy( ps, "UNKNOWN_VALUE:poly" );
@@ -213,3 +216,35 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   }
   return ps;
 }
+#else
+char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
+  char *ps = NULL;
+  assert( sbuf );
+  assert( pvar_attr );
+  assert( pvar_attr->ptype );
+  
+  ps = sbuf;
+  strcpy( ps, pvar_attr->ident );
+  ps += strlen( ps );
+  assert( *ps == 0 );
+  
+  strcpy( ps, " : " );
+  ps += strlen( ps );
+  assert( *ps == 0 );
+  ps = print_type( ps, pvar_attr->ptype );
+  assert( *ps == 0 );
+  
+  strcpy( ps, " := " );
+  ps += strlen( ps );
+  assert( *ps == 0 );
+  if( pvar_attr->pinit )
+    ps = print_value_type( ps, pvar_attr->pinit );
+  else {
+    strcpy( ps, "UNKNOWN_VALUE" );
+    ps += strlen( ps );
+  }
+  assert( *ps == 0 );
+  
+  return ps;
+}
+#endif

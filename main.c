@@ -3,15 +3,36 @@
   (2026/9/14)
   a as poly;
   n as int := ++a;
-  a := UNKNOWN_VALUE:poly
+  a : int := UNKNOWN_VALUE
   -----------
-  (2026/9/14)
+  #(2026/9/14)
   #substitution imposing is missing for the case of MNC_NEG,
   # MNC_PREDECR/MNC_PSTDECR, MNC_PREINCR/MNC_PSTINCR in ty_infer() @tychk.c
   #substitution hasn't applied current type-environment, to record latest
   # type for each type-variable.
   #Only the type-variables belonging to functions, should be generalized,
   # and instantiated also, in tychk.c
+  -----------
+  #(2026/9/21)
+  #n as int;
+  #a as int := ++n;
+  #Assertion failed: ((pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST)), function show_var_decl, file misc.c, line 135.
+  #Abort trap: 6
+  -----------
+  (2026/9/22)
+  a as int;
+  b as int := ++c;
+  (2, 16): symbol c has no definition.
+  Assertion failed: (EXAM_RVALUE_EXPR( pexpr )), function ty_infer, file tychk.c, line 859.
+  Abort trap: 6
+  -----------
+  (2026/9/22)
+  a as string = 1;
+  symbol a isnt declared.
+  * n as int := "hello world.";
+  * TK_STR_LITERAL: hello world.
+  * (1, 2): type constraint mismatched on assignment from incompatible type.
+  * symbol a isnt declared.
   -----------
  */
 #include <stdio.h>
