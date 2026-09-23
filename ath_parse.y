@@ -159,6 +159,7 @@ list_elem_type : TK_LSQBL TK_RSQBL {
  };
 
 expression : binary_expr {
+  $$ = $1;
  }
 | unary_expr {
   $$ = $1;

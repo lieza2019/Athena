@@ -27,12 +27,15 @@
   Abort trap: 6
   -----------
   (2026/9/22)
-  a as string = 1;
-  symbol a isnt declared.
-  * n as int := "hello world.";
-  * TK_STR_LITERAL: hello world.
-  * (1, 2): type constraint mismatched on assignment from incompatible type.
-  * symbol a isnt declared.
+  #a as string = 1;
+  #symbol a isnt declared.
+  #* n as int := "hello world.";
+  #* TK_STR_LITERAL: hello world.
+  #* (1, 2): type constraint mismatched on assignment from incompatible type.
+  #* symbol a isnt declared.
+  -----------
+  (2026/9/23)
+  allocation for the memory-area of ident, is different for each creation with SAME-NAME, calling in ty_infer().
   -----------
  */
 #include <stdio.h>

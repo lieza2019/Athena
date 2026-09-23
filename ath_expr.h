@@ -10,9 +10,9 @@ typedef enum mnemonic_code {
   MNC_PREINCR,
   MNC_PSTINCR,
   MNC_MUL,
-  MNC_DIV,
   MNC_ADD,
   MNC_SUB,
+  MNC_DIV,
   MNC_LIST,
   MNC_CONST,
   END_OF_MNEMONIC_CODE
@@ -75,6 +75,14 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
   ( ((e)->mnemonic == MNC_PREINCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #define EXAM_PSTINCR_EXPR( e )						\
   ( ((e)->mnemonic == MNC_PSTINCR) && (((e)->kids.pleft) && !((e)->kids.pright)) )
+#define EXAM_MUL_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_MUL) && (((e)->kids.pleft) && ((e)->kids.pright)) )
+#define EXAM_ADD_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_ADD) && (((e)->kids.pleft) && ((e)->kids.pright)) )
+#define EXAM_SUB_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_SUB) && (((e)->kids.pleft) && ((e)->kids.pright)) )
+#define EXAM_DIV_EXPR( e )						\
+  ( ((e)->mnemonic == MNC_DIV) && (((e)->kids.pleft) && ((e)->kids.pright)) )
 #define EXAM_CONST_EXPR( e )						\
   ( (((e)->mnemonic == MNC_CONST) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && ((e)->ptype) )
