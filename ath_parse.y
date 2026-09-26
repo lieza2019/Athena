@@ -40,6 +40,7 @@
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
 
+%right TK_ASGN
 %left TK_CROSS TK_MINUS
 %left TK_STAR TK_SLASH
 %right TK_DECR TK_INCR
@@ -87,6 +88,9 @@ statement : decl_var {
     ath_abort( pos, ABORT_MEMLACK );
   tychk_decl_var( pstmt, pos );
   $$ = pstmt;
+ };
+| expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
  };
 
 decl_var : decl_var_poly {
@@ -183,7 +187,11 @@ binary_expr : expression TK_STAR expression {
 | expression TK_MINUS expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = rval_binary_expr( $1, $3, TK_MINUS, pos );
-};
+}
+| expression TK_ASGN expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  $$ = rval_binary_expr( $1, $3, TK_ASGN, pos );
+ }
 
 unary_expr : TK_MINUS expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };

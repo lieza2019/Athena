@@ -815,7 +815,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    pexp_inf->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
 	    assert( pexp_inf->ptype );
 	    *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
-#if 0 // *****`
+#if 0 // *****
 	    if( *ppenv ) {
 	      *ppenv = env_subst( *ppenv, psubst_u, pos );
 	      assert( *ppenv );
@@ -909,10 +909,12 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  pty_int->type.ty = TY_INT;
 	  if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
 	    TYPE_ENV_PTR penv_unif = NULL;
+	    TYPE_CONS_PTR pty_infl_su = NULL;
 	    assert( psubst_u );
-	    pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
-	    assert( pe_infl->ptype );
-	    assert( (pe_infl->ptype)->type.ty == TY_INT );
+	    pty_infl_su = ty_subst( psubst_u, pe_infl->ptype, pos );
+	    assert( pty_infl_su );
+	    assert( pty_infl_su->type.ty == TY_INT );
+	    pe_infl->ptype = pty_infl_su;
 	    pexp_inf->ptype = pe_infl->ptype;
 	    *ppsubst = comp_subst( psubst_u, psubst_l, pos );
 #if 1 // *****
@@ -972,10 +974,12 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    pty_int->type.ty = TY_INT;
 	    if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
 	      TYPE_ENV_PTR penv_unif = NULL;
+	      TYPE_CONS_PTR pty_infl_su = NULL;
 	      assert( psubst_u );
-	      pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
-	      assert( pe_infl->ptype );
-	      assert( (pe_infl->ptype)->type.ty == TY_INT );
+	      pty_infl_su = ty_subst( psubst_u, pe_infl->ptype, pos );
+	      assert( pty_infl_su );
+	      assert( pty_infl_su->type.ty == TY_INT );
+	      pe_infl->ptype = pty_infl_su;
 	      pexp_inf->ptype = pe_infl->ptype;
 	      *ppsubst = comp_subst( psubst_u, psubst_l, pos );
 #if 1 // *****
@@ -1042,10 +1046,12 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    pty_int->type.ty = TY_INT;
 	    if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
 	      TYPE_ENV_PTR penv_unif = NULL;
+	      TYPE_CONS_PTR pty_infl_su = NULL;
 	      assert( psubst_u );
-	      pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
-	      assert( pe_infl->ptype );
-	      assert( (pe_infl->ptype)->type.ty == TY_INT );
+	      pty_infl_su = ty_subst( psubst_u, pe_infl->ptype, pos );
+	      assert( pty_infl_su );
+	      assert( pty_infl_su->type.ty == TY_INT );
+	      pe_infl->ptype = pty_infl_su;
 	      pexp_inf->ptype = pe_infl->ptype;
 	      *ppsubst = comp_subst( psubst_u, psubst_l, pos );
 #if 1 // *****

@@ -35,6 +35,11 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
       pe_bin->kids.pleft = pexpr1;
       pe_bin->kids.pright = pexpr2;
       break;
+    case TK_ASGN:
+      pe_bin->mnemonic = MNC_ASGN;
+      pe_bin->kids.pleft = pexpr1;
+      pe_bin->kids.pright = pexpr2;
+      break;
     default:
       assert( FALSE );
     }
