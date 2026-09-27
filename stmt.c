@@ -16,8 +16,29 @@ STATEMENT_PTR new_stmt ( void ) {
   return pr;
 }
 
+BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  BOOL r = FALSE;
+  assert( ppstmt );
+  assert( pexpr );
+  
+  *ppstmt = NULL;
+  *ppstmt = new_stmt();
+  if( *ppstmt ) {
+    (*ppstmt)->pos = pos;
+    (*ppstmt)->sort = STMT_EXPR;
+    (*ppstmt)->u.pexpr = pexpr;
+    r = TRUE;
+    if( !(pexpr->mnemonic == MNC_ASGN) ) {
+      printf( "(%d, %d): statement has no effect.\n", pos.row, pos.col );
+      r = FALSE;
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return r;
+}
+
 BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
-  BOOL redef = FALSE;  
+  BOOL redef = FALSE;
   assert( ppstmt );
   assert( pvar_attr );
   

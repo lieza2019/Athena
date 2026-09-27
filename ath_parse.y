@@ -73,6 +73,7 @@ statements : statements statement {
 statement : decl_var TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
+  /*
   VAR_ATTRIB_PTR pvattr = NULL;
   assert( $1.ident );
   assert( $1.ptype );
@@ -87,10 +88,17 @@ statement : decl_var TK_SMCL {
   } else
     ath_abort( pos, ABORT_MEMLACK );
   tychk_decl_var( pstmt, pos );
+  */
+  pstmt = vardecl2_stmt( &$1, pos );
+  assert( pstmt );
   $$ = pstmt;
  }
 | expression TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  STATEMENT_PTR pstmt = NULL;
+  pstmt = expr2_stmt( $1, pos );
+  assert( pstmt );
+  $$ = pstmt;
  };
 
 decl_var : decl_var_poly {
