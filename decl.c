@@ -3,6 +3,8 @@
 #include <assert.h>
 #include "athena.h"
 
+DECLARATION_PTR pdeclarations;
+
 void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
   assert( pdecl );
   assert( pdecl->u.variable.pvar );

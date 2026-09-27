@@ -38,6 +38,17 @@
   allocation for the memory-area of ident, is different for each creation with SAME-NAME, calling in ty_infer().
   -----------
   (2026/9/27)
+  error-msg emission with SIMPLE printf has no arguments for error described in TYCHK_RESULT_DESC, s.t.
+   ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
+   ptychk_res->err_lv = COMP_ERROR_FATAL;
+   ptychk_res->pexpr = pexp_inf;
+   ptychk_res->errmsg = NULL;
+   pexp_inf = NULL;
+  -----------
+  (2026/9/27)
+  What's the meaning of TYPE_CONS.type.pstuck? Eliminate it if its not needed.
+  -----------
+  (2026/9/27)
   #cleaning up the redundant / obsolete code fragments in the files as fellows,
   -#Makefile   -#ath_expr.h -#ath_misc.h  -#ath_symtbl.h -#decl.c   -#lisp.c     -#misc.c     -#par_stmt.c  -#stmt.c   -#type.c
   -#ath_decl.h -#ath_lex.l  -#ath_parse.y -#ath_type.h   -#err.c    -#main.c     -#par_decl.c -#par_tychk.c -#symtbl.c

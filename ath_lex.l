@@ -28,6 +28,22 @@ int yywrap( void ) {
   yylloc.first_column += strlen( "\"" );
   return TK_DQUOT;
 }
+"{" {
+  yylloc.first_column += strlen( "{" );
+  return TK_LBRA;
+}
+"}" {
+  yylloc.first_column += strlen( "}" );
+  return TK_RBRA;
+}
+"(" {
+  yylloc.first_column += strlen( "(" );
+  return TK_LPAR;
+}
+")" {
+  yylloc.first_column += strlen( ")" );
+  return TK_RPAR;
+}
 "[" {
   yylloc.first_column += strlen( "[" );
   return TK_LSQBL;
@@ -73,13 +89,17 @@ int yywrap( void ) {
   yylloc.first_column += strlen( yytext );
   return TK_KEYWORD_INT;
 }
-"string" {
-  yylloc.first_column += strlen( yytext );
-  return TK_KEYWORD_STRING;
-}
 "poly" {
   yylloc.first_column += strlen( yytext );
   return TK_KEYWORD_POLY;
+}
+"proc" {
+  yylloc.first_column += strlen( yytext );
+  return TK_KEYWORD_PROC;
+}
+"string" {
+  yylloc.first_column += strlen( yytext );
+  return TK_KEYWORD_STRING;
 }
 
 "-"*[0-9]+ {

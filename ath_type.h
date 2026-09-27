@@ -30,6 +30,9 @@ typedef struct type_cons {
     struct {
       struct type_cons *pty_elem;
     } list;
+    struct {
+      struct type_cons *pnext;
+    } proc_arg;
   } attrs;
 } TYPE_CONS, *TYPE_CONS_PTR;
 typedef const struct type_cons TYPE_CONS_C;

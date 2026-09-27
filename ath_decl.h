@@ -1,19 +1,22 @@
 #define NUM_DECLATTR_VAR_PAR_ALLOC 256
-typedef struct pvar_attrib {
+typedef struct var_attrib {
   ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
   const char *ident;
   TYPE_CONS_PTR ptype;
-  struct expr_cons *pinit; // EXPR_CONS_PTR pinit;
+  struct expr_cons *pinit;
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
 typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
 
-typedef enum decl_sort {
-  DECL_FUN = 1,
-  DECL_VAR,
-  END_OF_DECL_KIND
-} DECL_SORT;
+typedef struct proc_attrib {
+  ALLOC_NODE_LINKS alloc;
+  SRC_POS pos;
+  const char *ident;
+  TYPE_CONS_PTR ptype;
+  TYPE_CONS_PTR pty_args;
+  struct statements *pstmts;
+} PROC_ATTRIB, *PROC_ATTRIB_PTR;
 
 #define NUM_TYELEMS_PER_ALLOC 256
 typedef struct type_env_elem {
@@ -34,6 +37,11 @@ typedef struct type_env {
   struct type_env *dnlink;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
+typedef enum decl_sort {
+  DECL_FUN = 1,
+  DECL_VAR,
+  END_OF_DECL_KIND
+} DECL_SORT;
 typedef struct declaration {
   SRC_POS pos;
   const char *ident;
@@ -42,7 +50,12 @@ typedef struct declaration {
     struct {
       VAR_ATTRIB_PTR pvar;
     } variable;
+    struct {
+      PROC_ATTRIB_PTR pproc;
+    } procedure;
   } u;
 } DECLARATION, *DECLARATION_PTR;
 typedef const struct declaration DECL_ATTRIB_C;
 typedef struct declaration const *DECL_ATTRIB_PTR_C;
+
+extern DECLARATION_PTR pdeclarations;

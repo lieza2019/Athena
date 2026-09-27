@@ -18,11 +18,15 @@
   EXPR_CONS_PTR pvar_init;
   TYPE_CONS_PTR pty_list_elem;
   VAR_ATTRIB var_attr;
+  PROC_ATTRIB proc_attr;
   STATEMENT_PTR pstmt_last;
+  DECLARATION_PTR pdecl_last;
 }
 %token <tk_chr> TK_SMCL
 %token TK_COMMA
 %token TK_DQUOT
+%token TK_LBRA TK_RBRA
+%token TK_LPAR TK_RPAR
 %token TK_LSQBL TK_RSQBL
 %token TK_ASGN
 %token TK_STAR
@@ -35,6 +39,7 @@
 %token TK_KEYWORD_INT
 %token TK_KEYWORD_STRING
 %token TK_KEYWORD_POLY
+%token TK_KEYWORD_PROC
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
@@ -49,9 +54,22 @@
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
 %type <pty_list_elem> list_elem_type
 %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list
+ /* %type <proc_attr> decl_proc */
 %type <pstmt_last> statement statements
+%type <pdecl_last> declaration declarations
 %start statements
+ /* %start declarations */
 %%
+declarations : declarations declaration {
+ }
+| declaration : TK_KEYWORD_PROC TK_LPAR TK_RPAR TK_LBRA TK_RBRA {
+ };
+/*
+decl_proc : {
+  ;
+};
+*/
+
 statements : statements statement {
   assert( statements.phead );
   assert( $1 );
@@ -96,7 +114,6 @@ decl_var : decl_var_poly {
 | decl_var_list {
   $$ = $1;
  };
-
 
 decl_var_poly : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_POLY {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
