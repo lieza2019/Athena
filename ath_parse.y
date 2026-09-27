@@ -15,8 +15,9 @@
   char tk_chr;
   int nat;
   char *str;
-  EXPR_CONS_PTR pvar_init;
+  TYPE_CONS_PTR pty_obj;
   TYPE_CONS_PTR pty_list_elem;
+  EXPR_CONS_PTR pvar_init;  
   VAR_ATTRIB var_attr;
   PROC_ATTRIB proc_attr;
   STATEMENT_PTR pstmt_last;
@@ -49,12 +50,14 @@
 %left TK_STAR TK_SLASH
 %right TK_DECR TK_INCR
 
+%type <pty_obj> obj_type
+%type <pty_list_elem> list_elem_type
 %type <pvar_init> expression unary_expr primary_expr binary_expr
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
-%type <pty_list_elem> list_elem_type
-%type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list
- /* %type <proc_attr> decl_proc */
+ /* %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list */
+%type <var_attr> decl_var decl_var_list
+%type <proc_attr> decl_proc
 %type <pstmt_last> statement statements
 %type <pdecl_last> declaration declarations
 %start statements
@@ -62,13 +65,12 @@
 %%
 declarations : declarations declaration {
  }
-| declaration : TK_KEYWORD_PROC TK_LPAR TK_RPAR TK_LBRA TK_RBRA {
+| declaration : decl_proc {
  };
-/*
-decl_proc : {
+decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA TK_RBRA {
+  /* proc int foo () { } */
   ;
 };
-*/
 
 statements : statements statement {
   assert( statements.phead );
@@ -102,6 +104,27 @@ statement : decl_var TK_SMCL {
   $$ = pstmt;
  };
 
+decl_vars : decl_vars decl_var {
+ }
+| decl_var {
+  ;
+ };
+
+decl_var : TK_IDENT TK_KEYWORD_AS obj_type {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $3 );
+  decl_var_attrib( &$$, $1, $3->type.ty, NULL, NULL, pos );
+ }
+| TK_IDENT TK_KEYWORD_AS obj_type TK_ASGN expression {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $3 );
+  decl_var_attrib( &$$, $1, $3->type.ty, NULL, $5, pos );
+ }
+| decl_var_list {
+  $$ = $1;
+ };
+
+/*
 decl_var : decl_var_poly {
   $$ = $1;
  }
@@ -141,7 +164,7 @@ decl_var_string : TK_IDENT TK_KEYWORD_AS TK_KEYWORD_STRING {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_STRING, NULL, $5, pos );
   };
-
+*/
 decl_var_list : TK_IDENT TK_KEYWORD_AS list_elem_type {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   decl_var_attrib( &$$, $1, TY_LIST, $3, NULL, pos );
@@ -170,6 +193,34 @@ list_elem_type : TK_LSQBL TK_RSQBL {
 | TK_LSQBL list_elem_type TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = var_list_type( $2, TY_LIST, pos );
+ };
+
+obj_type : TK_KEYWORD_POLY {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  TYPE_CONS_PTR pty_poly = NULL;
+  pty_poly = alloc_type_cons( pos );
+  if( pty_poly ) {
+    $$ = pty_poly;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+ }
+| TK_KEYWORD_INT {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  TYPE_CONS_PTR pty_int = NULL;
+  pty_int = alloc_type_cons( pos );
+  if( pty_int ) {
+    $$ = pty_int;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+ }
+| TK_KEYWORD_STRING {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  TYPE_CONS_PTR pty_string = NULL;
+  pty_string = alloc_type_cons( pos );
+  if( pty_string ) {
+    $$ = pty_string;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
  };
 
 expression : binary_expr {

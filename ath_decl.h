@@ -4,7 +4,19 @@ typedef struct var_attrib {
   SRC_POS pos;
   const char *ident;
   TYPE_CONS_PTR ptype;
+#if 1
   struct expr_cons *pinit;
+#endif
+  union {
+#if 0
+    struct {
+      struct expr_cons *pinit;
+    } variable;
+#endif
+    struct {
+      struct var_attrib *parg_next;
+    } procedure;
+  } opts;
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
 typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
