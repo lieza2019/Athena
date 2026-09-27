@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 %{
   int yylex();
   int yyerror ( const char *s );
@@ -73,22 +72,6 @@ statements : statements statement {
 statement : decl_var TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
-  /*
-  VAR_ATTRIB_PTR pvattr = NULL;
-  assert( $1.ident );
-  assert( $1.ptype );
-  pvattr = alloc_var_attr( pos );
-  if( pvattr ) {
-    pvattr->pos = $1.pos;
-    pvattr->ident = $1.ident;
-    pvattr->ptype = $1.ptype;
-    pvattr->pinit = $1.pinit;
-    stmt_decl_var( &pstmt, pvattr, pos );
-    assert( pstmt );
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  tychk_decl_var( pstmt, pos );
-  */
   pstmt = vardecl2_stmt( &$1, pos );
   assert( pstmt );
   $$ = pstmt;

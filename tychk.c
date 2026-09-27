@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -288,493 +287,13 @@ BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty
   return r;
 }
 
-#if 0
 EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 			 TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   EXPR_CONS_PTR pexp_inf = NULL;
   assert( ptychk_res );
   assert( TYCHK_RESULT_WELLTYPED(*ptychk_res) );
   assert( ppsubst );
-  assert( pexpr );
-  
-  switch( pexpr->mnemonic ) {
-  case MNC_CALL:
-    break;
-  case MNC_ASGN:
-    assert( EXAM_ASGN_EXPR( pexpr ) );
-    {
-      TYPE_SUBST_PTR psubst_l = NULL;
-      EXPR_CONS_PTR pe_infl = NULL;
-      pe_infl = ty_infer( ptychk_res, &psubst_l, ppenv, pexpr->kids.pleft, pos );
-      if( pe_infl ) {
-	TYPE_SUBST_PTR psubst_r = NULL;
-	EXPR_CONS_PTR pe_infr = NULL;
-	assert( pe_infl->ptype );
-	assert( psubst_l );
-	pe_infr = ty_infer( ptychk_res, &psubst_r, ppenv, pexpr->kids.pright, pos );
-	if( pe_infr ) {
-	  TYPE_SUBST_PTR psubst_u = NULL;
-	  TYPE_CONS_PTR pty_infl_sr = NULL;
-	  assert( pe_infr->ptype );
-	  assert( psubst_r );
-	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
-	  assert( pty_infl_sr );
-	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
-	    EXPR_CONS_PTR pe_infl_su = NULL;
-	    assert( psubst_u );
-	    pe_infl_su = alloc_expr_cons( pos );
-	    if( pe_infl_su ) {
-	      pe_infl_su->pos = pos;
-	      pe_infl_su->mnemonic = MNC_ASGN;
-	      pe_infl_su->kids.pleft = pe_infl;
-	      pe_infl_su->kids.pright = pe_infr;
-	      pe_infl_su->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
-	      assert( pe_infl_su->ptype );
-	      if( *ppenv ) {
-		*ppenv = env_subst( *ppenv, psubst_u, pos );
-		assert( *ppenv );
-	      }
-	      *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
-	      pexp_inf = pe_infl_su;
-	      ptychk_res->reason = TYCON_WELLTYPED;
-	    } else
-	      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
-	  } else {
-	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
-#if 0 // *****
-	    ptychk_res->pe_mismatch[0] = pe_infl;
-	    ptychk_res->pe_mismatch[1] = pe_infr;
-	    ptychk_res->nargs = 2;
-#else
-	    ptychk_res->pexpr = NULL;
-	    ptychk_res->errmsg = NULL;
-#endif
-	  }
-	}
-      }
-    }
-    break;
-  case MNC_LVALUE:
-    assert( EXAM_LVALUE_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_LVALUE;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.body.refaddr.var.ptype );
-      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
-      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
-      ptychk_res->reason = TYCON_WELLTYPED;
-    } else
-      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
-    break;
-  case MNC_RVALUE:
-    assert( EXAM_RVALUE_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_RVALUE;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.body.refaddr.var.ptype );
-      inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
-      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
-      ptychk_res->reason = TYCON_WELLTYPED;
-    } else
-      goto memlack; // ath_abort( pos,ABORT_MEMLACK );
-    break;
-  case MNC_DECR:
-    assert( EXAM_DECR_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      EXPR_CONS_PTR pe_infl = NULL;
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_DECR;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.pleft );
-      pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
-      if( pe_infl ) {
-	if( pe_infl->mnemonic == MNC_RVALUE ) {
-	  if( (pe_infl->ptype)->type.ty == TY_INT ) {
-	    pexp_inf->ptype = pe_infl->ptype;
-	    pexp_inf->kids.pleft = pe_infl;
-	    ptychk_res->reason = TYCON_WELLTYPED;
-	  } else {
-	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-#if 0 // *****
-	    ptychk_res->pe_mismatch[0] = pe_infl;
-	    ptychk_res->nargs = 1;
-#else
-	    ptychk_res->pexpr = NULL;
-	    ptychk_res->errmsg = NULL;
-#endif
-	    pexp_inf = NULL;
-	  }
-	} else {
-	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-#if 0 // *****
-	  ptychk_res->pe_mismatch[0] = pe_infl;
-	  ptychk_res->nargs = 1;
-#else
-	  ptychk_res->pexpr = NULL;
-	  ptychk_res->errmsg = NULL;
-#endif
-	  pexp_inf = NULL;
-	}
-      }
-    } else
-      goto memlack; // ath_abort( pos, ABORT_MEMLACK );
-    break;
-  case MNC_INCR:
-    assert( EXAM_INCR_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      EXPR_CONS_PTR pe_infl = NULL;
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_INCR;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.pleft );
-      pe_infl = ty_infer( ptychk_res, ppsubst, ppenv, pexp_inf->kids.pleft, pos );
-      if( pe_infl ) {
-	if( (pe_infl->ptype)->type.ty == TY_INT ) {
-	  pexp_inf->ptype = pe_infl->ptype;
-	  pexp_inf->kids.pleft = pe_infl;
-	  ptychk_res->reason = TYCON_WELLTYPED;
-	} else {
-	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-#if 0 // *****
-	  ptychk_res->pe_mismatch[0] = pe_infl;
-	  ptychk_res->nargs = 1;
-#else
-	  ptychk_res->pexpr = NULL;
-	  ptychk_res->errmsg = NULL;
-#endif
-	  pexp_inf = NULL;
-	}
-      }
-    } else
-      goto memlack;
-    break;
-  case MNC_LIST:
-    break;
-  case MNC_CONST:
-    assert( EXAM_CONST_EXPR( pexpr ) );
-    pexp_inf = pexpr;
-    break;
-  case END_OF_MNEMONIC_CODE:
-    /* fall thru. */
-  default:
-    break;
-  }
-  if( pexp_inf ) {
-    assert( pexp_inf->ptype );
-    if( ! *ppsubst ) {
-      *ppsubst = alloc_type_subst( pos );
-      if( ! *ppsubst )
-      memlack:
-	ath_abort( pos, ABORT_MEMLACK );
-    }
-  }
-  return pexp_inf;
-}
-#else
-#if 0
-EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
-			 TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
-  EXPR_CONS_PTR pexp_inf = NULL;
-  assert( ptychk_res );
-  assert( TYCHK_RESULT_WELLTYPED(*ptychk_res) );
-  assert( ppsubst );
-  assert( pexpr );
-  
-  switch( pexpr->mnemonic ) {
-  case MNC_CALL:
-    break;
-  case MNC_ASGN:
-    assert( EXAM_ASGN_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      TYPE_SUBST_PTR psubst_l = NULL;
-      EXPR_CONS_PTR pe_infl = NULL;
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_ASGN;
-      pe_infl = ty_infer( ptychk_res, &psubst_l, ppenv, pexpr->kids.pleft, pos );
-      if( pe_infl ) {
-	TYPE_SUBST_PTR psubst_r = NULL;
-	EXPR_CONS_PTR pe_infr = NULL;
-	assert( pe_infl->ptype );
-	assert( psubst_l );
-	pe_infr = ty_infer( ptychk_res, &psubst_r, ppenv, pexpr->kids.pright, pos );
-	if( pe_infr ) {
-	  TYPE_SUBST_PTR psubst_u = NULL;
-	  TYPE_CONS_PTR pty_infl_sr = NULL;
-	  assert( pe_infr->ptype );
-	  assert( psubst_r );
-	  pexp_inf->kids.pleft = pe_infl;
-	  pexp_inf->kids.pright = pe_infr;
-	  pexp_inf->ptype = pe_infl->ptype;
-	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
-	  assert( pty_infl_sr );
-	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
-	    assert( psubst_u );
-	    pexp_inf->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
-	    assert( pexp_inf->ptype );
-	    if( *ppenv ) {
-	      *ppenv = env_subst( *ppenv, psubst_u, pos );
-	      assert( *ppenv );
-	    }
-	    *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
-	    ptychk_res->reason = TYCON_WELLTYPED;
-	  } else {
-	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
-	    ptychk_res->err_lv = COMP_ERROR_FATAL;
-	    ptychk_res->pexpr = pexp_inf;
-	    ptychk_res->errmsg = NULL;
-	    pexp_inf = NULL;
-	  }
-	} else {
-	  ERRMSG_SUPPRESS( ptychk_res );
-	  pexp_inf = NULL;
-	}
-      } else {
-	ERRMSG_SUPPRESS( ptychk_res );
-	pexp_inf = NULL;
-      }
-    } else
-      goto memlack;
-    break;
-  case MNC_LVALUE:
-    assert( EXAM_LVALUE_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_LVALUE;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.body.refaddr.var.ptype );
-      if( pexp_inf->kids.body.refaddr.var.ptype &&
-	  (pexp_inf->kids.body.refaddr.var.ptype)->type.tyvars.gencond )
-	inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
-      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
-      ptychk_res->reason = TYCON_WELLTYPED;
-    } else
-      goto memlack;
-    break;
-  case MNC_RVALUE:
-    assert( EXAM_RVALUE_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_RVALUE;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.body.refaddr.var.ptype );
-      if( pexp_inf->kids.body.refaddr.var.ptype &&
-	  (pexp_inf->kids.body.refaddr.var.ptype)->type.tyvars.gencond )
-	inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
-      pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
-      ptychk_res->reason = TYCON_WELLTYPED;
-    } else
-      goto memlack;
-    break;
-  case MNC_NEG:
-    assert( EXAM_NEG_EXPR( pexpr ) );
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      TYPE_SUBST_PTR psubst_l = NULL;
-      EXPR_CONS_PTR pe_infl = NULL;
-      pexp_inf->pos = pos;
-      pexp_inf->mnemonic = MNC_NEG;
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.pleft );
-      pe_infl = ty_infer( ptychk_res, &psubst_l, ppenv, pexp_inf->kids.pleft, pos );
-      if( pe_infl ) {
-	TYPE_CONS_PTR pty_int = NULL;
-	assert( pe_infl->ptype );
-	assert( psubst_l );
-	pexp_inf->kids.pleft = pe_infl;
-	pexp_inf->ptype = pe_infl->ptype;
-	pty_int = alloc_type_cons( pos );
-	if( pty_int ) {
-	  TYPE_SUBST_PTR psubst_u = NULL;
-	  pty_int->type.ty = TY_INT;
-	  if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
-	    assert( psubst_u );
-	    pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
-	    assert( pe_infl->ptype );
-	    assert( (pe_infl->ptype)->type.ty == TY_INT );
-	    pexp_inf->ptype = pe_infl->ptype;
-	    *ppsubst = comp_subst( psubst_u, psubst_l, pos );
-	    ptychk_res->reason = TYCON_WELLTYPED;
-	  } else {
-	    const char *errmsg = "wrong type for negate operation.";
-	    ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	    ptychk_res->pexpr = pexp_inf;
-	    ptychk_res->errmsg = find_literal( errmsg, pos );
-	    pexp_inf = NULL;
-	  }
-	} else
-	  goto memlack;
-      } else {
-	ERRMSG_SUPPRESS( ptychk_res );
-	pexp_inf = NULL;
-      }
-    } else
-      goto memlack;
-    break;
-  case MNC_PREDECR:
-    assert( EXAM_PREDECR_EXPR( pexpr ) );
-    goto tyinf_decr;
-  case MNC_PSTDECR:
-    assert( EXAM_PSTDECR_EXPR( pexpr ) );
-  tyinf_decr:
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      TYPE_SUBST_PTR psubst_l = NULL;
-      EXPR_CONS_PTR pe_infl = NULL;
-      pexp_inf->pos = pos;
-      if( pexpr->mnemonic == MNC_PSTDECR )
-	pexp_inf->mnemonic = MNC_PSTDECR;
-      else {
-	assert( pexpr->mnemonic == MNC_PREDECR );
-	pexp_inf->mnemonic = MNC_PREDECR;
-      }
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.pleft );
-      pe_infl = ty_infer( ptychk_res, &psubst_l, ppenv, pexp_inf->kids.pleft, pos );
-      if( pe_infl ) {
-	assert( pe_infl->ptype );
-	assert( psubst_l );
-	pexp_inf->kids.pleft = pe_infl;
-	pexp_inf->ptype = pe_infl->ptype;
-	if( pe_infl->mnemonic == MNC_RVALUE ) {
-	  TYPE_CONS_PTR pty_int = NULL;
-	  pty_int = alloc_type_cons( pos );
-	  if( pty_int ) {
-	    TYPE_SUBST_PTR psubst_u = NULL;
-	    pty_int->type.ty = TY_INT;
-	    if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
-	      assert( psubst_u );
-	      pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
-	      assert( pe_infl->ptype );
-	      assert( (pe_infl->ptype)->type.ty == TY_INT );
-	      pexp_inf->ptype = pe_infl->ptype;
-	      *ppsubst = comp_subst( psubst_u, psubst_l, pos );
-	      ptychk_res->reason = TYCON_WELLTYPED;
-	    } else {
-	      const char *errmsg = "wrong type for decrement operation.";
-	      ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	      ptychk_res->pexpr = pexp_inf;
-	      ptychk_res->errmsg = find_literal( errmsg, pos );
-	      pexp_inf = NULL;
-	    }
-	  } else
-	    goto memlack;
-	} else {
-	  const char *errmsg = "operand is requred as decrement operation.";
-	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	  ptychk_res->pexpr = pexp_inf;
-	  ptychk_res->errmsg = find_literal( errmsg, pos );
-	  pexp_inf = NULL;
-	}
-      } else {
-	ERRMSG_SUPPRESS( ptychk_res );
-	pexp_inf = NULL;
-      }
-    } else
-      goto memlack;
-    break;
-  case MNC_PREINCR:
-    assert( EXAM_PREINCR_EXPR( pexpr ) );
-    goto tyinf_incr;
-  case MNC_PSTINCR:
-    assert( EXAM_PSTINCR_EXPR( pexpr ) );
-  tyinf_incr:
-    pexp_inf = alloc_expr_cons( pos );
-    if( pexp_inf ) {
-      TYPE_SUBST_PTR psubst_l = NULL;
-      EXPR_CONS_PTR pe_infl = NULL;
-      pexp_inf->pos = pos;
-      if( pexpr->mnemonic == MNC_PSTINCR )
-	pexp_inf->mnemonic = MNC_PSTINCR;
-      else {
-	assert( pexpr->mnemonic == MNC_PREINCR );
-	pexp_inf->mnemonic = MNC_PREINCR;
-      }
-      pexp_inf->kids = pexpr->kids;
-      assert( pexp_inf->kids.pleft );
-      pe_infl = ty_infer( ptychk_res, &psubst_l, ppenv, pexp_inf->kids.pleft, pos );
-      if( pe_infl ) {
-	assert( pe_infl->ptype );
-	assert( psubst_l );
-	pexp_inf->kids.pleft = pe_infl;
-	pexp_inf->ptype = pe_infl->ptype;
-	if( pe_infl->mnemonic == MNC_RVALUE ) {
-	  TYPE_CONS_PTR pty_int = NULL;
-	  pty_int = alloc_type_cons( pos );
-	  if( pty_int ) {
-	    TYPE_SUBST_PTR psubst_u = NULL;
-	    pty_int->type.ty = TY_INT;
-	    if( ty_unify( &psubst_u, pe_infl->ptype, pty_int, pos ) ) {
-	      assert( psubst_u );
-	      pe_infl->ptype = ty_subst( psubst_u, pe_infl->ptype, pos );
-	      assert( pe_infl->ptype );
-	      assert( (pe_infl->ptype)->type.ty == TY_INT );
-	      pexp_inf->ptype = pe_infl->ptype;
-	      *ppsubst = comp_subst( psubst_u, psubst_l, pos );
-	      ptychk_res->reason = TYCON_WELLTYPED;
-	    } else {
-	      const char *errmsg = "wrong type for increment operation.";
-	      ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	      ptychk_res->pexpr = pexp_inf;
-	      ptychk_res->errmsg = find_literal( errmsg, pos );
-	      pexp_inf = NULL;
-	    }
-	  } else
-	    goto memlack;
-	} else {
-	  const char *errmsg = "operand is requred as increment operation.";
-	  ptychk_res->reason = TYCON_UNAEXPR_ILLOPERAND;
-	  ptychk_res->pexpr = pexp_inf;
-	  ptychk_res->errmsg = find_literal( errmsg, pos );
-	  pexp_inf = NULL;
-	}
-      } else {
-	ERRMSG_SUPPRESS( ptychk_res );
-	pexp_inf = NULL;
-      }
-    } else
-      goto memlack;
-    break;
-  case MNC_LIST:
-    break;
-  case MNC_CONST:
-    assert( EXAM_CONST_EXPR( pexpr ) );
-    pexp_inf = pexpr;
-    break;
-  case END_OF_MNEMONIC_CODE:
-    /* fall thru. */
-  default:
-    break;
-  }
-  if( pexp_inf ) {
-    assert( pexp_inf->ptype );
-    if( ! *ppsubst ) {
-      *ppsubst = alloc_type_subst( pos );
-      if( ! *ppsubst )
-      memlack:
-	ath_abort( pos, ABORT_MEMLACK );
-    }
-  }
-  return pexp_inf;
-}
-#else
-EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
-			 TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
-  EXPR_CONS_PTR pexp_inf = NULL;
-  assert( ptychk_res );
-  assert( TYCHK_RESULT_WELLTYPED(*ptychk_res) );
-  assert( ppsubst );
-#if 1 // *****
   assert( ppenv );
-#endif
   assert( pexpr );
   
   switch( pexpr->mnemonic ) {
@@ -815,16 +334,9 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    pexp_inf->ptype = ty_subst( psubst_u, pty_infl_sr, pos );
 	    assert( pexp_inf->ptype );
 	    *ppsubst = comp_subst( psubst_u, comp_subst( psubst_r, psubst_l, pos ), pos );
-#if 0 // *****
-	    if( *ppenv ) {
-	      *ppenv = env_subst( *ppenv, psubst_u, pos );
-	      assert( *ppenv );
-	    }
-#else
 	    penv_unif = dup_env( penv_infr, pos );
 	    assert( penv_unif );
 	    *ppenv = env_subst( penv_unif, psubst_u, pos );
-#endif
 	    ptychk_res->reason = TYCON_WELLTYPED;
 	  } else {
 	    ptychk_res->reason = TYCON_ASGN_TYPEMISMATCH;
@@ -853,10 +365,6 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       pexp_inf->mnemonic = MNC_LVALUE;
       pexp_inf->kids = pexpr->kids;
       assert( pexp_inf->kids.body.refaddr.var.ptype );
-#if 0 // *****
-      if( (pexp_inf->kids.body.refaddr.var.ptype)->type.tyvars.gencond )
-	inst_gtvs( pexp_inf->kids.body.refaddr.var.ptype, pos );
-#endif
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
       penv_inf = dup_env( *ppenv, pos );
       assert( penv_inf );
@@ -917,11 +425,9 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    pe_infl->ptype = pty_infl_su;
 	    pexp_inf->ptype = pe_infl->ptype;
 	    *ppsubst = comp_subst( psubst_u, psubst_l, pos );
-#if 1 // *****
 	    penv_unif = dup_env( penv_infl, pos );
 	    assert( penv_unif );
 	    *ppenv = env_subst( penv_unif, psubst_u, pos );
-#endif
 	    ptychk_res->reason = TYCON_WELLTYPED;
 	  } else {
 	    const char *errmsg = "wrong type for negate operation.";
@@ -982,11 +488,9 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	      pe_infl->ptype = pty_infl_su;
 	      pexp_inf->ptype = pe_infl->ptype;
 	      *ppsubst = comp_subst( psubst_u, psubst_l, pos );
-#if 1 // *****
 	      penv_unif = dup_env( penv_infl, pos );
 	      assert( penv_unif );
 	      *ppenv = env_subst( penv_unif, psubst_u, pos );
-#endif
 	      ptychk_res->reason = TYCON_WELLTYPED;
 	    } else {
 	      const char *errmsg = "wrong type for decrement operation.";
@@ -1054,11 +558,9 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	      pe_infl->ptype = pty_infl_su;
 	      pexp_inf->ptype = pe_infl->ptype;
 	      *ppsubst = comp_subst( psubst_u, psubst_l, pos );
-#if 1 // *****
 	      penv_unif = dup_env( penv_infl, pos );
 	      assert( penv_unif );
 	      *ppenv = env_subst( penv_unif, psubst_u, pos );
-#endif
 	      ptychk_res->reason = TYCON_WELLTYPED;
 	    } else {
 	      const char *errmsg = "wrong type for increment operation.";
@@ -1213,8 +715,6 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
   assert( *ppenv );
   return pexp_inf;
 }
-#endif
-#endif
 
 TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 			       TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {

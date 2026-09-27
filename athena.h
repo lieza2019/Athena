@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #include "ath_misc.h"
 #include "ath_err.h"
 #include "ath_mem.h"

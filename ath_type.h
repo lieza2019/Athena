@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 typedef enum type_code {
   TY_INT = 1,
   TY_CHAR,

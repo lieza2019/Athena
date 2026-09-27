@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -322,38 +321,6 @@ TYPE_SUBST_PTR dup_subst ( TYPE_SUBST_PTR psubst_org, SRC_POS_C pos ) {
   return psubst_dup;
 }
 
-#if 0 // *****
-TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2, SRC_POS_C pos ) {
-  TYPE_SUBST_PTR psub1_new = NULL;
-  TYPE_SUBST_PTR psub2_new = NULL;
-  assert( psubst_1 );
-  assert( psubst_2 );
-  
-  if( SUBST_EMPTY( psubst_1 ) ) {
-    psub1_new = dup_subst( psubst_2, pos );
-    if( !psub1_new )
-      goto failed_memalloc;
-  } else if( SUBST_EMPTY( psubst_2 ) ) {
-    psub1_new = dup_subst( psubst_1, pos );
-    if( !psub1_new )
-      goto failed_memalloc;
-  } else {
-    psub1_new = dup_subst( psubst_1, pos );
-    if( psub1_new ) {
-      psub2_new = dup_subst( psubst_2, pos );
-      if( psub2_new ) {
-	psub1_new->pcomposit = psub2_new;
-      } else {
-	psub1_new = NULL;
-	goto failed_memalloc;
-      }
-    } else
-    failed_memalloc:
-      ath_abort( pos, ABORT_MEMLACK );
-  }
-  return psub1_new;
-}
-#else
 static TYPE_SUBST_PTR *link_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2 ) {
   assert( psubst_1 );
   TYPE_SUBST_PTR *pps = &psubst_1;
@@ -381,11 +348,7 @@ TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2, SR
     if( psub1_new ) {
       psub2_new = dup_subst( psubst_2, pos );
       if( psub2_new ) {
-#if 0 // *****
-	psub1_new->pcomposit = psub2_new;
-#else
 	link_subst( psub1_new, psub2_new );
-#endif
       } else {
 	psub1_new = NULL;
 	goto failed_memalloc;
@@ -396,7 +359,6 @@ TYPE_SUBST_PTR comp_subst ( TYPE_SUBST_PTR psubst_1, TYPE_SUBST_PTR psubst_2, SR
   }
   return psub1_new;
 }
-#endif
 
 static TYPE_SUBST_PTR elim_subst_elems ( TYPE_SUBST_PTR psubst, TYPE_CONS_PTR tyvs_omit, SRC_POS_C pos ) {
   TYPE_SUBST_PTR psub_elim = NULL;

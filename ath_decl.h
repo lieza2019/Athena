@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #define NUM_DECLATTR_VAR_PAR_ALLOC 256
 typedef struct pvar_attrib {
   ALLOC_NODE_LINKS alloc;

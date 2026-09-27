@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #define INIT_ALLOC_MEMSIZ (64 * 1024) // in bytes
 
 typedef struct ath_memchunk {

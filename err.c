@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -11,4 +10,3 @@ void err_print( SRC_POS_C pos, const char *perr_msg ) {
   printf( "(%d, %d): ", SRCPOS_ROW(pos), SRCPOS_COL(pos) );
   printf( "%s\n", perr_msg );
 }
-

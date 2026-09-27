@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -115,108 +114,6 @@ static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
   return ps;
 }
 
-#if 0 // *****
-char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
-  char *ps = NULL;
-  assert( sbuf );
-  assert( pvar_attr );
-  assert( pvar_attr->ptype );
-  
-  ps = sbuf;
-  strcpy( ps, pvar_attr->ident );
-  ps += strlen( ps );
-  assert( *ps == 0 );
-  strcpy( ps, " := " );
-  ps += strlen( ps );
-  switch( (pvar_attr->ptype)->type.ty ) {
-  case TY_INT:
-    if( pvar_attr->pinit ) {
-      assert( (pvar_attr->pinit)->ptype );
-      EXPR_CONS_PTR pini = pvar_attr->pinit;
-      assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
-      if( pini->mnemonic == MNC_RVALUE ) {
-	assert( EXAM_RVALUE_EXPR( pini ) );
-	sprintf( ps, "%s", pini->kids.body.refaddr.var.ident );
-      } else {
-	assert( pini->mnemonic == MNC_CONST );
-	assert( EXAM_CONST_EXPR( pini ) );
-	if( (pini->ptype)->type.ty == TY_INT )
-	  sprintf( ps, "%d", pini->kids.body.literal.integer.n );
-	else
-	  strcpy( ps, "INVALID_DECL_INIVAL" ); 
-      }
-    } else
-      strcpy( ps, "NO_DECL_INIVAL" );
-    ps += strlen( ps );
-    assert( *ps == 0 );
-    ps = print_value_type( ps, pvar_attr->pinit );
-    ps += strlen( ps );
-    assert( *ps == 0 );
-    strcpy( ps, ":int" );
-    ps += strlen( ps );
-    assert( *ps == 0 );
-    break;
-  case TY_STRING:
-    if( pvar_attr->pinit ) {
-      assert( (pvar_attr->pinit)->ptype );
-      EXPR_CONS_PTR pini = pvar_attr->pinit;
-      assert( (pini->mnemonic == MNC_RVALUE) || (pini->mnemonic == MNC_CONST) );
-      if( pini->mnemonic == MNC_RVALUE ) {
-	assert( EXAM_RVALUE_EXPR( pini ) );
-	sprintf( ps, "%s", pini->kids.body.refaddr.var.ident );
-      } else {
-	assert( pini->mnemonic == MNC_CONST );
-	assert( EXAM_CONST_EXPR( pini ) );
-	if( (pini->ptype)->type.ty == TY_STRING ) {
-	  strcpy( ps,  "\"" );
-	  if( pini->kids.body.literal.string.s ) {
-	    sprintf( ++ps, "%s", pini->kids.body.literal.string.s );
-	    ps += strlen( ps );
-	  } else
-	    goto invalid_decl_inival_string;
-	  assert( *ps == 0 );
-	  strcpy( ps++,  "\"" );
-	} else
-	invalid_decl_inival_string:
-	  strcpy( ps, "INVALID_DECL_INIVAL" );
-      }
-    } else {
-      strcpy( ps, "NO_DECL_INIVAL" );
-      ps += strlen( ps );
-      assert( *ps == 0 );
-    }
-    strcpy( ps, ":string" );
-    ps += strlen( ps );
-    assert( *ps == 0 );
-    break;
-  case TY_LIST:
-    if( pvar_attr->pinit ) {
-      assert( (pvar_attr->pinit)->ptype );
-      assert( ((pvar_attr->pinit)->ptype)->type.ty == TY_LIST );
-      ps = print_value_type( ps, pvar_attr->pinit );
-      ps += strlen( ps );
-    } else {
-      strcpy( ps, "NO_DECL_INIVAL:" );
-      ps += strlen( ps );
-      assert( *ps == 0 );
-      ps = print_type( ps, pvar_attr->ptype );
-    }
-    break;
-  case TY_POLY:
-    strcpy( ps, "UNKNOWN_VALUE:poly" );
-    ps += strlen( ps );
-    assert( *ps == 0 );
-    break;
-  case TY_OTHERS:
-    /* fall thru. */
-  case END_OF_TYPE_CODE:
-    /* fall thru. */
-  default:
-    assert( FALSE );
-  }
-  return ps;
-}
-#else
 char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   char *ps = NULL;
   assert( sbuf );
@@ -247,4 +144,3 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   
   return ps;
 }
-#endif

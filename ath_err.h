@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 typedef enum complle_error_fatality {
   COMP_ERROR_WARN1 = 1,
   COMP_ERROR_WARN2,

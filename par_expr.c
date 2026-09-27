@@ -1,4 +1,3 @@
-/* purged, 2026/9/12 */
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -45,10 +44,6 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
     }
     {
       EXPR_CONS_PTR pe_b = NULL;
-#if 0 // *****
-      pe_b = ty_infer( &tychk_res, &psubst,(statements.plast ? &(statements.plast)->penv : NULL),
-		       pe_bin, pos );
-#else
       TYPE_ENV_PTR penv = NULL;
       if( statements.plast )
 	penv = (statements.plast)->penv;
@@ -59,7 +54,6 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
       }
       assert( penv );
       pe_b = ty_infer( &tychk_res, &psubst, &penv, pe_bin, pos );
-#endif
       if( pe_b )
 	pe_bin = pe_b;
       else {
@@ -122,10 +116,6 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     }
     {
       EXPR_CONS_PTR pe_u = NULL;
-#if 0 // *****
-      pe_u = ty_infer( &tychk_res, &psubst, (statements.plast ? &(statements.plast)->penv : NULL),
-		       pe_una, pos );
-#else
       TYPE_ENV_PTR penv = NULL;
       if( statements.plast )
 	penv = (statements.plast)->penv;
@@ -136,7 +126,6 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
       }
       assert( penv );
       pe_u = ty_infer( &tychk_res, &psubst, &penv, pe_una, pos );
-#endif
       if( pe_u )
 	pe_una = pe_u;
       else {
