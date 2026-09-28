@@ -134,8 +134,8 @@ char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr ) {
   strcpy( ps, " := " );
   ps += strlen( ps );
   assert( *ps == 0 );
-  if( pvar_attr->pinit )
-    ps = print_value_type( ps, pvar_attr->pinit );
+  if( pvar_attr->opts.variable.pinit )
+    ps = print_value_type( ps, pvar_attr->opts.variable.pinit );
   else {
     strcpy( ps, "UNKNOWN_VALUE" );
     ps += strlen( ps );

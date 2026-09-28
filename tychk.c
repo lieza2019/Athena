@@ -734,21 +734,21 @@ TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR 
     pe_lval->kids.pleft = NULL;
     pe_lval->kids.pright = NULL;
     pe_lval->kids.body.refaddr.var = *pvar_attr;
-    if( pvar_attr->pinit ) {
+    if( pvar_attr->opts.variable.pinit ) {
       EXPR_CONS_PTR pe_asgn = NULL;
       pe_asgn = alloc_expr_cons( pos );
       if( pe_asgn ) {
 	pe_asgn->pos = pos;
 	pe_asgn->mnemonic = MNC_ASGN;
 	pe_asgn->kids.pleft = pe_lval;
-	pe_asgn->kids.pright = pvar_attr->pinit;
+	pe_asgn->kids.pright = pvar_attr->opts.variable.pinit;
 	pvardecl_inf = ty_infer( ptychk_res, ppsubst, ppenv, pe_asgn, pos );
 	if( pvardecl_inf ) {
 	  assert( EXAM_ASGN_EXPR( pvardecl_inf ) );
 	  assert( EXAM_LVALUE_EXPR( pvardecl_inf->kids.pleft ) );
 	  assert( pvardecl_inf->ptype );
 	  pvar_attr->ptype = pvardecl_inf->ptype;
-	  pvar_attr->pinit = pvardecl_inf->kids.pright;
+	  pvar_attr->opts.variable.pinit = pvardecl_inf->kids.pright;
 	}
       } else
 	goto failed_memalloc;
