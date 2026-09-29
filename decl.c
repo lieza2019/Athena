@@ -83,3 +83,21 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
   assert( strcmp( (*pdecl)->ident, pvar_attr->ident ) == 0 );
   return redef;
 }
+
+static struct {
+  struct {
+    PROC_ATTRIB_PTR pavail;
+    PROC_ATTRIB_PTR palive;
+  } proc;
+} decl_attr_manage;
+PROC_ATTRIB_PTR alloc_proc_attr ( SRC_POS_C pos ) {
+  PROC_ATTRIB_PTR pattr = NULL;
+  
+  /*
+  pvattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail,
+				       (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive,
+				       sizeof(VAR_ATTRIB), NUM_DECLATTR_VAR_PAR_ALLOC, pos );
+  */
+  return pattr;
+}
+
