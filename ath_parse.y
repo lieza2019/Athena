@@ -20,7 +20,8 @@
   EXPR_CONS_PTR pvar_init;
   /* VAR_ATTRIB var_attr; */
   VAR_ATTRIB_PTR pvar_attr;
-  PROC_ATTRIB proc_attr;
+  /* PROC_ATTRIB proc_attr; */
+  PROC_ATTRIB_PTR pproc_attr;
   STATEMENT_PTR pstmt_last;
   DECLARATION_PTR pdecl_last;
 }
@@ -69,9 +70,21 @@ declarations : declarations declaration {
  }
 | declaration : decl_proc {
  };
-decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA TK_RBRA {
-  /* proc int foo ( n as int, s as string, b as bool ) { } */
-  ;
+decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA statements TK_RBRA {
+  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
+  PROC_ATTRIB_PTR pproc = NULL;
+  assert( $3 );
+  /* staffs as follows, may have no-value. in such cases,
+     the DEFAULT value designated for each, would be applied.
+     obj_type
+     proc_args
+     statements
+  */
+  pproc->ident = $3;
+  pproc->ptype = $2;
+  pproc->pargs = $5;
+  pproc->pstmts = $8;
+  $$ = pproc;
 };
 
 proc_args : proc_args TK_COMMA proc_arg {

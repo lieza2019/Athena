@@ -22,7 +22,11 @@ typedef struct proc_attrib {
   SRC_POS pos;
   const char *ident;
   TYPE_CONS_PTR ptype;
+#if 0 // *****
   TYPE_CONS_PTR pty_args;
+#else
+  VAR_ATTRIB_PTR pargs;
+#endif
   struct statements *pstmts;
 } PROC_ATTRIB, *PROC_ATTRIB_PTR;
 
