@@ -71,6 +71,7 @@ declarations : declarations declaration {
 | declaration : decl_proc {
  };
 decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA statements TK_RBRA {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $3 );
@@ -80,10 +81,14 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
      proc_args
      statements
   */
-  pproc->ident = $3;
-  pproc->ptype = $2;
-  pproc->pargs = $5;
-  pproc->pstmts = $8;
+  pproc = alloc_proc_attr( pos );
+  if( pproc ) {
+    pproc->ident = $3;
+    pproc->ptype = $2;
+    pproc->pargs = $5;
+    pproc->pstmts = $8;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   $$ = pproc;
 };
 

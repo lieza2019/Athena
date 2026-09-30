@@ -77,9 +77,9 @@ extern void free_expr_cons ( EXPR_CONS_PTR pecons );
 extern void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos );
 extern void err_nodef ( const char *ident, SRC_POS_C pos );
 extern VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos );
-
 extern void free_var_addr ( VAR_ATTRIB_PTR pvattr );
 extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+extern PROC_ATTRIB_PTR alloc_proc_attr ( SRC_POS_C pos );
 
 /* from stmt.c */
 extern STATEMENT_PTR new_stmt ( void );

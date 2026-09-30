@@ -1,4 +1,4 @@
-#define NUM_DECLATTR_VAR_PAR_ALLOC 256
+#define NUM_VARATTR_VAR_PAR_ALLOC 256
 typedef struct var_attrib {
   ALLOC_NODE_LINKS alloc;
   SRC_POS pos;
@@ -17,6 +17,7 @@ typedef struct var_attrib {
 typedef const struct var_attrib VAR_ATTRIB_C;
 typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
 
+#define NUM_PROCATTR_VAR_PAR_ALLOC 256
 typedef struct proc_attrib {
   ALLOC_NODE_LINKS alloc;
   SRC_POS pos;

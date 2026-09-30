@@ -27,20 +27,20 @@ static struct {
     VAR_ATTRIB_PTR pavail;
     VAR_ATTRIB_PTR palive;
   } var;
-} decl_attr_manage;
+} var_attr_manage;
 VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos ) {
-  VAR_ATTRIB_PTR pvattr = NULL;
+  VAR_ATTRIB_PTR pattr = NULL;
   
-  pvattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail,
-				       (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive,
-				       sizeof(VAR_ATTRIB), NUM_DECLATTR_VAR_PAR_ALLOC, pos );
-  return pvattr;
+  pattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.pavail,
+				      (ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.palive,
+				      sizeof(VAR_ATTRIB), NUM_VARATTR_VAR_PAR_ALLOC, pos );
+  return pattr;
 }
 
 void free_var_addr ( VAR_ATTRIB_PTR pvattr ) {
   if( pvattr ) {
-    free_node ( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail,
-		(ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive, (ALLOC_NODE_LINKS_PTR)pvattr );
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.pavail,
+		(ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.palive, (ALLOC_NODE_LINKS_PTR)pvattr );
   }
 }
 
@@ -89,15 +89,11 @@ static struct {
     PROC_ATTRIB_PTR pavail;
     PROC_ATTRIB_PTR palive;
   } proc;
-} decl_attr_manage;
+} proc_attr_manage;
 PROC_ATTRIB_PTR alloc_proc_attr ( SRC_POS_C pos ) {
   PROC_ATTRIB_PTR pattr = NULL;
-  
-  /*
-  pvattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.pavail,
-				       (ALLOC_NODE_LINKS_PTR *)&decl_attr_manage.var.palive,
-				       sizeof(VAR_ATTRIB), NUM_DECLATTR_VAR_PAR_ALLOC, pos );
-  */
+  pattr = (PROC_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&proc_attr_manage.proc.pavail,
+				       (ALLOC_NODE_LINKS_PTR *)&proc_attr_manage.proc.palive,
+				       sizeof(PROC_ATTRIB), NUM_PROCATTR_VAR_PAR_ALLOC, pos );
   return pattr;
 }
-
