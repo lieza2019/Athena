@@ -60,15 +60,28 @@
  /* %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list */
  /* %type <var_attr> var_decl var_decl_list decl_var decl_vars */
 %type <pvar_attr> var_decl var_decl_list proc_arg proc_args
-%type <proc_attr> decl_proc
+%type <pproc_attr> decl_proc
 %type <pstmt_last> statement statements
 %type <pdecl_last> declaration declarations
 %start statements
  /* %start declarations */
 %%
 declarations : declarations declaration {
+  
  }
 | declaration : decl_proc {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  DECLARATION_PTR pdecl = NULL;
+  assert( $1 );
+  pdecl = alloc_decl_attr( pos );
+  if( pdecl ) {
+    pdecl->pos = pos;
+    pdecl->ident = $1->ident;
+    pdecl->kind = DECL_PROC;
+    pdecl->u.procedure.pproc = $1;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  $$ = pdecl;
  };
 decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA statements TK_RBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };

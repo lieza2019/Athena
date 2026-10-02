@@ -167,7 +167,7 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
 	assert( statements.phead && statements.plast ); // for psym->kind == SYM_DECL.
 	penv_last = (statements.plast)->penv;
 	switch( pdecl->kind ) {
-	case DECL_FUN:
+	case DECL_PROC:
 	  break;
 	case DECL_VAR:
 	  assert( psym->u.decl.u.variable.pvar );

@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
-DECLARATION_PTR pdeclarations;
+DECLARATIONS declarations;
 
 void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
   assert( pdecl );
@@ -27,20 +27,21 @@ static struct {
     VAR_ATTRIB_PTR pavail;
     VAR_ATTRIB_PTR palive;
   } var;
-} var_attr_manage;
+} varattr_alloc_manage;
 VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos ) {
   VAR_ATTRIB_PTR pattr = NULL;
   
-  pattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.pavail,
-				      (ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.palive,
+  pattr = (VAR_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&varattr_alloc_manage.var.pavail,
+				      (ALLOC_NODE_LINKS_PTR *)&varattr_alloc_manage.var.palive,
 				      sizeof(VAR_ATTRIB), NUM_VARATTR_VAR_PAR_ALLOC, pos );
   return pattr;
 }
 
 void free_var_addr ( VAR_ATTRIB_PTR pvattr ) {
   if( pvattr ) {
-    free_node ( (ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.pavail,
-		(ALLOC_NODE_LINKS_PTR *)&var_attr_manage.var.palive, (ALLOC_NODE_LINKS_PTR)pvattr );
+    free_node ( (ALLOC_NODE_LINKS_PTR *)&varattr_alloc_manage.var.pavail,
+		(ALLOC_NODE_LINKS_PTR *)&varattr_alloc_manage.var.palive,
+		(ALLOC_NODE_LINKS_PTR)pvattr );
   }
 }
 
@@ -89,11 +90,25 @@ static struct {
     PROC_ATTRIB_PTR pavail;
     PROC_ATTRIB_PTR palive;
   } proc;
-} proc_attr_manage;
+} procattr_alloc_manage;
 PROC_ATTRIB_PTR alloc_proc_attr ( SRC_POS_C pos ) {
   PROC_ATTRIB_PTR pattr = NULL;
-  pattr = (PROC_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&proc_attr_manage.proc.pavail,
-				       (ALLOC_NODE_LINKS_PTR *)&proc_attr_manage.proc.palive,
+  pattr = (PROC_ATTRIB_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&procattr_alloc_manage.proc.pavail,
+				       (ALLOC_NODE_LINKS_PTR *)&procattr_alloc_manage.proc.palive,
 				       sizeof(PROC_ATTRIB), NUM_PROCATTR_VAR_PAR_ALLOC, pos );
+  return pattr;
+}
+
+static struct {
+  struct {
+    DECLARATION_PTR pavail;
+    DECLARATION_PTR palive;
+  } decl;
+} declattr_alloc_manage;
+DECLARATION_PTR alloc_decl_attr ( SRC_POS_C pos ) {
+  DECLARATION_PTR pattr = NULL;
+  pattr = (DECLARATION_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&declattr_alloc_manage.decl.pavail,
+				       (ALLOC_NODE_LINKS_PTR *)&declattr_alloc_manage.decl.palive,
+				       sizeof(DECLARATION), NUM_DECLATTR_PAR_ALLOC, pos );
   return pattr;
 }

@@ -80,6 +80,7 @@ extern VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos );
 extern void free_var_addr ( VAR_ATTRIB_PTR pvattr );
 extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
 extern PROC_ATTRIB_PTR alloc_proc_attr ( SRC_POS_C pos );
+extern DECLARATION_PTR alloc_decl_attr ( SRC_POS_C pos );
 
 /* from stmt.c */
 extern STATEMENT_PTR new_stmt ( void );

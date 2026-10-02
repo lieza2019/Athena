@@ -50,8 +50,9 @@ typedef struct type_env {
   struct type_env *dnlink;
 } TYPE_ENV, *TYPE_ENV_PTR;
 
+#define NUM_DECLATTR_PAR_ALLOC 256
 typedef enum decl_sort {
-  DECL_FUN = 1,
+  DECL_PROC = 1,
   DECL_VAR,
   END_OF_DECL_KIND
 } DECL_SORT;
@@ -67,8 +68,13 @@ typedef struct declaration {
       PROC_ATTRIB_PTR pproc;
     } procedure;
   } u;
+  struct declaration *pnext;
 } DECLARATION, *DECLARATION_PTR;
 typedef const struct declaration DECL_ATTRIB_C;
 typedef struct declaration const *DECL_ATTRIB_PTR_C;
 
-extern DECLARATION_PTR pdeclarations;
+typedef struct declarations {
+  DECLARATION_PTR phead;
+  DECLARATION_PTR plast;
+} DECLARATIONS, *DECLARATIONS_PTR;
+extern DECLARATIONS declarations;
