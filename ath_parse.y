@@ -59,17 +59,36 @@
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
  /* %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list */
  /* %type <var_attr> var_decl var_decl_list decl_var decl_vars */
-%type <pvar_attr> var_decl var_decl_list proc_arg proc_args
+%type <pvar_attr> var_decl var_decl_list proc_args
 %type <pproc_attr> decl_proc
 %type <pstmt_last> statement statements
-%type <pdecl_last> declaration declarations
-%start statements
+ /* %type <pdecl_last> declaration declarations */
+%type <pdecl_last> declaration
+
+ /* %start statements */
+ /* %start decl_proc */
+%start declaration
  /* %start declarations */
 %%
+ /*
 declarations : declarations declaration {
-  
- }
-| declaration : decl_proc {
+  assert( $1 );
+  assert( $2 );
+  $2->pnext = NULL;
+  if( declarations.phead ) {
+    assert( !declarations.plast );
+    declarations.phead = $2;
+    declarations.ptail = declarations.phead;
+  } else {
+    assert( declarations.plast == $1 );
+    assert( !(declarations.plast)->pnext );
+    (declarations.plast)->pnext = $2;
+    declarations.plast = $2;
+  }
+  $$ = declarations.plast;
+ };
+ */
+declaration : decl_proc {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   DECLARATION_PTR pdecl = NULL;
   assert( $1 );
@@ -83,6 +102,7 @@ declarations : declarations declaration {
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pdecl;
  };
+
 decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA statements TK_RBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
@@ -99,24 +119,31 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
     pproc->ident = $3;
     pproc->ptype = $2;
     pproc->pargs = $5;
-    pproc->pstmts = $8;
+    pproc->pstmts = NULL;
+    if( $8 ) {
+      assert( ! $8->psucc );
+      assert( statements.plast );
+      assert( statements.phead );
+      pproc->pstmts = statements.phead;
+    }
   } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pproc;
 };
 
-proc_args : proc_args TK_COMMA proc_arg {
+proc_args : proc_args TK_COMMA var_decl {
   assert( $1 );
   assert( $3 );
   assert( ! $3->opts.procedure.parg_next );
-  $1->opts.procedure.parg_next = $3;
+  $3->opts.procedure.parg_next = NULL;
   if( $1->opts.procedure.parg_head )
     $3->opts.procedure.parg_head = $1->opts.procedure.parg_head;
   else
     $3->opts.procedure.parg_head = $1;
+  $1->opts.procedure.parg_next = $3;
   $$ = $3;
  }
-| proc_arg : var_decl {
+| var_decl {
   assert( $1 );
   $1->opts.procedure.parg_head = NULL;
   $1->opts.procedure.parg_next = NULL;

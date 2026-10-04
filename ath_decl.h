@@ -28,7 +28,7 @@ typedef struct proc_attrib {
 #else
   VAR_ATTRIB_PTR pargs;
 #endif
-  struct statements *pstmts;
+  struct statement *pstmts;
 } PROC_ATTRIB, *PROC_ATTRIB_PTR;
 
 #define NUM_TYELEMS_PER_ALLOC 256
