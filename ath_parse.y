@@ -57,20 +57,13 @@
 %type <pvar_init> expression unary_expr primary_expr binary_expr
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
- /* %type <var_attr> decl_var decl_var_poly decl_var_int decl_var_string decl_var_list */
- /* %type <var_attr> var_decl var_decl_list decl_var decl_vars */
 %type <pvar_attr> var_decl var_decl_list proc_args
 %type <pproc_attr> decl_proc
 %type <pstmt_last> statement statements
- /* %type <pdecl_last> declaration declarations */
-%type <pdecl_last> declaration
+%type <pdecl_last> declaration declarations
 
- /* %start statements */
- /* %start decl_proc */
-%start declaration
- /* %start declarations */
+%start declarations
 %%
- /*
 declarations : declarations declaration {
   assert( $1 );
   assert( $2 );
@@ -78,7 +71,7 @@ declarations : declarations declaration {
   if( declarations.phead ) {
     assert( !declarations.plast );
     declarations.phead = $2;
-    declarations.ptail = declarations.phead;
+    declarations.plast = declarations.phead;
   } else {
     assert( declarations.plast == $1 );
     assert( !(declarations.plast)->pnext );
@@ -86,8 +79,11 @@ declarations : declarations declaration {
     declarations.plast = $2;
   }
   $$ = declarations.plast;
+ }
+| declaration {
+  $$ = $1;
  };
- */
+
 declaration : decl_proc {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   DECLARATION_PTR pdecl = NULL;
