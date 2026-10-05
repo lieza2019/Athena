@@ -20,7 +20,7 @@ typedef struct statement {
 typedef const struct statement STATEMENT_C;
 typedef struct statement *STATEMENT_PTR_C;
 
-#if 1 // *****
+#if 0 // *****
 typedef struct statements {
   int nstmts;
   STATEMENT stmts_buf[MAX_STATEMENTS];

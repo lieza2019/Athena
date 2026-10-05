@@ -67,21 +67,21 @@
 declarations : declarations declaration {
   assert( $1 );
   assert( $2 );
+  assert( declarations.phead );
+  assert( declarations.plast == $1 );
+  (declarations.plast)->pnext = $2;
   $2->pnext = NULL;
-  if( declarations.phead ) {
-    assert( !declarations.plast );
-    declarations.phead = $2;
-    declarations.plast = declarations.phead;
-  } else {
-    assert( declarations.plast == $1 );
-    assert( !(declarations.plast)->pnext );
-    (declarations.plast)->pnext = $2;
-    declarations.plast = $2;
-  }
+  declarations.plast = $2;
   $$ = declarations.plast;
  }
 | declaration {
   assert( $1 );
+  if( ! declarations.phead ) {
+    assert( ! declarations.plast );
+    declarations.phead = $1;
+    declarations.plast = $1;
+  }
+  $1->pnext = NULL;
   $$ = $1;
  };
 
@@ -119,9 +119,12 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
     pproc->pstmts = NULL;
     if( $8 ) {
       assert( ! $8->psucc );
-      assert( statements.plast );
       assert( statements.phead );
       pproc->pstmts = statements.phead;
+      assert( statements.plast );
+      assert( ! (statements.plast)->psucc );
+      statements.phead = NULL;
+      statements.plast = NULL;
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
@@ -168,16 +171,21 @@ statements : statements statement {
 statements : statements statement {
   assert( $1 );
   assert( $2 );
+  assert( statements.phead );
+  assert( statements.plast == $1 );
+  (statements.plast)->psucc = $2;
   $2->psucc = NULL;
-  if( statements.phead ) {
-    assert( statements.plast );
-  } else {
-    ;
-  }
+  statements.plast = $2;
   $$ = statements.plast;
  }
 | statement {
   assert( $1 );
+  if( ! statements.phead ) {
+    assert( ! statements.plast );
+    statements.phead = $1;
+    statements.plast = $1;
+  }
+  $1->psucc = NULL;
   $$ = $1;
  };
 

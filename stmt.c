@@ -3,7 +3,11 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0 // *****
 STATEMENTS statements = { 0, {} };
+#else
+STATEMENTS statements = { NULL, NULL };
+#endif
 TYPE_ENV_PTR penv_last = NULL;
 
 STATEMENT_PTR new_stmt ( void ) {
