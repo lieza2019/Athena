@@ -86,6 +86,7 @@ extern DECLARATION_PTR alloc_decl_attr ( SRC_POS_C pos );
 extern STATEMENT_PTR new_stmt ( void );
 extern BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
 extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+extern STATEMENT_PTR alloc_stmt_attr ( SRC_POS_C pos );
 
 /* from lisp.c */
 

@@ -81,6 +81,7 @@ declarations : declarations declaration {
   $$ = declarations.plast;
  }
 | declaration {
+  assert( $1 );
   $$ = $1;
  };
 
@@ -146,6 +147,7 @@ proc_args : proc_args TK_COMMA var_decl {
   $$ = $1;
  };
 
+/*
 statements : statements statement {
   assert( statements.phead );
   assert( $1 );
@@ -161,6 +163,22 @@ statements : statements statement {
   statements.phead = $1;
   statements.plast = statements.phead;
   $$ = statements.plast;
+ };
+*/
+statements : statements statement {
+  assert( $1 );
+  assert( $2 );
+  $2->psucc = NULL;
+  if( statements.phead ) {
+    assert( statements.plast );
+  } else {
+    ;
+  }
+  $$ = statements.plast;
+ }
+| statement {
+  assert( $1 );
+  $$ = $1;
  };
 
 statement : var_decl TK_SMCL {

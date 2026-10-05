@@ -56,3 +56,17 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
     ath_abort( pos, ABORT_MEMLACK );
   return redef;
 }
+
+static struct {
+  struct {
+    PROC_ATTRIB_PTR pavail;
+    PROC_ATTRIB_PTR palive;
+  } proc;
+} stmtattr_alloc_manage;
+STATEMENT_PTR alloc_stmt_attr ( SRC_POS_C pos ) {
+  STATEMENT_PTR pattr = NULL;
+  pattr = (STATEMENT_PTR)alloc_node( (ALLOC_NODE_LINKS_PTR *)&stmtattr_alloc_manage.proc.pavail,
+				     (ALLOC_NODE_LINKS_PTR *)&stmtattr_alloc_manage.proc.palive,
+				     sizeof(STATEMENT), NUM_PROCATTR_VAR_PAR_ALLOC, pos );
+  return pattr;
+}

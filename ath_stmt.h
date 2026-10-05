@@ -6,6 +6,7 @@ typedef enum stmt_sort {
   END_OF_STMT_SORT
 } STMT_SORT;
 
+#define DECLATTR_PAR_ALLOC 256
 typedef struct statement {
   SRC_POS pos;
   STMT_SORT sort;
@@ -19,10 +20,19 @@ typedef struct statement {
 typedef const struct statement STATEMENT_C;
 typedef struct statement *STATEMENT_PTR_C;
 
+#if 1 // *****
 typedef struct statements {
   int nstmts;
   STATEMENT stmts_buf[MAX_STATEMENTS];
   STATEMENT_PTR phead;
   STATEMENT_PTR plast;
 } STATEMENTS;
+#else
+typedef struct statements {
+  //int nstmts;
+  //STATEMENT stmts_buf[MAX_STATEMENTS];
+  STATEMENT_PTR phead;
+  STATEMENT_PTR plast;
+} STATEMENTS, *STATEMENTS_PTR;
+#endif
 extern STATEMENTS statements;
