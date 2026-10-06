@@ -323,3 +323,8 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
     ath_abort( pos, ABORT_MEMLACK );
   return pcons;
 }
+
+PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty,
+			    VAR_ATTRIB_PTR pargs, STATEMENTS_PTR pstmts, SRC_POS_C pos ) {
+  return NULL;
+}
