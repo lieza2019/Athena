@@ -144,7 +144,12 @@ proc_args : proc_args TK_COMMA var_decl {
   $$ = $3;
  }
 | var_decl {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $1 );
+  if( $1->opts.variable.pinit ) {
+    err_print( pos, "procedure arguments have no initialization.\n" );
+    $1->opts.variable.pinit = NULL;
+  }
   $1->opts.procedure.parg_head = NULL;
   $1->opts.procedure.parg_next = NULL;
   $$ = $1;
@@ -292,6 +297,7 @@ obj_type : TK_KEYWORD_POLY {
   TYPE_CONS_PTR pty_poly = NULL;
   pty_poly = alloc_type_cons( pos );
   if( pty_poly ) {
+    pty_poly->type.ty = TY_POLY;
     $$ = pty_poly;
   } else
     ath_abort( pos, ABORT_MEMLACK );
@@ -301,6 +307,7 @@ obj_type : TK_KEYWORD_POLY {
   TYPE_CONS_PTR pty_int = NULL;
   pty_int = alloc_type_cons( pos );
   if( pty_int ) {
+    pty_int->type.ty = TY_INT;
     $$ = pty_int;
   } else
     ath_abort( pos, ABORT_MEMLACK );
@@ -310,6 +317,7 @@ obj_type : TK_KEYWORD_POLY {
   TYPE_CONS_PTR pty_string = NULL;
   pty_string = alloc_type_cons( pos );
   if( pty_string ) {
+    pty_string->type.ty = TY_STRING;
     $$ = pty_string;
   } else
     ath_abort( pos, ABORT_MEMLACK );
