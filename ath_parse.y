@@ -18,9 +18,7 @@
   TYPE_CONS_PTR pty_obj;
   TYPE_CONS_PTR pty_list_elem;
   EXPR_CONS_PTR pvar_init;
-  /* VAR_ATTRIB var_attr; */
   VAR_ATTRIB_PTR pvar_attr;
-  /* PROC_ATTRIB proc_attr; */
   PROC_ATTRIB_PTR pproc_attr;
   STATEMENT_PTR pstmt_last;
   DECLARATION_PTR pdecl_last;
@@ -134,45 +132,27 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
 proc_args : proc_args TK_COMMA var_decl {
   assert( $1 );
   assert( $3 );
-  assert( ! $3->opts.procedure.parg_next );
-  $3->opts.procedure.parg_next = NULL;
-  if( $1->opts.procedure.parg_head )
-    $3->opts.procedure.parg_head = $1->opts.procedure.parg_head;
+  assert( ! $3->opts.proc_args.parg_next );
+  $3->opts.proc_args.parg_next = NULL;
+  if( $1->opts.proc_args.parg_head )
+    $3->opts.proc_args.parg_head = $1->opts.proc_args.parg_head;
   else
-    $3->opts.procedure.parg_head = $1;
-  $1->opts.procedure.parg_next = $3;
+    $3->opts.proc_args.parg_head = $1;
+  $1->opts.proc_args.parg_next = $3;
   $$ = $3;
  }
 | var_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $1 );
-  if( $1->opts.variable.pinit ) {
+  if( $1->opts.var_decl.pdecl_init ) {
     err_print( pos, "procedure arguments have no initialization.\n" );
-    $1->opts.variable.pinit = NULL;
+    $1->opts.var_decl.pdecl_init = NULL;
   }
-  $1->opts.procedure.parg_head = NULL;
-  $1->opts.procedure.parg_next = NULL;
+  $1->opts.proc_args.parg_head = NULL;
+  $1->opts.proc_args.parg_next = NULL;
   $$ = $1;
  };
 
-/*
-statements : statements statement {
-  assert( statements.phead );
-  assert( $1 );
-  assert( statements.plast == $1 );
-  assert( $2 );
-  ($2)->psucc = NULL;
-  (statements.plast)->psucc = $2;
-  statements.plast = $2;
-  $$ = statements.plast;
- }
-| statement {
-  assert( $1 );
-  statements.phead = $1;
-  statements.plast = statements.phead;
-  $$ = statements.plast;
- };
-*/
 statements : statements statement {
   assert( $1 );
   assert( $2 );
@@ -212,9 +192,6 @@ statement : var_decl TK_SMCL {
 var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $3 );
-#if 0 // *****
-  decl_var_attrib( &$$, $1, $3->type.ty, NULL, NULL, pos );
-#else
   VAR_ATTRIB_PTR pattr = NULL;
   pattr = alloc_var_attr( pos );
   if( pattr )
@@ -222,14 +199,10 @@ var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
   else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pattr;
-#endif
  }
 | TK_IDENT TK_KEYWORD_AS obj_type TK_ASGN expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $3 );
-#if 0 // *****
-  decl_var_attrib( &$$, $1, $3->type.ty, NULL, $5, pos );
-#else
   VAR_ATTRIB_PTR pattr = NULL;
   pattr = alloc_var_attr( pos );
   if( pattr )
@@ -237,7 +210,6 @@ var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
   else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pattr;
-#endif
  }
 | var_decl_list {
   $$ = $1;
@@ -245,9 +217,6 @@ var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
 
 var_decl_list : TK_IDENT TK_KEYWORD_AS list_elem_type {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-#if 0 // *****
-  decl_var_attrib( &$$, $1, TY_LIST, $3, NULL, pos );
-#else
   VAR_ATTRIB_PTR pattr = NULL;
   pattr = alloc_var_attr( pos );
   if( pattr )
@@ -255,13 +224,9 @@ var_decl_list : TK_IDENT TK_KEYWORD_AS list_elem_type {
   else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pattr;
-#endif
  }
 | TK_IDENT TK_KEYWORD_AS list_elem_type TK_ASGN expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-#if 0 // *****
-  decl_var_attrib( &$$, $1, TY_LIST, $3, $5, pos );
-#else
   VAR_ATTRIB_PTR pattr = NULL;
   pattr = alloc_var_attr( pos );
   if( pattr ) {
@@ -269,7 +234,6 @@ var_decl_list : TK_IDENT TK_KEYWORD_AS list_elem_type {
   } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pattr;
-#endif
  };
 list_elem_type : TK_LSQBL TK_RSQBL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };

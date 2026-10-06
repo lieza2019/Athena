@@ -19,7 +19,7 @@ static void poly_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CO
       ply->pos = pos;
       ply->type.ty = TY_POLY;
       pvar_attr->ptype = ply;
-      pvar_attr->opts.variable.pinit = pinit;
+      pvar_attr->opts.var_decl.pdecl_init = pinit;
     } else
       ath_abort( pos, ABORT_MEMLACK );
   } else
@@ -54,7 +54,7 @@ static void int_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_CON
     }
     assert( pn_init );
     assert( pn_init->ptype );
-    pvar_attr->opts.variable.pinit = pn_init;
+    pvar_attr->opts.var_decl.pdecl_init = pn_init;
     if( (pn_init->ptype)->type.ty != TY_INT ) {
       TYPE_CONS_PTR pty_int = NULL;
       pty_int = alloc_type_cons( pos );
@@ -107,7 +107,7 @@ static void string_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, EXPR_
     }
     assert( ps_init );
     assert( ps_init->ptype );
-    pvar_attr->opts.variable.pinit = ps_init;
+    pvar_attr->opts.var_decl.pdecl_init = ps_init;
     if( (ps_init->ptype)->type.ty != TY_STRING ) {
       TYPE_CONS_PTR pty_str = NULL;
       pty_str = alloc_type_cons( pos );
@@ -154,7 +154,7 @@ static void list_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CO
     assert( pinit );
     assert( pinit->ptype );
     assert( (pinit->ptype)->type.ty == TY_LIST );
-    pvar_attr->opts.variable.pinit = pinit;
+    pvar_attr->opts.var_decl.pdecl_init = pinit;
   } else
     failed_memalloc:
     ath_abort( pos, ABORT_CANNOT_REG_SYNBOL );

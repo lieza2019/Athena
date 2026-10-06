@@ -20,19 +20,8 @@ typedef struct statement {
 typedef const struct statement STATEMENT_C;
 typedef struct statement *STATEMENT_PTR_C;
 
-#if 0 // *****
 typedef struct statements {
-  int nstmts;
-  STATEMENT stmts_buf[MAX_STATEMENTS];
-  STATEMENT_PTR phead;
-  STATEMENT_PTR plast;
-} STATEMENTS;
-#else
-typedef struct statements {
-  //int nstmts;
-  //STATEMENT stmts_buf[MAX_STATEMENTS];
   STATEMENT_PTR phead;
   STATEMENT_PTR plast;
 } STATEMENTS, *STATEMENTS_PTR;
-#endif
 extern STATEMENTS statements;

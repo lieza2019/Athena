@@ -6,12 +6,12 @@ typedef struct var_attrib {
   TYPE_CONS_PTR ptype;
   union {
     struct {
-      struct expr_cons *pinit;
-    } variable;
+      struct expr_cons *pdecl_init;
+    } var_decl;
     struct {
       struct var_attrib *parg_head;
       struct var_attrib *parg_next;
-    } procedure;
+    } proc_args;
   } opts;
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
@@ -23,11 +23,7 @@ typedef struct proc_attrib {
   SRC_POS pos;
   const char *ident;
   TYPE_CONS_PTR ptype;
-#if 0 // *****
-  TYPE_CONS_PTR pty_args;
-#else
   VAR_ATTRIB_PTR pargs;
-#endif
   struct statement *pstmts;
 } PROC_ATTRIB, *PROC_ATTRIB_PTR;
 
