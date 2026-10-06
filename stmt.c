@@ -3,13 +3,10 @@
 #include <assert.h>
 #include "athena.h"
 
-#if 0 // *****
-STATEMENTS statements = { 0, {} };
-#else
-STATEMENTS statements = { NULL, NULL };
-#endif
 TYPE_ENV_PTR penv_last = NULL;
 
+#if 0 // *****
+STATEMENTS statements = { 0, {} };
 STATEMENT_PTR new_stmt ( void ) {
   STATEMENT_PTR pr = NULL;
   if( statements.nstmts < MAX_STATEMENTS ) {
@@ -18,6 +15,9 @@ STATEMENT_PTR new_stmt ( void ) {
   }
   return pr;
 }
+#else
+STATEMENTS statements = { NULL, NULL };
+#endif
 
 BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   BOOL r = FALSE;
@@ -25,7 +25,11 @@ BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   assert( pexpr );
   
   *ppstmt = NULL;
+#if 0 // *****
   *ppstmt = new_stmt();
+#else
+  *ppstmt = alloc_stmt_attr( pos );
+#endif
   if( *ppstmt ) {
     (*ppstmt)->pos = pos;
     (*ppstmt)->sort = STMT_EXPR;
@@ -46,7 +50,11 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
   assert( pvar_attr );
   
   *ppstmt = NULL;
+#if 0 // *****
   *ppstmt = new_stmt();
+#else
+  *ppstmt = alloc_stmt_attr( pos );
+#endif
   if( *ppstmt ) {
     DECLARATION_PTR pdecl = NULL;
     redef = decl_var( &pdecl, pvar_attr, pos );
