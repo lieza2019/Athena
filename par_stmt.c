@@ -21,7 +21,7 @@ STATEMENT_PTR vardecl2_stmt ( VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
     pattr->pos = pos;
     pattr->ident = pvar_attr->ident;
     pattr->ptype = pvar_attr->ptype;
-    pattr->opts.var_decl.pdecl_init = pvar_attr->opts.var_decl.pdecl_init;
+    pattr->opts.var_decl.pinitializer = pvar_attr->opts.var_decl.pinitializer;
     stmt_decl_var( &pstmt, pattr, pos );
     assert( pstmt );
   } else

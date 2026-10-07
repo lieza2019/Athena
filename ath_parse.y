@@ -134,9 +134,12 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
 };
 
 proc_args : proc_args TK_COMMA var_decl {
+  SRC_POS_C pos = { @3.first_line, @3.first_column };
   assert( $1 );
   assert( $3 );
   assert( ! $3->opts.proc_args.parg_next );
+  if( $3->opts.var_decl.with_init )
+    err_print( pos, "procedure arguments have no initialization.\n" );
   $3->opts.proc_args.parg_next = NULL;
   if( $1->opts.proc_args.parg_head )
     $3->opts.proc_args.parg_head = $1->opts.proc_args.parg_head;
@@ -148,12 +151,12 @@ proc_args : proc_args TK_COMMA var_decl {
 | var_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $1 );
+#if 0 // *****
   VAR_ATTRIB_PTR pv = NULL;
   pv = $1;
-  if( $1->opts.var_decl.pdecl_init ) {
+#endif
+  if( $1->opts.var_decl.with_init )
     err_print( pos, "procedure arguments have no initialization.\n" );
-    $1->opts.var_decl.pdecl_init = NULL;
-  }
   $1->opts.proc_args.parg_head = NULL;
   $1->opts.proc_args.parg_next = NULL;
   $$ = $1;
@@ -200,9 +203,10 @@ var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
   assert( $3 );
   VAR_ATTRIB_PTR pattr = NULL;
   pattr = alloc_var_attr( pos );
-  if( pattr )
+  if( pattr ) {
+    pattr->opts.var_decl.with_init = FALSE;
     decl_var_attrib( pattr, $1, $3->type.ty, NULL, NULL, pos );
-  else
+  } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pattr;
  }
@@ -211,9 +215,10 @@ var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
   assert( $3 );
   VAR_ATTRIB_PTR pattr = NULL;
   pattr = alloc_var_attr( pos );
-  if( pattr )
+  if( pattr ) {
+    pattr->opts.var_decl.with_init = TRUE;
     decl_var_attrib( pattr, $1, $3->type.ty, NULL, $5, pos );
-  else
+  } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pattr;
  }
