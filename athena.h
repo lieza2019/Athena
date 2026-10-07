@@ -101,6 +101,7 @@ extern EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos );
 extern VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos );
 extern TYPE_CONS_PTR var_list_type ( TYPE_CONS_PTR pty_elem, TYPE_CODE elem_type, SRC_POS_C pos );
 extern EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PTR psucc_cs, SRC_POS_C pos );
+extern PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty, VAR_ATTRIB_PTR pargs, STATEMENTS_PTR pstmts, SRC_POS_C pos );
 
 /* from par_stmt.c */
 extern STATEMENT_PTR expr2_stmt ( EXPR_CONS_PTR pexpr, SRC_POS_C pos );

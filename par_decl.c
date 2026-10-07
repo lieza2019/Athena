@@ -326,5 +326,25 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
 
 PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty,
 			    VAR_ATTRIB_PTR pargs, STATEMENTS_PTR pstmts, SRC_POS_C pos ) {
-  return NULL;
+  PROC_ATTRIB_PTR pproc_attr = NULL;
+  assert( proc_name );
+  assert( pstmts );
+  
+  pproc_attr = alloc_proc_attr( pos );
+  if( pproc_attr ) {
+    pproc_attr->ident = proc_name;
+    pproc_attr->ptype = pproc_ty;
+    pproc_attr->pargs = pargs;
+    
+    pproc_attr->pstmts = NULL;
+    if( pstmts->phead ) {
+      assert( pstmts->plast );
+      assert( ! (pstmts->plast)->psucc );
+      pproc_attr->pstmts = pstmts->phead;
+      pstmts->phead = NULL;
+      pstmts->plast = NULL;
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return pproc_attr;
 }

@@ -109,6 +109,7 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
      proc_args
      statements
   */
+#if 0 // *****
   pproc = alloc_proc_attr( pos );
   if( pproc ) {
     pproc->ident = $3;
@@ -126,6 +127,9 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
+#else
+  pproc = decl_proc( $3, $2, $5, &statements, pos );
+#endif
   $$ = pproc;
 };
 
@@ -144,6 +148,8 @@ proc_args : proc_args TK_COMMA var_decl {
 | var_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $1 );
+  VAR_ATTRIB_PTR pv = NULL;
+  pv = $1;
   if( $1->opts.var_decl.pdecl_init ) {
     err_print( pos, "procedure arguments have no initialization.\n" );
     $1->opts.var_decl.pdecl_init = NULL;
