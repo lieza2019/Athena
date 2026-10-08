@@ -56,7 +56,7 @@
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
 %type <pvar_attr> var_decl var_decl_list proc_args
-%type <pproc_attr> decl_proc
+%type <pproc_attr> decl_proc_begin decl_proc
 %type <pstmt_last> statement statements
 %type <pdecl_last> declaration declarations
 
@@ -98,18 +98,49 @@ declaration : decl_proc {
   $$ = pdecl;
  };
 
+/*
 decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA statements TK_RBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $3 );
+  pproc = decl_proc( $3, $2, $5, &statements, pos );
+  $$ = pproc;
+};
+*/
+decl_proc : decl_proc_begin statements TK_RBRA {
+  PROC_ATTRIB_PTR pproc = $1;
+  assert( $1 );
+  pproc->pstmts = NULL;
+  if( statements.phead ) {
+    assert( statements.plast );
+    assert( ! (statements.plast)->psucc );
+    // pproc_attr->pstmts = pstmts->phead;
+    statements.phead = NULL;
+    statements.plast = NULL;
+  }
+  $$ = pproc;
+};
+decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
+  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */  
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   /* staffs as follows, may have no-value. in such cases,
      the DEFAULT value designated for each, would be applied.
      obj_type
      proc_args
      statements
   */
-  pproc = decl_proc( $3, $2, $5, &statements, pos );
+  PROC_ATTRIB_PTR pproc = NULL;
+  assert( $2 );
+  assert( $3 );
+  assert( $5 );
+  pproc = alloc_proc_attr( pos );
+  if( pproc ) {
+    pproc->ident = $3;
+    pproc->ptype = $2;
+    pproc->pargs = $5;
+    ;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
   $$ = pproc;
 };
 
