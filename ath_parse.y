@@ -135,9 +135,29 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
   assert( $5 );
   pproc = alloc_proc_attr( pos );
   if( pproc ) {
+    STATEMENT_PTR phead = NULL;
+    STATEMENT_PTR plast = NULL;
+    VAR_ATTRIB_PTR pa = NULL;
     pproc->ident = $3;
     pproc->ptype = $2;
     pproc->pargs = $5;
+    pa = pproc->pargs;
+    while( pa ) {
+      STATEMENT_PTR pa_decl = NULL;
+      pa_decl = vardecl2_stmt( pa, pa->pos );
+      assert( pa_decl );
+      pa_decl->psucc = NULL;
+      if( phead ) {
+	assert( plast );
+	assert( ! plast->psucc );
+	plast->psucc = pa_decl;
+      } else {
+	assert( !plast );
+	phead = pa_decl;
+      }
+      plast = pa_decl;
+      pa = pa->opts.proc_args.parg_next;
+    }
     ;
   } else
     ath_abort( pos, ABORT_MEMLACK );
