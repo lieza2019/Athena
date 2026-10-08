@@ -335,7 +335,6 @@ PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty,
     pproc_attr->ident = proc_name;
     pproc_attr->ptype = pproc_ty;
     pproc_attr->pargs = pargs;
-    
     pproc_attr->pstmts = NULL;
     if( pstmts->phead ) {
       assert( pstmts->plast );

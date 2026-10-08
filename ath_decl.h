@@ -4,17 +4,6 @@ typedef struct var_attrib {
   SRC_POS pos;
   const char *ident;
   TYPE_CONS_PTR ptype;
-#if 0 // *****
-  union {
-    struct {
-      struct expr_cons *pdecl_init;
-    } var_decl;
-    struct {
-      struct var_attrib *parg_head;
-      struct var_attrib *parg_next;
-    } proc_args;
-  } opts;
-#else
   struct {
     struct {
       BOOL with_init;
@@ -25,7 +14,6 @@ typedef struct var_attrib {
       struct var_attrib *parg_next;
     } proc_args;
   } opts;
-#endif
 } VAR_ATTRIB, *VAR_ATTRIB_PTR;
 typedef const struct var_attrib VAR_ATTRIB_C;
 typedef struct var_attrib const *VAR_ATTRIB_PTR_C;
