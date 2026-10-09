@@ -335,11 +335,13 @@ PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty,
     pproc_attr->ident = proc_name;
     pproc_attr->ptype = pproc_ty;
     pproc_attr->pargs = pargs;
-    pproc_attr->pstmts = NULL;
+    pproc_attr->stmts.phead = NULL;
+    pproc_attr->stmts.plast = NULL;
     if( pstmts->phead ) {
       assert( pstmts->plast );
       assert( ! (pstmts->plast)->psucc );
-      pproc_attr->pstmts = pstmts->phead;
+      pproc_attr->stmts.phead = pstmts->phead;
+      pproc_attr->stmts.plast = pstmts->plast;
       pstmts->phead = NULL;
       pstmts->plast = NULL;
     }
