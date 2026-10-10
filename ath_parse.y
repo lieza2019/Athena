@@ -56,10 +56,11 @@
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
 %type <pvar_attr> var_decl var_decl_list proc_args
-%type <pproc_attr> decl_proc_begin decl_proc
 %type <pstmt_last> statement statements
+%type <pproc_attr> decl_proc_begin decl_proc
 %type <pdecl_last> declaration declarations
 
+ /* %start statements */
 %start declarations
 %%
 declarations : declarations declaration {
@@ -82,7 +83,6 @@ declarations : declarations declaration {
   $1->pnext = NULL;
   $$ = $1;
  };
-
 declaration : decl_proc {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   DECLARATION_PTR pdecl = NULL;
@@ -217,12 +217,10 @@ proc_args : proc_args TK_COMMA var_decl {
  };
 
 statements : statements statement {
-#if 0 // *****
   assert( $1 );
-#endif
   assert( $2 );
   assert( statements.phead );
-#if 0 // *****
+#if 1 // *****
   assert( statements.plast == $1 );
 #else
   assert( statements.plast );
@@ -234,15 +232,25 @@ statements : statements statement {
  }
 | statement {
   assert( $1 );
+#if 0 // *****
   if( ! statements.phead ) {
     assert( ! statements.plast );
     statements.phead = $1;
     statements.plast = $1;
   }
+#else
+  if( ! statements.phead ) {
+    assert( ! statements.plast );
+    statements.phead = $1;
+  } else {
+    assert( statements.plast );
+    assert( ! (statements.plast)->psucc );
+  }
+  statements.plast = $1;
+#endif
   $1->psucc = NULL;
-  $$ = $1;
+  $$ = statements.plast;
  };
-
 statement : var_decl TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
