@@ -113,7 +113,11 @@ decl_proc : decl_proc_begin statements TK_RBRA {
   if( statements.phead ) {
     assert( statements.plast );
     assert( ! (statements.plast)->psucc );
+#if 0 // *****
     pproc->stmts.plast = statements.phead;
+#else
+    pproc->stmts.phead = statements.phead;
+#endif
     statements.phead = NULL;
     statements.plast = NULL;
   }
@@ -157,8 +161,13 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
       plast = pa_decl;
       pa = pa->opts.proc_args.parg_next;
     }
+#if 0 // *****
     pproc->stmts.phead = phead;
     pproc->stmts.plast = plast;
+#else
+    statements.phead = phead;
+    statements.plast = plast;
+#endif
   } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pproc;
