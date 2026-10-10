@@ -52,7 +52,13 @@
   #cleaning up the redundant / obsolete code fragments in the files as fellows,
   -#Makefile   -#ath_expr.h -#ath_misc.h  -#ath_symtbl.h -#decl.c   -#lisp.c     -#misc.c     -#par_stmt.c  -#stmt.c   -#type.c
   -#ath_decl.h -#ath_lex.l  -#ath_parse.y -#ath_type.h   -#err.c    -#main.c     -#par_decl.c -#par_tychk.c -#symtbl.c
-  -#ath_err.h  -#ath_mem.h  -#ath_stmt.h  -#athena.h     -#expr.c   -#mem.c      -#par_expr.c  -#tychk.c     runarg.txt   
+  -#ath_err.h  -#ath_mem.h  -#ath_stmt.h  -#athena.h     -#expr.c   -#mem.c      -#par_expr.c  -#tychk.c     runarg.txt
+  -----------
+  (2026/10/10)
+  #proc int foo ( n as int ) {
+  #  an as string;
+  #  a as int;
+  #assertion "statements.plast == (yyvsp[-1].pstmt_last)" failed: file "ath_parse.y", line 223, function "yyparse"
  */
 #include <stdio.h>
 #include <string.h>

@@ -108,7 +108,13 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
 };
 */
 decl_proc : decl_proc_begin statements TK_RBRA {
-  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */  
+  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
+  /* staffs as follows, may have no-value. in such cases,
+     the DEFAULT value designated for each, would be applied.
+     obj_type
+     proc_args
+     statements
+  */
   PROC_ATTRIB_PTR pproc = $1;
   assert( $1 );
   if( statements.phead ) {
@@ -122,16 +128,11 @@ decl_proc : decl_proc_begin statements TK_RBRA {
 };
 decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  /* staffs as follows, may have no-value. in such cases,
-     the DEFAULT value designated for each, would be applied.
-     obj_type
-     proc_args
-     statements
-  */
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
   assert( $3 );
   assert( $5 );
+#if 0 // *****
   pproc = alloc_proc_attr( pos );
   if( pproc ) {
     STATEMENT_PTR phead = NULL;
@@ -161,8 +162,34 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
     statements.plast = plast;
   } else
     ath_abort( pos, ABORT_MEMLACK );
+#else
+  pproc = decl_proc( $3, $2, $5, pos );
+#endif
   $$ = pproc;
-};
+}
+| TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  PROC_ATTRIB_PTR pproc = NULL;
+  assert( $2 );
+  assert( $3 );
+  pproc = decl_proc( $3, $2, NULL, pos );
+  $$ = pproc;
+ }
+| TK_KEYWORD_PROC TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  PROC_ATTRIB_PTR pproc = NULL;
+  assert( $2 );
+  assert( $4 );
+  pproc = decl_proc( $2, NULL, $4, pos );
+  $$ = pproc;
+ }
+| TK_KEYWORD_PROC TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  PROC_ATTRIB_PTR pproc = NULL;
+  assert( $2 );
+  pproc = decl_proc( $2, NULL, NULL, pos );
+  $$ = pproc;
+ };
 
 proc_args : proc_args TK_COMMA var_decl {
   SRC_POS_C pos = { @3.first_line, @3.first_column };
@@ -190,10 +217,16 @@ proc_args : proc_args TK_COMMA var_decl {
  };
 
 statements : statements statement {
+#if 0 // *****
   assert( $1 );
+#endif
   assert( $2 );
   assert( statements.phead );
+#if 0 // *****
   assert( statements.plast == $1 );
+#else
+  assert( statements.plast );
+#endif
   (statements.plast)->psucc = $2;
   $2->psucc = NULL;
   statements.plast = $2;

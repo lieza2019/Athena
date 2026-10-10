@@ -324,6 +324,7 @@ EXPR_CONS_PTR value_list_elem ( TYPE_CODE elem_ty, void *pelem_val, EXPR_CONS_PT
   return pcons;
 }
 
+#if 0
 PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty,
 			    VAR_ATTRIB_PTR pargs, STATEMENTS_PTR pstmts, SRC_POS_C pos ) {
   PROC_ATTRIB_PTR pproc_attr = NULL;
@@ -347,3 +348,62 @@ PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty,
     ath_abort( pos, ABORT_MEMLACK );
   return pproc_attr;
 }
+#else
+PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty, VAR_ATTRIB_PTR pargs, SRC_POS_C pos ) {
+  PROC_ATTRIB_PTR pproc = NULL;
+#if 0 // *****
+  assert( $2 ); // pproc_ty
+  assert( $3 ); // proc_name
+  assert( $5 ); // pargs
+#else
+  assert( proc_name );
+#endif
+  pproc = alloc_proc_attr( pos );
+  if( pproc ) {
+    STATEMENT_PTR phead = NULL;
+    STATEMENT_PTR plast = NULL;
+    VAR_ATTRIB_PTR pa = NULL;
+    pproc->ident = proc_name; // pproc->ident = $3;
+#if 0 // *****
+    pproc->ptype = $2;
+#else
+    pproc->ptype = pproc_ty;
+    if( ! pproc->ptype ) {
+      TYPE_CONS_PTR pty_int = NULL;
+      pty_int = alloc_type_cons( pos );
+      if( pty_int ) {
+	pty_int->type.ty = TY_INT;
+	pproc->ptype = pty_int;
+      } else
+	ath_abort( pos, ABORT_MEMLACK );
+    }
+#endif
+#if 0 // *****
+    pproc->pargs = $5;
+#else
+    pproc->pargs = pargs;
+#endif
+    pa = pproc->pargs;
+    while( pa ) {
+      STATEMENT_PTR pa_decl = NULL;
+      pa_decl = vardecl2_stmt( pa, pa->pos );
+      assert( pa_decl );
+      pa_decl->psucc = NULL;
+      if( phead ) {
+	assert( plast );
+	assert( ! plast->psucc );
+	plast->psucc = pa_decl;
+      } else {
+	assert( !plast );
+	phead = pa_decl;
+      }
+      plast = pa_decl;
+      pa = pa->opts.proc_args.parg_next;
+    }
+    statements.phead = phead;
+    statements.plast = plast;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return pproc; // $$ = pproc;
+}
+#endif
