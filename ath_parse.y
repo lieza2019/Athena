@@ -108,6 +108,7 @@ decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA 
 };
 */
 decl_proc : decl_proc_begin statements TK_RBRA {
+  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */  
   PROC_ATTRIB_PTR pproc = $1;
   assert( $1 );
   if( statements.phead ) {
@@ -116,7 +117,7 @@ decl_proc : decl_proc_begin statements TK_RBRA {
 #if 0 // *****
     pproc->stmts.plast = statements.phead;
 #else
-    pproc->stmts.phead = statements.phead;
+    pproc->pstmts = statements.phead;
 #endif
     statements.phead = NULL;
     statements.plast = NULL;
@@ -124,7 +125,6 @@ decl_proc : decl_proc_begin statements TK_RBRA {
   $$ = pproc;
 };
 decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
-  /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */  
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   /* staffs as follows, may have no-value. in such cases,
      the DEFAULT value designated for each, would be applied.

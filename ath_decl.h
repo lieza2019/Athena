@@ -25,7 +25,7 @@ typedef struct proc_attrib {
   const char *ident;
   TYPE_CONS_PTR ptype;
   VAR_ATTRIB_PTR pargs;
-#if 0 // *****
+#if 1 // *****
   struct statement *pstmts;
 #else
   struct {
