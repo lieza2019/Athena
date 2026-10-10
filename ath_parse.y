@@ -176,16 +176,34 @@ proc_args : proc_args TK_COMMA var_decl {
  };
 
 statements : statements statement {
+#if 0 // *****
   assert( $1 );
   assert( $2 );
   assert( statements.phead );
   assert( statements.plast == $1 );
-  (statements.plast)->psucc = $2;
-  $2->psucc = NULL;
+  (statements.plast)->psucc = $2;  
   statements.plast = $2;
+  $2->psucc = NULL;
   $$ = statements.plast;
+#else
+  assert( statements.plast == $1 );
+  if( statements.phead ) {
+    assert( statements.plast );
+    assert( ! (statements.plast)->psucc );
+    (statements.plast)->psucc = $2;
+  } else {
+    assert( ! statements.plast );
+    statements.phead = $2;
+  }
+  if( $2 ) {
+    statements.plast = $2;
+    $2->psucc = NULL;
+  }
+  $$ = statements.plast;
+#endif
  }
 | statement {
+#if 0 // *****
   assert( $1 );
   if( ! statements.phead ) {
     assert( ! statements.plast );
@@ -197,6 +215,20 @@ statements : statements statement {
   statements.plast = $1;
   $1->psucc = NULL;
   $$ = statements.plast;
+#else
+  if( $1 ) {
+    if( ! statements.phead ) {
+      assert( ! statements.plast );
+      statements.phead = $1;
+    } else {
+      assert( statements.plast );
+      assert( ! (statements.plast)->psucc );
+    }
+    statements.plast = $1;
+    $1->psucc = NULL;
+  }
+  $$ = statements.plast;
+#endif
  };
 statement : var_decl TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
@@ -211,6 +243,9 @@ statement : var_decl TK_SMCL {
   pstmt = expr2_stmt( $1, pos );
   assert( pstmt );
   $$ = pstmt;
+ }
+| TK_SMCL {
+  $$ = NULL;
  };
 
 var_decl : TK_IDENT TK_KEYWORD_AS obj_type {
