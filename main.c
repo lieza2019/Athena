@@ -61,18 +61,18 @@
   #assertion "statements.plast == (yyvsp[-1].pstmt_last)" failed: file "ath_parse.y", line 223, function "yyparse"
   -----------
   (2026/10/10)
-  proc int foo ( n as int ) {
-    m as int;
-    a as string;
-  assertion "statements.plast == (yyvsp[-1].pstmt_last)" failed: file "ath_parse.y", line 262, function "yyparse"
-  Abort trap                 (core dumped) ./athena
-  proc int foo() {
-    m as int;
-    n as int;
-    a as string := "hello world.";
-  TK_STR_LITERAL: hello world.
-  }
-  a : string := "hello world.":string
+  #proc int foo ( n as int ) {
+  #  m as int;
+  #  a as string;
+  #assertion "statements.plast == (yyvsp[-1].pstmt_last)" failed: file "ath_parse.y", line 262, function "yyparse"
+  #Abort trap                 (core dumped) ./athena
+  #proc int foo() {
+  #  m as int;
+  #  n as int;
+  #  a as string := "hello world.";
+  #TK_STR_LITERAL: hello world.
+  #}
+  #a : string := "hello world.":string
   -----------
   (2026/10/10)
   proc int baz( ) {

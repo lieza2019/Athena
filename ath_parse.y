@@ -98,15 +98,6 @@ declaration : decl_proc {
   $$ = pdecl;
  };
 
-/*
-decl_proc : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA statements TK_RBRA {
-  SRC_POS_C pos = { @1.first_line, @1.first_column };
-  PROC_ATTRIB_PTR pproc = NULL;
-  assert( $3 );
-  pproc = decl_proc( $3, $2, $5, &statements, pos );
-  $$ = pproc;
-};
-*/
 decl_proc : decl_proc_begin statements TK_RBRA {
   /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
   /* staffs as follows, may have no-value. in such cases,
@@ -132,39 +123,7 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
   assert( $2 );
   assert( $3 );
   assert( $5 );
-#if 0 // *****
-  pproc = alloc_proc_attr( pos );
-  if( pproc ) {
-    STATEMENT_PTR phead = NULL;
-    STATEMENT_PTR plast = NULL;
-    VAR_ATTRIB_PTR pa = NULL;
-    pproc->ident = $3;
-    pproc->ptype = $2;
-    pproc->pargs = $5;
-    pa = pproc->pargs;
-    while( pa ) {
-      STATEMENT_PTR pa_decl = NULL;
-      pa_decl = vardecl2_stmt( pa, pa->pos );
-      assert( pa_decl );
-      pa_decl->psucc = NULL;
-      if( phead ) {
-	assert( plast );
-	assert( ! plast->psucc );
-	plast->psucc = pa_decl;
-      } else {
-	assert( !plast );
-	phead = pa_decl;
-      }
-      plast = pa_decl;
-      pa = pa->opts.proc_args.parg_next;
-    }
-    statements.phead = phead;
-    statements.plast = plast;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-#else
   pproc = decl_proc( $3, $2, $5, pos );
-#endif
   $$ = pproc;
 }
 | TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
@@ -220,11 +179,7 @@ statements : statements statement {
   assert( $1 );
   assert( $2 );
   assert( statements.phead );
-#if 1 // *****
   assert( statements.plast == $1 );
-#else
-  assert( statements.plast );
-#endif
   (statements.plast)->psucc = $2;
   $2->psucc = NULL;
   statements.plast = $2;
@@ -232,13 +187,6 @@ statements : statements statement {
  }
 | statement {
   assert( $1 );
-#if 0 // *****
-  if( ! statements.phead ) {
-    assert( ! statements.plast );
-    statements.phead = $1;
-    statements.plast = $1;
-  }
-#else
   if( ! statements.phead ) {
     assert( ! statements.plast );
     statements.phead = $1;
@@ -247,7 +195,6 @@ statements : statements statement {
     assert( ! (statements.plast)->psucc );
   }
   statements.plast = $1;
-#endif
   $1->psucc = NULL;
   $$ = statements.plast;
  };
