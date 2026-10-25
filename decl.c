@@ -5,17 +5,11 @@
 
 DECLARATIONS declarations;
 
-void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {  
-  assert( pdecl );
-#if 0 // *****
-  assert( pdecl->u.variable.pvar );
-  assert( (pdecl->u.variable.pvar)->pos.row > 0 );
-  assert( (pdecl->u.variable.pvar)->pos.col > 0 );
-  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col,
-	  pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
-#else
+void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {    
   SRCPOS_T row = -1;
   SRCPOS_T col = -1;
+  assert( pdecl );
+  
   switch( pdecl->kind ) {
   case DECL_PROC:
     assert( pdecl->u.procedure.pproc );
@@ -38,7 +32,6 @@ void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
   }
   printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col,
 	  pdecl->ident, row, col );
-#endif
 }
 
 void err_nodef ( const char *ident, SRC_POS_C pos ) {

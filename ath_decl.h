@@ -67,10 +67,6 @@ typedef struct declaration {
   } u;
   struct declaration *pnext;
 } DECLARATION, *DECLARATION_PTR;
-#if 0 // *****
-typedef const struct declaration DECL_ATTRIB_C;
-typedef struct declaration const *DECL_ATTRIB_PTR_C;
-#endif
 
 typedef struct declarations {
   DECLARATION_PTR phead;

@@ -46,7 +46,7 @@ typedef struct expr_cons {
 #if 1 // *****
 	VAR_ATTRIB var; // with MNC_LVALUE
 #else	
-	VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t.v -> t.
+	VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t. v -> t.
 #endif
       } refaddr;
     } body;

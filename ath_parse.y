@@ -84,21 +84,9 @@ declarations : declarations declaration {
  };
 declaration : decl_proc {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  SYMTBL_ENTRY_PTR psym = NULL;
   PROC_ATTRIB_PTR pproc = $1;
   assert( $1 );
-#if 0 // *****
-  DECLARATION_PTR pdecl = NULL;
-  pdecl = alloc_decl_attr( pos );
-  if( pdecl ) {
-    pdecl->pos = pos;
-    pdecl->ident = $1->ident;
-    pdecl->kind = DECL_PROC;
-    pdecl->u.procedure.pproc = pproc;
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  $$ = pdecl;
-#else
-  SYMTBL_ENTRY_PTR psym = NULL;
   psym = new_memarea( sizeof(SYMTBL_ENTRY) );
   if( psym ) {
     psym->ident = pproc->ident;
@@ -128,7 +116,6 @@ declaration : decl_proc {
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
-#endif
  };
 
 decl_proc : decl_proc_body statements TK_RBRA {
