@@ -60,7 +60,6 @@
 %type <pproc_attr> decl_proc_begin decl_proc
 %type <pdecl_last> declaration declarations
 
- /* %start statements */
 %start declarations
 %%
 declarations : declarations declaration {
@@ -85,17 +84,49 @@ declarations : declarations declaration {
  };
 declaration : decl_proc {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  DECLARATION_PTR pdecl = NULL;
+  PROC_ATTRIB_PTR pproc = $1;
   assert( $1 );
+#if 0 // *****
+  DECLARATION_PTR pdecl = NULL;
   pdecl = alloc_decl_attr( pos );
   if( pdecl ) {
     pdecl->pos = pos;
     pdecl->ident = $1->ident;
     pdecl->kind = DECL_PROC;
-    pdecl->u.procedure.pproc = $1;
+    pdecl->u.procedure.pproc = pproc;
   } else
     ath_abort( pos, ABORT_MEMLACK );
   $$ = pdecl;
+#else
+  SYMTBL_ENTRY_PTR psym = NULL;
+  psym = new_memarea( sizeof(SYMTBL_ENTRY) );
+  if( psym ) {
+    psym->ident = pproc->ident;
+    psym->entity.kind = SYM_DECL;
+    psym->entity.u.decl.pos = pos;
+    psym->entity.u.decl.ident = pproc->ident;
+    psym->entity.u.decl.kind = DECL_PROC;
+    psym->entity.u.decl.u.procedure.pproc = pproc;
+    psym->passoc = NULL;
+    psym->pnext = NULL;
+    {
+      SYMTBL_ENTRY_PTR ps = NULL;
+      ps = reg_symbol( psym );
+      assert( ps );
+      assert( strcmp( ps->ident, pproc->ident ) == 0 );
+      if( ps == psym ) {
+	assert( ps->entity.kind == SYM_DECL );
+	assert( ps->entity.u.decl.kind == DECL_PROC );
+	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pproc->pos ) );
+      } else {
+	err_redef( &ps->entity.u.decl, pproc->pos ); //redef = TRUE;
+	// and release unused psym, here.
+      }
+      $$ = &ps->entity.u.decl; // *pdecl = &ps->entity.u.decl;
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+#endif
  };
 
 decl_proc : decl_proc_begin statements TK_RBRA {
@@ -106,6 +137,7 @@ decl_proc : decl_proc_begin statements TK_RBRA {
      proc_args
      statements
   */
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = $1;
   assert( $1 );
   if( statements.phead ) {
@@ -114,7 +146,7 @@ decl_proc : decl_proc_begin statements TK_RBRA {
     pproc->pstmts = statements.phead;
     statements.phead = NULL;
     statements.plast = NULL;
-  }
+  } 
   $$ = pproc;
 };
 decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
@@ -176,16 +208,6 @@ proc_args : proc_args TK_COMMA var_decl {
  };
 
 statements : statements statement {
-#if 0 // *****
-  assert( $1 );
-  assert( $2 );
-  assert( statements.phead );
-  assert( statements.plast == $1 );
-  (statements.plast)->psucc = $2;  
-  statements.plast = $2;
-  $2->psucc = NULL;
-  $$ = statements.plast;
-#else
   assert( statements.plast == $1 );
   if( statements.phead ) {
     assert( statements.plast );
@@ -200,22 +222,8 @@ statements : statements statement {
     $2->psucc = NULL;
   }
   $$ = statements.plast;
-#endif
  }
 | statement {
-#if 0 // *****
-  assert( $1 );
-  if( ! statements.phead ) {
-    assert( ! statements.plast );
-    statements.phead = $1;
-  } else {
-    assert( statements.plast );
-    assert( ! (statements.plast)->psucc );
-  }
-  statements.plast = $1;
-  $1->psucc = NULL;
-  $$ = statements.plast;
-#else
   if( $1 ) {
     if( ! statements.phead ) {
       assert( ! statements.plast );
@@ -228,7 +236,6 @@ statements : statements statement {
     $1->psucc = NULL;
   }
   $$ = statements.plast;
-#endif
  };
 statement : var_decl TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };

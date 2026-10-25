@@ -75,11 +75,20 @@
   #a : string := "hello world.":string
   -----------
   (2026/10/10)
-  proc int baz( ) {
-    a as string := "hello world.";;
-  TK_STR_LITERAL: hello world.
-  a : string := "hello world.":string
-  [a_goto@:athena]$
+  #proc int baz( ) {
+  #  a as string := "hello world.";;
+  #TK_STR_LITERAL: hello world.
+  #a : string := "hello world.":string
+  #[a_goto@:athena]$
+  -----------
+  (2026/10/10)
+  proc int foo ( n as int ) {
+    m as int;
+  }
+  proc string foo ( m as int ) {
+  (4, 20): symbol m redefinition previous at (2, 4).
+    l as int;
+  }
  */
 #include <stdio.h>
 #include <string.h>
