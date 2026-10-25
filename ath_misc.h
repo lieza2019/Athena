@@ -12,10 +12,18 @@ typedef enum ath_abort {
   END_OF_ATH_ABORT
 } ATH_ABORT;
 
+#if 0 // *****
 typedef struct src_pos {
   int row;
   int col;
 } SRC_POS, *SRC_POS_PTR;
+#else
+typedef int SRCPOS_T;
+typedef struct src_pos {
+  SRCPOS_T row;
+  SRCPOS_T col;
+} SRC_POS, *SRC_POS_PTR;
+#endif
 typedef const struct src_pos SRC_POS_C;
 typedef struct src_pos const *SRC_POS_PTR_C;
 

@@ -5,14 +5,40 @@
 
 DECLARATIONS declarations;
 
-void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {
+void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos ) {  
   assert( pdecl );
+#if 0 // *****
   assert( pdecl->u.variable.pvar );
-  
   assert( (pdecl->u.variable.pvar)->pos.row > 0 );
   assert( (pdecl->u.variable.pvar)->pos.col > 0 );
   printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col,
 	  pdecl->ident, (pdecl->u.variable.pvar)->pos.row, (pdecl->u.variable.pvar)->pos.col );
+#else
+  SRCPOS_T row = -1;
+  SRCPOS_T col = -1;
+  switch( pdecl->kind ) {
+  case DECL_PROC:
+    assert( pdecl->u.procedure.pproc );
+    assert( (pdecl->u.procedure.pproc)->pos.row > 0 );
+    assert( (pdecl->u.procedure.pproc)->pos.col > 0 );
+    row = (pdecl->u.procedure.pproc)->pos.row;
+    col = (pdecl->u.procedure.pproc)->pos.col;
+    break;
+  case DECL_VAR:
+    assert( pdecl->u.variable.pvar );
+    assert( (pdecl->u.variable.pvar)->pos.row > 0 );
+    assert( (pdecl->u.variable.pvar)->pos.col > 0 );
+    row = (pdecl->u.variable.pvar)->pos.row;
+    col = (pdecl->u.variable.pvar)->pos.col;
+    break;
+  case END_OF_DECL_KIND:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  printf( "(%d, %d): symbol %s redefinition previous at (%d, %d).\n", pos.row, pos.col,
+	  pdecl->ident, row, col );
+#endif
 }
 
 void err_nodef ( const char *ident, SRC_POS_C pos ) {
@@ -69,6 +95,7 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
       assert( ps );
       assert( strcmp( ps->ident, pvar_attr->ident ) == 0 );
       if( ps == psym ) {
+	assert( ps->ident == pvar_attr->ident );
 	assert( ps->entity.kind == SYM_DECL );
 	assert( ps->entity.u.decl.kind == DECL_VAR );
 	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pvar_attr->pos ) );

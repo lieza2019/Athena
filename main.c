@@ -82,13 +82,13 @@
   #[a_goto@:athena]$
   -----------
   (2026/10/10)
-  proc int foo ( n as int ) {
-    m as int;
-  }
-  proc string foo ( m as int ) {
-  (4, 20): symbol m redefinition previous at (2, 4).
-    l as int;
-  }
+  #proc int foo ( n as int ) {
+  #  m as int;
+  #}
+  #proc string foo ( m as int ) {
+  #(4, 20): symbol m redefinition previous at (2, 4).
+  #  l as int;
+  #}
  */
 #include <stdio.h>
 #include <string.h>

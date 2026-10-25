@@ -332,6 +332,7 @@ PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty, VAR_ATTRIB_
     STATEMENT_PTR phead = NULL;
     STATEMENT_PTR plast = NULL;
     VAR_ATTRIB_PTR pa = NULL;
+    pproc->pos = pos;
     pproc->ident = proc_name;
     pproc->ptype = pproc_ty;
     if( ! pproc->ptype ) {

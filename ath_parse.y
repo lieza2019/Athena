@@ -57,7 +57,7 @@
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
 %type <pvar_attr> var_decl var_decl_list proc_args
 %type <pstmt_last> statement statements
-%type <pproc_attr> decl_proc_begin decl_proc
+%type <pproc_attr> decl_proc_body decl_proc
 %type <pdecl_last> declaration declarations
 
 %start declarations
@@ -115,11 +115,13 @@ declaration : decl_proc {
       assert( ps );
       assert( strcmp( ps->ident, pproc->ident ) == 0 );
       if( ps == psym ) {
+	assert( ps->ident == pproc->ident );
 	assert( ps->entity.kind == SYM_DECL );
 	assert( ps->entity.u.decl.kind == DECL_PROC );
-	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pproc->pos ) );
+	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pos ) );
+	assert( ps->entity.u.decl.u.procedure.pproc );
       } else {
-	err_redef( &ps->entity.u.decl, pproc->pos ); //redef = TRUE;
+	err_redef( &ps->entity.u.decl, pproc->pos );
 	// and release unused psym, here.
       }
       $$ = &ps->entity.u.decl; // *pdecl = &ps->entity.u.decl;
@@ -129,7 +131,7 @@ declaration : decl_proc {
 #endif
  };
 
-decl_proc : decl_proc_begin statements TK_RBRA {
+decl_proc : decl_proc_body statements TK_RBRA {
   /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
   /* staffs as follows, may have no-value. in such cases,
      the DEFAULT value designated for each, would be applied.
@@ -146,10 +148,11 @@ decl_proc : decl_proc_begin statements TK_RBRA {
     pproc->pstmts = statements.phead;
     statements.phead = NULL;
     statements.plast = NULL;
-  } 
+  }
+  leave_scope();
   $$ = pproc;
 };
-decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
+decl_proc_body : decl_proc_begin obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
@@ -158,7 +161,7 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
   pproc = decl_proc( $3, $2, $5, pos );
   $$ = pproc;
 }
-| TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
+| decl_proc_begin obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
@@ -166,7 +169,7 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
   pproc = decl_proc( $3, $2, NULL, pos );
   $$ = pproc;
  }
-| TK_KEYWORD_PROC TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
+| decl_proc_begin TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
@@ -174,12 +177,18 @@ decl_proc_begin : TK_KEYWORD_PROC obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK
   pproc = decl_proc( $2, NULL, $4, pos );
   $$ = pproc;
  }
-| TK_KEYWORD_PROC TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
+| decl_proc_begin TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
   pproc = decl_proc( $2, NULL, NULL, pos );
   $$ = pproc;
+ };
+decl_proc_begin : TK_KEYWORD_PROC {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  if( ! enter_scope() ) {
+    ath_abort( pos, ABORT_CANNOT_CREAT_SCOPE );
+  }
  };
 
 proc_args : proc_args TK_COMMA var_decl {
