@@ -81,7 +81,7 @@
   #a : string := "hello world.":string
   #[a_goto@:athena]$
   -----------
-  (2026/10/10)
+  (2026/10/25)
   #proc int foo ( n as int ) {
   #  m as int;
   #}
@@ -89,6 +89,10 @@
   #(4, 20): symbol m redefinition previous at (2, 4).
   #  l as int;
   #}
+  -----------
+  (2026/10/25)
+  (7, 4): symbol n redefinition previous at (6, 4).
+  (4, 5): symbol foo redefinition previous at (1, 5).
  */
 #include <stdio.h>
 #include <string.h>
