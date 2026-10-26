@@ -67,6 +67,7 @@ extern TYPE_CONS_PTR gen_tvs ( TYPE_ENV_PTR penv, TYPE_CONS_PTR pty, SRC_POS_C p
 extern TYPE_CONS_PTR inst_gtvs ( TYPE_CONS_PTR pty, SRC_POS_C pos );
 extern BOOL ty_unify ( TYPE_SUBST_PTR *pps_unif, TYPE_CONS_PTR pty_1, TYPE_CONS_PTR pty_2, SRC_POS_C pos );
 extern EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
+extern TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos );
 extern TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
 
 /* from expr.c */
@@ -90,7 +91,8 @@ extern STATEMENT_PTR alloc_stmt_attr ( SRC_POS_C pos );
 /* from lisp.c */
 
 /* from par_tychk.c */
-TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
+extern TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos );
+extern TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
 
 /* from par_expr.c */
 extern EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope, SRC_POS_C pos );

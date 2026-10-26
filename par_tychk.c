@@ -19,6 +19,12 @@ static void reveal_env ( TYPE_ENV_PTR penv_stmt ) {
   }
 }
 
+TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) {
+  /* extern TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ); */
+  assert( pproc );
+  return pproc->ptype;
+}
+
 TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   TYPE_ENV_PTR pe_vardecl = NULL;

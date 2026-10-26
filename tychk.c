@@ -716,6 +716,11 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
   return pexp_inf;
 }
 
+TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
+				TYPE_ENV_PTR *ppenv, PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ) {
+  return NULL;
+}
+
 TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 			       TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
