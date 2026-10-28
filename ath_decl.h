@@ -25,7 +25,14 @@ typedef struct proc_attrib {
   const char *ident;
   TYPE_CONS_PTR ptype;
   VAR_ATTRIB_PTR pargs;
+#if 0 // *****
   struct statement *pstmts;
+#else
+  struct {
+    struct statement *phead;
+    struct statement *plast;
+  } stmts;
+#endif
 } PROC_ATTRIB, *PROC_ATTRIB_PTR;
 
 #define NUM_TYELEMS_PER_ALLOC 256

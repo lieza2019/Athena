@@ -137,7 +137,12 @@ decl_proc : decl_proc_body statements TK_RBRA {
   if( statements.phead ) {
     assert( statements.plast );
     assert( ! (statements.plast)->psucc );
+#if 0 // *****
     pproc->pstmts = statements.phead;
+#else
+    pproc->stmts.phead = statements.phead;
+    pproc->stmts.plast = statements.plast;
+#endif
     statements.phead = NULL;
     statements.plast = NULL;
   }
