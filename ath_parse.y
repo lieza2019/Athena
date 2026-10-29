@@ -55,7 +55,7 @@
 %type <pvar_init> expression unary_expr primary_expr binary_expr
 %type <pvar_init> const_int const_str
 %type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
-%type <pvar_attr> var_decl var_decl_list proc_args
+%type <pvar_attr> var_decl var_decl_list proc_arg proc_args
 %type <pstmt_last> statement statements
 %type <pproc_attr> decl_proc_body decl_proc
 %type <pdecl_last> declaration declarations
@@ -188,6 +188,7 @@ decl_proc_begin : TK_KEYWORD_PROC {
   }
  };
 
+/*
 proc_args : proc_args TK_COMMA var_decl {
   SRC_POS_C pos = { @3.first_line, @3.first_column };
   assert( $1 );
@@ -211,6 +212,42 @@ proc_args : proc_args TK_COMMA var_decl {
   $1->opts.proc_args.parg_head = NULL;
   $1->opts.proc_args.parg_next = NULL;
   $$ = $1;
+ };
+*/
+proc_args : proc_args TK_COMMA proc_arg {
+  SRC_POS_C pos = { @3.first_line, @3.first_column };
+  assert( $1 );
+  assert( $3 );
+#if 0 // *****
+  assert( ! $3->opts.proc_args.parg_next );
+  if( $3->opts.var_decl.with_init )
+    err_print( pos, "procedure arguments have no initialization.\n" );
+#endif
+  $3->opts.proc_args.parg_next = NULL;
+  if( $1->opts.proc_args.parg_head )
+    $3->opts.proc_args.parg_head = $1->opts.proc_args.parg_head;
+  else
+    $3->opts.proc_args.parg_head = $1;
+  $1->opts.proc_args.parg_next = $3;
+  $$ = $3;
+ }
+| proc_arg {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+  $1->opts.proc_args.parg_head = NULL;
+  $1->opts.proc_args.parg_next = NULL;
+  $$ = $1;
+ };
+proc_arg : var_decl {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  STATEMENT_PTR pstmt = NULL;
+  assert( $1 );
+  if( $1->opts.var_decl.with_init )
+    err_print( pos, "procedure arguments have no initialization.\n" );
+  pstmt = vardecl2_stmt( $1, pos );
+  assert( pstmt );
+  assert( (pstmt->u.pdecl)->u.variable.pvar );
+  $$ = (pstmt->u.pdecl)->u.variable.pvar;
  };
 
 statements : statements statement {

@@ -90,8 +90,9 @@ TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) {
   assert( pproc );
   /* extern TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ); */
   if( pproc->stmts.phead ) {
-    STATEMENT_PTR pst_last = pproc->stmts.plast;
+    STATEMENT_PTR pst_last = NULL;
     assert( pproc->stmts.plast );
+    pst_last = pproc->stmts.plast;
     ;
   } else {
     assert( ! pproc->stmts.plast );
