@@ -1,5 +1,6 @@
 typedef enum mnemonic_code {
-  MNC_CALL = 1,
+  MNC_RET = 1,
+  MNC_CALL,
   MNC_ASGN,
   MNC_LVALUE,
   MNC_RVALUE,
@@ -48,6 +49,7 @@ typedef struct expr_cons {
 #else	
 	VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t. v -> t.
 #endif
+	PROC_ATTRIB_PTR pproc;
       } refaddr;
     } body;
   } kids;
@@ -56,6 +58,9 @@ typedef struct expr_cons {
 typedef const struct expr_cons EXPR_CONS_C;
 typedef struct expr_cons const *EXPR_CONS_PTR_C;
 
+#define EXAM_RET_EXPR( e )						\
+  ( (((e)->mnemonic == MNC_RET) && (((e)->kids.pleft) && !((e)->kids.pright))) \
+    && ((e)->kids.body.refaddr.pproc) )
 #define EXAM_ASGN_EXPR( e )						\
   (((e)->mnemonic == MNC_ASGN) && (((e)->kids.pleft) && ((e)->kids.pright)))
 #define EXAM_LVALUE_EXPR( e )						\

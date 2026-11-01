@@ -54,10 +54,11 @@
 %type <pty_list_elem> list_elem_type
 %type <pvar_init> expression unary_expr primary_expr binary_expr
 %type <pvar_init> const_int const_str
-%type <pvar_init> const_list decl_list_init_elems decl_list_init_elems_tail
+%type <pvar_init> const_list list_init_elems list_init_elems_tail
+ /* %type <pvar_attr> var_decl var_decl_list proc_args */
 %type <pvar_attr> var_decl var_decl_list proc_arg proc_args
 %type <pstmt_last> statement statements
-%type <pproc_attr> decl_proc_body decl_proc
+%type <pproc_attr> proc_face proc_decl
 %type <pdecl_last> declaration declarations
 
 %start declarations
@@ -82,7 +83,7 @@ declarations : declarations declaration {
   $1->pnext = NULL;
   $$ = $1;
  };
-declaration : decl_proc {
+declaration : proc_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   SYMTBL_ENTRY_PTR psym = NULL;
   PROC_ATTRIB_PTR pproc = $1;
@@ -109,7 +110,7 @@ declaration : decl_proc {
 	assert( ps->entity.u.decl.kind == DECL_PROC );
 	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pos ) );
 	assert( ps->entity.u.decl.u.procedure.pproc );
-	// TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos )
+	/* TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) */
 	pty_inf = tychk_decl_proc( ps->entity.u.decl.u.procedure.pproc, (ps->entity.u.decl.u.procedure.pproc)->pos );
 	if( pty_inf )
 	  (ps->entity.u.decl.u.procedure.pproc)->ptype = pty_inf;
@@ -123,7 +124,7 @@ declaration : decl_proc {
     ath_abort( pos, ABORT_MEMLACK );
  };
 
-decl_proc : decl_proc_body statements TK_RBRA {
+proc_decl : proc_face statements TK_RBRA {
   /* e.g. proc int foo ( n as int, s as string, b as bool ) { statements } */
   /* staffs as follows, may have no-value. in such cases,
      the DEFAULT value designated for each, would be applied.
@@ -149,7 +150,7 @@ decl_proc : decl_proc_body statements TK_RBRA {
   leave_scope();
   $$ = pproc;
 };
-decl_proc_body : decl_proc_begin obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
+proc_face : proc_decl_begin obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
@@ -157,8 +158,8 @@ decl_proc_body : decl_proc_begin obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_
   assert( $5 );
   pproc = decl_proc( $3, $2, $5, pos );
   $$ = pproc;
-}
-| decl_proc_begin obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
+ }
+| proc_decl_begin obj_type TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
@@ -166,7 +167,7 @@ decl_proc_body : decl_proc_begin obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_
   pproc = decl_proc( $3, $2, NULL, pos );
   $$ = pproc;
  }
-| decl_proc_begin TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
+| proc_decl_begin TK_IDENT TK_LPAR proc_args TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
@@ -174,14 +175,14 @@ decl_proc_body : decl_proc_begin obj_type TK_IDENT TK_LPAR proc_args TK_RPAR TK_
   pproc = decl_proc( $2, NULL, $4, pos );
   $$ = pproc;
  }
-| decl_proc_begin TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
+| proc_decl_begin TK_IDENT TK_LPAR TK_RPAR TK_LBRA {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   PROC_ATTRIB_PTR pproc = NULL;
   assert( $2 );
   pproc = decl_proc( $2, NULL, NULL, pos );
   $$ = pproc;
  };
-decl_proc_begin : TK_KEYWORD_PROC {
+proc_decl_begin : TK_KEYWORD_PROC {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   if( ! enter_scope() ) {
     ath_abort( pos, ABORT_CANNOT_CREAT_SCOPE );
@@ -240,14 +241,10 @@ proc_args : proc_args TK_COMMA proc_arg {
  };
 proc_arg : var_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
-  STATEMENT_PTR pstmt = NULL;
   assert( $1 );
   if( $1->opts.var_decl.with_init )
     err_print( pos, "procedure arguments have no initialization.\n" );
-  pstmt = vardecl2_stmt( $1, pos );
-  assert( pstmt );
-  assert( (pstmt->u.pdecl)->u.variable.pvar );
-  $$ = (pstmt->u.pdecl)->u.variable.pvar;
+  $$ = $1;
  };
 
 statements : statements statement {
@@ -509,33 +506,33 @@ const_str : TK_STR_LITERAL {
   $$ = pval_string;
  };
 
-const_list : TK_LSQBL decl_list_init_elems {
+const_list : TK_LSQBL list_init_elems {
   $$ = $2;
  }
 | TK_RSQBL {
   $$ = NULL;
  }
 
-decl_list_init_elems : TK_INT_LITERAL decl_list_init_elems_tail {
+list_init_elems : TK_INT_LITERAL list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_INT, &$1, $2, pos );
  }
-| TK_STR_LITERAL decl_list_init_elems_tail {
+| TK_STR_LITERAL list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_STRING, $1, $2, pos );
  }
-| TK_LSQBL TK_RSQBL decl_list_init_elems_tail {
+| TK_LSQBL TK_RSQBL list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   $$ = value_list_elem( TY_LIST, NULL, $3, pos );
  }
-| TK_LSQBL decl_list_init_elems decl_list_init_elems_tail {
+| TK_LSQBL list_init_elems list_init_elems_tail {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $2 );
   assert( ($2)->ptype );
   assert( (($2)->ptype)->type.ty == TY_LIST );
   $$ = value_list_elem( TY_LIST, $2, $3, pos );
  };
-decl_list_init_elems_tail : TK_COMMA decl_list_init_elems {
+list_init_elems_tail : TK_COMMA list_init_elems {
   $$ = $2;
 }
 | TK_RSQBL {

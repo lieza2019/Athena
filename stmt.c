@@ -41,7 +41,7 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
     if( redef )
       err_redef( pdecl, pvar_attr->pos );
     (*ppstmt)->pos = pos;
-    (*ppstmt)->sort = STMT_DECL;
+    (*ppstmt)->sort = STMT_DECL_VAR;
     (*ppstmt)->u.pdecl = pdecl;
   } else
     ath_abort( pos, ABORT_MEMLACK );

@@ -1,8 +1,13 @@
 #define MAX_STATEMENTS 64
 
 typedef enum stmt_sort {
+#if 0 // *****
   STMT_DECL = 1,
+#else
+  STMT_DECL_VAR = 1,
+#endif
   STMT_EXPR,
+  STMT_RETURN,
   END_OF_STMT_SORT
 } STMT_SORT;
 

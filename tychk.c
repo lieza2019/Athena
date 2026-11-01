@@ -297,6 +297,27 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
   assert( pexpr );
   
   switch( pexpr->mnemonic ) {
+  case MNC_RET:
+    assert( EXAM_RET_EXPR( pexpr ) );
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      TYPE_ENV_PTR penv_infl = *ppenv;
+      TYPE_SUBST_PTR psubst_l = NULL;
+      EXPR_CONS_PTR pe_infl = NULL;
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_RET;
+      pexp_inf->kids = pexpr->kids;
+      assert( pexp_inf->kids.pleft );
+      pe_infl = ty_infer( ptychk_res, &psubst_l, &penv_infl, pexp_inf->kids.pleft, pos );
+      if( pe_infl ) {
+	;
+      } else {
+	ERRMSG_SUPPRESS( ptychk_res );
+	pexp_inf = NULL;
+      }
+    } else
+      goto memlack;
+    break;
   case MNC_CALL:
     break;
   case MNC_ASGN:
@@ -718,14 +739,51 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 
 TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 				TYPE_ENV_PTR *ppenv, PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ) {
-  return NULL;
+  TYPE_CONS_PTR r = NULL;
+  assert( ptychk_res );
+  assert( ppsubst );
+  assert( ppenv );
+  assert( pproc_attr );
+  
+  if( pproc_attr->stmts.phead ) {
+    STATEMENT_PTR pst_last = pproc_attr->stmts.plast;
+    assert( pproc_attr->stmts.plast );
+    if( pst_last->sort == STMT_RETURN ) {
+      if( pst_last->u.pexpr ) {
+	EXPR_CONS_PTR pe_ret = NULL;
+	pe_ret = alloc_expr_cons( pos );
+	if( pe_ret ) {
+	  EXPR_CONS_PTR pretexp_inf = NULL;
+	  pe_ret->pos = pos;
+	  pe_ret->mnemonic = MNC_RET;
+	  pe_ret->kids.pleft = pst_last->u.pexpr;
+	  pe_ret->kids.body.refaddr.pproc = pproc_attr;
+	  /* EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ); */
+	  pretexp_inf = ty_infer( ptychk_res, ppsubst, &pst_last->penv, pe_ret, pos );
+	  if( pretexp_inf ) {
+	    ;
+	  }
+	} else
+	  ath_abort( pos, ABORT_MEMLACK );
+      } else {
+	;
+      }
+    } else {
+      ;
+    }
+  } else {
+    assert( ! pproc_attr->stmts.plast );
+    ;
+  }
+  return r;
 }
 
 TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 			       TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
-  TYPE_CONS_PTR r = NULL;
   EXPR_CONS_PTR pvardecl_inf = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
+  TYPE_CONS_PTR r = NULL;
+  assert( ptychk_res );
   assert( ppsubst );
   assert( ppenv );
   assert( pvar_attr );
