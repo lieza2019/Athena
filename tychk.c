@@ -310,7 +310,40 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ptychk_res, &psubst_l, &penv_infl, pexp_inf->kids.pleft, pos );
       if( pe_infl ) {
-	;
+	TYPE_CONS_PTR pty_proc = (pexpr->kids.body.refaddr.pproc)->ptype;
+	assert( pe_infl->ptype );
+	assert( psubst_l );
+	assert( penv_infl );
+	pexp_inf->kids.pleft = pe_infl;
+	pexp_inf->ptype = pe_infl->ptype;
+	if( pty_proc ) {
+	  TYPE_SUBST_PTR psubst_u = NULL;
+	  if( ty_unify( &psubst_u, pe_infl->ptype, pty_proc, pos ) ) {
+	    TYPE_ENV_PTR penv_unif = NULL;
+	    TYPE_CONS_PTR pty_infl_su = NULL;
+	    assert( psubst_u );
+	    pty_infl_su = ty_subst( psubst_u, pe_infl->ptype, pos );
+	    assert( pty_infl_su );
+	    pexp_inf->ptype = pty_infl_su;
+	    *ppsubst = comp_subst( psubst_u, psubst_l, pos );
+	    penv_unif = dup_env( penv_infl, pos );
+	    assert( penv_unif );
+	    *ppenv = env_subst( penv_unif, psubst_u, pos );
+	    ptychk_res->reason = TYCON_WELLTYPED;
+	  } else {
+	    const char *errmsg = "type mismatch with procedure type declaration.";
+	    ptychk_res->reason = TYCON_BINEXPR_TYPEMISMATCH; // !!!!!
+	    ptychk_res->pexpr = pexp_inf;
+	    ptychk_res->errmsg = find_literal( errmsg, pos );
+	    pexp_inf = NULL;
+	  }
+	} else {
+	  const char *errmsg = "procedure declaration has no type.";
+	  ptychk_res->reason = TYCON_BINEXPR_TYPEMISMATCH; // !!!!!
+	  ptychk_res->pexpr = pexp_inf;
+	  ptychk_res->errmsg = find_literal( errmsg, pos );
+	  pexp_inf = NULL;
+	}
       } else {
 	ERRMSG_SUPPRESS( ptychk_res );
 	pexp_inf = NULL;
@@ -443,7 +476,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	    pty_infl_su = ty_subst( psubst_u, pe_infl->ptype, pos );
 	    assert( pty_infl_su );
 	    assert( pty_infl_su->type.ty == TY_INT );
-	    pe_infl->ptype = pty_infl_su;
+	    pe_infl->ptype = pty_infl_su; // !!!!!
 	    pexp_inf->ptype = pe_infl->ptype;
 	    *ppsubst = comp_subst( psubst_u, psubst_l, pos );
 	    penv_unif = dup_env( penv_infl, pos );
