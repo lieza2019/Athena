@@ -110,8 +110,7 @@ declaration : proc_decl {
 	assert( ps->entity.u.decl.kind == DECL_PROC );
 	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pos ) );
 	assert( ps->entity.u.decl.u.procedure.pproc );
-	/* TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) */
-	pty_inf = tychk_decl_proc( ps->entity.u.decl.u.procedure.pproc, (ps->entity.u.decl.u.procedure.pproc)->pos );
+	pty_inf = tyinf_decl_proc( ps->entity.u.decl.u.procedure.pproc, (ps->entity.u.decl.u.procedure.pproc)->pos );
 	if( pty_inf )
 	  (ps->entity.u.decl.u.procedure.pproc)->ptype = pty_inf;
       } else {
