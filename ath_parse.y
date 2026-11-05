@@ -110,9 +110,15 @@ declaration : proc_decl {
 	assert( ps->entity.u.decl.kind == DECL_PROC );
 	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pos ) );
 	assert( ps->entity.u.decl.u.procedure.pproc );
+#if 0 // *****
 	pty_inf = tyinf_decl_proc( ps->entity.u.decl.u.procedure.pproc, (ps->entity.u.decl.u.procedure.pproc)->pos );
+#else
+	pty_inf = tychk_decl_proc( ps->entity.u.decl.u.procedure.pproc, (ps->entity.u.decl.u.procedure.pproc)->pos );
+#endif
 	if( pty_inf )
 	  (ps->entity.u.decl.u.procedure.pproc)->ptype = pty_inf;
+	else
+	  ;
       } else {
 	err_redef( &ps->entity.u.decl, pproc->pos );
 	// and release unused psym, here.

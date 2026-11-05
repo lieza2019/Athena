@@ -770,6 +770,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
   return pexp_inf;
 }
 
+#if 0 // *****
 TYPE_CONS_PTR tyinf_decl_proc ( PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ) {
   assert( pproc_attr );
   if( pproc_attr->stmts.phead ) {
@@ -802,6 +803,41 @@ TYPE_CONS_PTR tyinf_decl_proc ( PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ) {
     assert( ! pproc_attr->stmts.plast );
   return pproc_attr->ptype;
 }
+#else
+TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
+				PROC_ATTRIB_PTR pproc_attr, SRC_POS_C pos ) {
+  assert( ptychk_res );
+  assert( ppsubst );
+  assert( pproc_attr );
+  if( pproc_attr->stmts.phead ) {
+    STATEMENT_PTR pst_last = pproc_attr->stmts.plast;
+    assert( pproc_attr->stmts.plast );
+    if( pst_last->sort == STMT_RETURN ) {
+      if( pst_last->u.pexpr ) {
+	EXPR_CONS_PTR pe_ret = NULL;
+	pe_ret = alloc_expr_cons( pos );
+	if( pe_ret ) {
+	  EXPR_CONS_PTR pretexp_inf = NULL;
+	  pe_ret->pos = pos;
+	  pe_ret->mnemonic = MNC_RET;
+	  pe_ret->kids.pleft = pst_last->u.pexpr;
+	  pe_ret->kids.body.refaddr.pproc = pproc_attr;
+	  pretexp_inf = ty_infer( ptychk_res, ppsubst, &pst_last->penv, pe_ret, pos );
+	  if( pretexp_inf ) {
+	    assert( EXAM_RET_EXPR( pretexp_inf ) );
+	    assert( pretexp_inf->ptype );
+	    (pproc_attr->stmts.plast)->u.pexpr = pretexp_inf->kids.pleft;
+	    pproc_attr->ptype = pretexp_inf->ptype;
+	  }
+	} else
+	  ath_abort( pos, ABORT_MEMLACK );
+      }
+    }
+  } else
+    assert( ! pproc_attr->stmts.plast );
+  return pproc_attr->ptype;
+}
+#endif
 
 TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 			       TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
