@@ -86,8 +86,8 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   return r;
 }
 
-#if 1
-TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) {
+#if 1 // *****
+TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc ) {
   TYPE_CONS_PTR pty_inf = NULL;
   assert( pproc );
   
@@ -98,7 +98,7 @@ TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) {
       if( pst_last->u.pexpr ) {
 	TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
 	TYPE_SUBST_PTR psubst = NULL;
-	pty_inf = tyinf_decl_proc( &tychk_res, &psubst, pproc, pos );
+	pty_inf = tyinf_decl_proc( &tychk_res, &psubst, pproc, pproc->pos );
 	if( pty_inf )
 	  pproc->ptype = pty_inf;
       } else {
