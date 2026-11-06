@@ -113,7 +113,7 @@ declaration : proc_decl {
 #if 0 // *****
 	pty_inf = tyinf_decl_proc( ps->entity.u.decl.u.procedure.pproc, (ps->entity.u.decl.u.procedure.pproc)->pos );
 #else
-	pty_inf = tychk_decl_proc( ps->entity.u.decl.u.procedure.pproc );
+	pty_inf = tychk_decl_proc( ps->entity.u.decl.u.procedure.pproc, pos );
 #endif
 	(ps->entity.u.decl.u.procedure.pproc)->ptype = pty_inf;
       } else {

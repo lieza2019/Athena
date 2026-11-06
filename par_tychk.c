@@ -19,6 +19,33 @@ static void reveal_env ( TYPE_ENV_PTR penv_stmt ) {
   }
 }
 
+TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos ) {
+  TYPE_CONS_PTR pty_inf = NULL;
+  assert( pproc );
+  
+  if( pproc->stmts.phead ) {
+    STATEMENT_PTR pst_last = pproc->stmts.plast;
+    assert( pproc->stmts.plast );
+    if( pst_last->sort == STMT_RETURN ) {
+      if( pst_last->u.pexpr ) {
+	TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
+	TYPE_SUBST_PTR psubst = NULL;
+	pty_inf = tyinf_decl_proc( &tychk_res, &psubst, pproc, pos );
+	if( pty_inf )
+	  pproc->ptype = pty_inf;
+      } else {
+	;
+      }
+    } else {
+      ;
+    }
+  } else {
+    assert( ! pproc->stmts.plast );
+    ;
+  }
+  return pproc->ptype;
+}
+
 TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
   TYPE_CONS_PTR r = NULL;
   TYPE_ENV_PTR pe_vardecl = NULL;
@@ -85,32 +112,3 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     ath_abort( pos, ABORT_MEMLACK );
   return r;
 }
-
-#if 1 // *****
-TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc ) {
-  TYPE_CONS_PTR pty_inf = NULL;
-  assert( pproc );
-  
-  if( pproc->stmts.phead ) {
-    STATEMENT_PTR pst_last = pproc->stmts.plast;
-    assert( pproc->stmts.plast );
-    if( pst_last->sort == STMT_RETURN ) {
-      if( pst_last->u.pexpr ) {
-	TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
-	TYPE_SUBST_PTR psubst = NULL;
-	pty_inf = tyinf_decl_proc( &tychk_res, &psubst, pproc, pproc->pos );
-	if( pty_inf )
-	  pproc->ptype = pty_inf;
-      } else {
-	;
-      }
-    } else {
-      ;
-    }
-  } else {
-    assert( ! pproc->stmts.plast );
-    ;
-  }
-  return pproc->ptype;
-}
-#endif

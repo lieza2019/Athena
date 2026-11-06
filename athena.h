@@ -95,8 +95,8 @@ extern STATEMENT_PTR alloc_stmt_attr ( SRC_POS_C pos );
 /* from lisp.c */
 
 /* from par_tychk.c */
+extern TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos );
 extern TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
-extern TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc );
 
 /* from par_expr.c */
 extern EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope, SRC_POS_C pos );
