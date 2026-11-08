@@ -97,6 +97,10 @@ int yywrap( void ) {
   yylloc.first_column += strlen( yytext );
   return TK_KEYWORD_PROC;
 }
+"return" {
+  yylloc.first_column += strlen( yytext );
+  return TK_KEYWORD_RETURN;
+}
 "string" {
   yylloc.first_column += strlen( yytext );
   return TK_KEYWORD_STRING;

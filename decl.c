@@ -64,14 +64,15 @@ void free_var_addr ( VAR_ATTRIB_PTR pvattr ) {
   }
 }
 
-BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+#if 0 // *****
+BOOL decl_var ( DECLARATION_PTR *ppdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   BOOL redef = FALSE;
   SYMTBL_ENTRY_PTR psym = NULL;
-  assert( pdecl );
+  assert( ppdecl );
   assert( pvar_attr ); 
   assert( pvar_attr->ptype );
   
-  *pdecl = NULL;
+  *ppdecl = NULL;
   psym = new_memarea( sizeof(SYMTBL_ENTRY) );
   if( psym ) {
     psym->ident = pvar_attr->ident;
@@ -88,7 +89,6 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
       assert( ps );
       assert( strcmp( ps->ident, pvar_attr->ident ) == 0 );
       if( ps == psym ) {
-	assert( ps->ident == pvar_attr->ident );
 	assert( ps->entity.kind == SYM_DECL );
 	assert( ps->entity.u.decl.kind == DECL_VAR );
 	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pvar_attr->pos ) );
@@ -96,14 +96,53 @@ BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos 
 	redef = TRUE;
 	// and release unused psym, here.
       }
-      *pdecl = &ps->entity.u.decl;
+      *ppdecl = &ps->entity.u.decl;
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  assert( *pdecl );
-  assert( strcmp( (*pdecl)->ident, pvar_attr->ident ) == 0 );
+  assert( *ppdecl );
+  assert( strcmp( (*ppdecl)->ident, pvar_attr->ident ) == 0 );
   return redef;
 }
+#else
+DECLARATION_PTR decl_var ( DECLARATION_PTR *ppdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+  DECLARATION_PTR pd_reg = NULL;
+  SYMTBL_ENTRY_PTR psym = NULL;
+  assert( ppdecl );
+  assert( pvar_attr ); 
+  assert( pvar_attr->ptype );
+  
+  *ppdecl = NULL;
+  psym = new_memarea( sizeof(SYMTBL_ENTRY) );
+  if( psym ) {
+    psym->ident = pvar_attr->ident;
+    psym->entity.kind = SYM_DECL;
+    psym->entity.u.decl.pos = pos;
+    psym->entity.u.decl.ident = pvar_attr->ident;
+    psym->entity.u.decl.kind = DECL_VAR;
+    psym->entity.u.decl.u.variable.pvar = pvar_attr;
+    psym->passoc = NULL;
+    psym->pnext = NULL;
+    {
+      SYMTBL_ENTRY_PTR ps = NULL;
+      ps = reg_symbol( psym );
+      assert( ps );
+      assert( strcmp( ps->ident, pvar_attr->ident ) == 0 );
+      if( ps == psym ) {
+	assert( ps->entity.kind == SYM_DECL );
+	assert( ps->entity.u.decl.kind == DECL_VAR );
+	assert( CMP_SRCPOS( ps->entity.u.decl.pos, pvar_attr->pos ) );
+      }
+      *ppdecl = &ps->entity.u.decl;
+    }
+    pd_reg = &psym->entity.u.decl;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  assert( *ppdecl );
+  assert( strcmp( (*ppdecl)->ident, pvar_attr->ident ) == 0 );
+  return pd_reg;
+}
+#endif
 
 static struct {
   struct {

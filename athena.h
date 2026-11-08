@@ -83,12 +83,18 @@ extern void err_redef ( DECLARATION_PTR pdecl, SRC_POS_C pos );
 extern void err_nodef ( const char *ident, SRC_POS_C pos );
 extern VAR_ATTRIB_PTR alloc_var_attr ( SRC_POS_C pos );
 extern void free_var_addr ( VAR_ATTRIB_PTR pvattr );
-extern BOOL decl_var ( DECLARATION_PTR *pdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+#if 0 // *****
+extern BOOL decl_var ( DECLARATION_PTR *ppdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+#else
+DECLARATION_PTR decl_var ( DECLARATION_PTR *ppdecl, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
+#endif
 extern PROC_ATTRIB_PTR alloc_proc_attr ( SRC_POS_C pos );
 extern DECLARATION_PTR alloc_decl_attr ( SRC_POS_C pos );
 
 /* from stmt.c */
+#if 0 // *****
 extern BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
+#endif
 extern BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );
 extern STATEMENT_PTR alloc_stmt_attr ( SRC_POS_C pos );
 
@@ -111,4 +117,5 @@ extern PROC_ATTRIB_PTR decl_proc ( char *proc_name, TYPE_CONS_PTR pproc_ty, VAR_
 
 /* from par_stmt.c */
 extern STATEMENT_PTR expr2_stmt ( EXPR_CONS_PTR pexpr, SRC_POS_C pos );
+extern STATEMENT_PTR stmt_return ( EXPR_CONS_PTR pexpr, SRC_POS_C pos );
 extern STATEMENT_PTR vardecl2_stmt ( VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos );

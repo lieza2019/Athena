@@ -6,6 +6,7 @@
 TYPE_ENV_PTR penv_last = NULL;
 STATEMENTS statements = { NULL, NULL };
 
+#if 0 // *****
 BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
   BOOL r = FALSE;
   assert( ppstmt );
@@ -26,7 +27,9 @@ BOOL stmt_expr ( STATEMENT_PTR *ppstmt, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
     ath_abort( pos, ABORT_MEMLACK );
   return r;
 }
+#endif
 
+#if 0 // *****
 BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
   BOOL redef = FALSE;
   assert( ppstmt );
@@ -36,17 +39,44 @@ BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C 
   *ppstmt = alloc_stmt_attr( pos );
   if( *ppstmt ) {
     DECLARATION_PTR pdecl = NULL;
+    (*ppstmt)->pos = pos;
+    (*ppstmt)->sort = STMT_DECL_VAR;    
     redef = decl_var( &pdecl, pvar_attr, pos );
     assert( pdecl );
     if( redef )
       err_redef( pdecl, pvar_attr->pos );
-    (*ppstmt)->pos = pos;
-    (*ppstmt)->sort = STMT_DECL_VAR;
     (*ppstmt)->u.pdecl = pdecl;
   } else
     ath_abort( pos, ABORT_MEMLACK );
   return redef;
 }
+#else
+BOOL stmt_decl_var ( STATEMENT_PTR *ppstmt, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
+  BOOL redef = FALSE;
+  assert( ppstmt );
+  assert( pvar_attr );
+  
+  *ppstmt = NULL;
+  *ppstmt = alloc_stmt_attr( pos );
+  if( *ppstmt ) {
+    DECLARATION_PTR pdecl = NULL;
+    (*ppstmt)->pos = pos;
+    (*ppstmt)->sort = STMT_DECL_VAR;
+    {
+      DECLARATION_PTR pd_var = NULL;
+      pd_var = decl_var( &pdecl, pvar_attr, pos );
+      assert( pdecl );
+      assert( pd_var );
+      if( pd_var != pdecl )
+	err_redef( pdecl, pd_var->pos );
+      (*ppstmt)->u.pdecl = pd_var;
+      redef = (pd_var == pdecl);
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return redef;
+}
+#endif
 
 static struct {
   struct {

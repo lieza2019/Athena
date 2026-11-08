@@ -38,9 +38,10 @@
 %token TK_CROSS
 %token TK_KEYWORD_AS
 %token TK_KEYWORD_INT
-%token TK_KEYWORD_STRING
 %token TK_KEYWORD_POLY
 %token TK_KEYWORD_PROC
+%token TK_KEYWORD_RETURN
+%token TK_KEYWORD_STRING
 %token <nat> TK_INT_LITERAL
 %token <str> TK_IDENT
 %token <str> TK_STR_LITERAL
@@ -282,6 +283,7 @@ statements : statements statement {
 statement : var_decl TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
+  assert( $1 );
   pstmt = vardecl2_stmt( $1, pos );
   assert( pstmt );
   $$ = pstmt;
@@ -289,7 +291,16 @@ statement : var_decl TK_SMCL {
 | expression TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
+  assert( $1 );
   pstmt = expr2_stmt( $1, pos );
+  assert( pstmt );
+  $$ = pstmt;
+ }
+| TK_KEYWORD_RETURN expression TK_SMCL {
+  SRC_POS_C pos = { @1.first_line, @1.first_column };
+  STATEMENT_PTR pstmt = NULL;
+  assert( $2 );
+  pstmt = stmt_return( $2, pos );
   assert( pstmt );
   $$ = pstmt;
  }
