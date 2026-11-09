@@ -103,6 +103,7 @@
 extern int yyparse( void );
 extern FILE *yyin;
 
+#if 0
 int main ( void ) {
   int r = 0;
   FILE *fp_src = stdin;
@@ -126,3 +127,73 @@ int main ( void ) {
   }
   return r;
 }
+#else
+struct {
+  char *psrc_fname;
+} ath_cmdopts;
+static int get_cmdopts ( int argc, char **argv ) {
+  int nopts = 0;
+  int i;
+  assert( argc > 0 );
+  assert( argv );
+  
+  for( i = 1; i < argc; i++ ) {
+    if(strlen( argv[i] ) == 2) {
+      if( (strncmp( argv[i], "-f", 2 ) == 0) && (argc >= (i + 1)) ) {
+	ath_cmdopts.psrc_fname = argv[i + 1];
+	nopts++;
+      }
+    }
+  }
+  return nopts;
+}
+
+static void ath_bannar( void ) {
+  printf( "athena " );
+  printf( "-f SRC_FILENAME " );
+  printf( "\n" );
+}
+
+#define ATH_ERR_INVALID_CMDOPTS -1
+#define ATH_ERR_CANNOT_OPEN_SRCFILE -2
+
+int main ( int argc, char **argv ) {
+  int r = 0;
+  FILE *fp_src = NULL;
+  
+  if( get_cmdopts( argc, argv ) < 1 ) {
+    ath_bannar();
+    r = ATH_ERR_INVALID_CMDOPTS;
+  } else {
+    if( ath_cmdopts.psrc_fname ) {
+      fp_src = fopen( ath_cmdopts.psrc_fname, "r" );
+      if( !fp_src ) {
+	printf( "cannot open source file: %s\n", ath_cmdopts.psrc_fname );
+	r = ATH_ERR_CANNOT_OPEN_SRCFILE;
+      }
+    } else
+      fp_src = stdin;
+  }
+  if( r != 0 )
+    return r;
+  
+  if( ! enter_scope() ) {
+    SRC_POS_C pos = { -1, -1 };
+    ath_abort( pos, ABORT_CANNOT_CREAT_SCOPE );
+  }
+  yyin = fp_src;
+  r = yyparse();  
+  {
+    const char var_print[] = "a";
+    SYM_ENTITY_PTR psym = NULL;
+    psym = find_symbol( var_print );
+    if( psym ) {
+      char sbuf[8 * 1024] = "";
+      show_var_decl( sbuf, psym->u.decl.u.variable.pvar );
+      printf( "%s\n", sbuf );
+    } else
+      printf( "symbol a isnt declared.\n " );
+  }
+  return r;
+}
+#endif
