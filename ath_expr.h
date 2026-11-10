@@ -54,6 +54,9 @@ typedef struct expr_cons {
     } body;
   } kids;
   TYPE_CONS_PTR ptype;
+#if 1 // *****
+  TYPE_ENV_PTR penv;
+#endif
 } EXPR_CONS, *EXPR_CONS_PTR;
 typedef const struct expr_cons EXPR_CONS_C;
 typedef struct expr_cons const *EXPR_CONS_PTR_C;

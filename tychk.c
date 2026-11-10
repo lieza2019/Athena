@@ -677,7 +677,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  pexp_inf->kids.pleft = pe_infl;
 	  pty_infl_sr = ty_subst( psubst_r, pe_infl->ptype, pos );
 	  assert( pty_infl_sr );
-	  pexp_inf->ptype = pty_infl_sr;
+	  pexp_inf->ptype = pty_infl_sr; // !!!!!
 	  if( ty_unify( &psubst_u, pty_infl_sr, pe_infr->ptype, pos ) ) {
 	    TYPE_CONS_PTR pty_infl_su = NULL;
 	    TYPE_CONS_PTR pty_infr_su = NULL;
