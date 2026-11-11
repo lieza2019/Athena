@@ -65,7 +65,7 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
 	  goto failed_memalloc;
       }
       if( tychk_res.reason != TYCON_WELLTYPED ) {
-	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
+	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos );
       }
     }
     assert( pe_bin->ptype );
@@ -137,7 +137,7 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 	  goto failed_memalloc;
       }
       if( tychk_res.reason != TYCON_WELLTYPED ) {
-	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
+	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos );
       }
     }
     assert( pe_una->ptype );
@@ -147,6 +147,7 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
   return pe_una;
 }
 
+#if 0 // *****
 EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_pri = NULL;
   assert( ident );
@@ -211,3 +212,84 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
     ath_abort( pos, ABORT_MEMLACK );
   return pe_pri;
 }
+#else
+EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pe_pri = NULL;
+  assert( ident );
+  
+  pe_pri = alloc_expr_cons( pos );
+  if( pe_pri ) {
+    BOOL found = FALSE;
+    SYM_ENTITY_PTR psym = NULL;
+    pe_pri->pos = pos;
+    pe_pri->mnemonic = MNC_RVALUE;
+    psym = find_symbol( ident );
+    while( psym ) {
+      TYPE_ENV_PTR penv_last = NULL;
+      if( psym->kind == SYM_DECL ) {
+	DECLARATION_PTR pdecl = &psym->u.decl;
+	assert( pdecl );
+	assert( pdecl->ident );
+	assert( strcmp( pdecl->ident, ident ) == 0 );
+	if( statements.phead ) {
+	  assert( statements.plast );
+	  penv_last = (statements.plast)->penv;
+	} else
+	  assert( ! statements.plast );
+	switch( pdecl->kind ) {
+	case DECL_PROC:
+	case DECL_VAR:
+	  assert( pdecl->u.variable.pvar );
+	  {
+	    VAR_ATTRIB_PTR pvar = pdecl->u.variable.pvar;
+	    assert( pvar );
+	    assert( pvar->ident );
+	    assert( strcmp( pvar->ident, pdecl->ident ) == 0 );
+	    if( penv_last ) {
+	      TYENV_ELEM_PTR pe = NULL;
+	      pe = env_lkup( penv_last, ident );
+	      if( pe ) {
+		assert( strcmp( pe->decl.var.v.ident, ident ) == 0 );
+		assert( pe->decl.var.plnk_symtbl );
+		if( pe->decl.var.plnk_symtbl == pvar )
+		  pe_pri->kids.body.refaddr.var = pe->decl.var.v;
+		else {
+		  err_print( pvar->pos, COMP_ERROR_INTERNAL, "statement has no environment." );
+		  goto foo;
+		}
+	      } else {
+		err_print( pvar->pos, COMP_ERROR_INTERNAL, "statement has no environment." );
+		goto foo;
+	      }
+	    } else {
+	      if( statements.plast ) {
+		assert( statements.phead );
+		err_print( (statements.plast)->pos, COMP_ERROR_INTERNAL, "statement has no environment." );
+	      } else
+		assert( ! statements.phead );
+	    foo:
+	      pe_pri->kids.body.refaddr.var = *pvar;
+	    }
+	    pe_pri->ptype = pe_pri->kids.body.refaddr.var.ptype;
+	  }
+	  found = TRUE;
+	  break;
+	case END_OF_DECL_KIND:
+	  /* fall thru. */
+	default:
+	  assert( FALSE );
+	}
+	if( found )
+	  break;
+      }
+      psym = find_symbol_again( psym, ident );
+    }
+    if( !psym ) {
+      err_nodef( ident, pos );
+      ;
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return pe_pri;
+}
+#endif

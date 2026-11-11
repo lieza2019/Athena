@@ -76,7 +76,7 @@ TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos ) {
     assert( pstmt->penv );
     if( r ) {
       if( tychk_res.reason != TYCON_WELLTYPED ) {
-	ERRMSG_TYCON_MISMATCH( &tychk_res, pos );
+	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos );
       }
       reveal_env( pstmt->penv );
 #if 1 // for use of temporal debugging.

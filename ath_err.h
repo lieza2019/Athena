@@ -2,6 +2,7 @@ typedef enum complle_error_fatality {
   COMP_ERROR_WARN1 = 1,
   COMP_ERROR_WARN2,
   COMP_ERROR_FATAL,
+  COMP_ERROR_INTERNAL,
   END_OF_COMPILE_ERROR_FATALITY
 } COMPILE_ERROR_FATALITY;
 
@@ -15,10 +16,10 @@ extern ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE];
   if( (pres)->reason != TYCON_WELLTYPED )	\
     (pres)->suppress = TRUE;			\
   }
-#define ERRMSG_TYCON_MISMATCH(pres, pos) {				\
+#define ERRMSG_TYCON_MISMATCH(pres, err_lv, pos) {			\
     assert( (pres) );							\
     print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres) );		\
     if( (!(pres)->suppress) && strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) { \
-      err_print( (pos), (ERRMSG_BUF_NAME) );				\
+      err_print( (pos), (err_lv), (ERRMSG_BUF_NAME) );			\
     }									\
   }

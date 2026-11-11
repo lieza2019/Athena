@@ -199,7 +199,7 @@ proc_args : proc_args TK_COMMA var_decl {
   assert( $3 );
   assert( ! $3->opts.proc_args.parg_next );
   if( $3->opts.var_decl.with_init )
-    err_print( pos, "procedure arguments have no initialization.\n" );
+    err_print( pos, "procedure arguments are not allowed to have any initialization.\n" );
   $3->opts.proc_args.parg_next = NULL;
   if( $1->opts.proc_args.parg_head )
     $3->opts.proc_args.parg_head = $1->opts.proc_args.parg_head;
@@ -212,7 +212,7 @@ proc_args : proc_args TK_COMMA var_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $1 );
   if( $1->opts.var_decl.with_init )
-    err_print( pos, "procedure arguments have no initialization.\n" );
+    err_print( pos, "procedure arguments are not allowed to have any initialization.\n" );
   $1->opts.proc_args.parg_head = NULL;
   $1->opts.proc_args.parg_next = NULL;
   $$ = $1;
@@ -225,7 +225,7 @@ proc_args : proc_args TK_COMMA proc_arg {
 #if 0 // *****
   assert( ! $3->opts.proc_args.parg_next );
   if( $3->opts.var_decl.with_init )
-    err_print( pos, "procedure arguments have no initialization.\n" );
+    err_print( pos, "procedure arguments are not allowed to have any initialization.\n" );
 #endif
   $3->opts.proc_args.parg_next = NULL;
   if( $1->opts.proc_args.parg_head )
@@ -246,7 +246,7 @@ proc_arg : var_decl {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   assert( $1 );
   if( $1->opts.var_decl.with_init )
-    err_print( pos, "procedure arguments have no initialization.\n" );
+    err_print( pos, COMP_ERROR_FATAL, "procedure arguments are not allowed to have any initialization.\n" );
   $$ = $1;
  };
 
