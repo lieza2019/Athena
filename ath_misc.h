@@ -4,6 +4,16 @@
 
 #define ABORT_CODE 1
 
+#if 1 // *****
+typedef enum complle_error_fatality {
+  COMP_ERROR_WARN1 = 1,
+  COMP_ERROR_WARN2,
+  COMP_ERROR_FATAL,
+  COMP_ERROR_INTERNAL,
+  END_OF_COMPILE_ERROR_FATALITY
+} COMPILE_ERROR_FATALITY;
+#endif
+
 typedef enum ath_abort {
   ABORT_MEMLACK = 1,  
   ABORT_CANNOT_CREAT_SCOPE,

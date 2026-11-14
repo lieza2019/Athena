@@ -1,10 +1,15 @@
 #include "ath_misc.h"
+#if 0 // *****
 #include "ath_err.h"
+#endif
 #include "ath_mem.h"
 #include "ath_type.h"
 #include "ath_decl.h"
 #include "ath_expr.h"
 #include "ath_stmt.h"
+#if 1 // *****
+#include "ath_err.h"
+#endif
 #include "ath_symtbl.h"
 
 #ifndef RUNTIME_CONSITENCY_CHECK
