@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <assert.h>
 #include "athena.h"
 
+#if 0 // *****
+#include <stdlib.h>
 static char *ath_abort_str[] = {
   "UNASSIGNED",
   "ABORT_MEMLACK",
@@ -19,6 +20,7 @@ void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason ) {
   printf( "(%d, %d): aborted for %s.\n", pos.row, pos.col, pmsg );
   exit( ABORT_CODE );
 }
+#endif
 
 static char *print_value_type ( char *sbuf, EXPR_CONS_PTR_C pval ) {
   char *ps = NULL;

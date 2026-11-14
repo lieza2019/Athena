@@ -12,14 +12,14 @@
 #endif
 
 /* from misc.c */
-extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
 extern char *show_var_decl ( char *sbuf, VAR_ATTRIB_PTR pvar_attr );
 
 /* from err.c */
 #if 0 // *****
 extern void err_print( SRC_POS_C pos, const char *perr_msg );
 #else
-extern void err_print( SRC_POS_C pos, COMPILE_ERROR_FATALITY err_lv, const char *perr_msg );
+extern void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason );
+//extern void err_print ( SRC_POS_C pos, COMPILE_ERROR_FATALITY err_lv, const char *perr_msg );
 #endif
 
 /* from mem.c */

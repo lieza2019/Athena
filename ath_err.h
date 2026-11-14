@@ -6,6 +6,16 @@ typedef enum complle_error_fatality {
   END_OF_COMPILE_ERROR_FATALITY
 } COMPILE_ERROR_FATALITY;
 
+#if 1 // *****
+extern char *ath_abort_str[];
+extern void _err_print ( SRC_POS_C pos, COMPILE_ERROR_FATALITY err_lv, ... );
+#define _err_print(pos, err_lv, ...) {					\
+    printf( "(%d, %d): ", SRCPOS_ROW( (pos) ), SRCPOS_COL( (pos) ) );	\
+    printf( "[%s] ", ath_abort_str[(err_lv)] );				\
+    printf( __VA_ARGS__ );						\
+  }
+#endif
+
 #define ERRMSG_BUF_CHRTYPE char
 #define ERRMSG_BUF_NAME msgbuf
 #define ERRMSG_BUF_SIZE 256
