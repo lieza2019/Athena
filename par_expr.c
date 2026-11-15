@@ -254,17 +254,17 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
 		if( pe->decl.var.plnk_symtbl == pvar )
 		  pe_pri->kids.body.refaddr.var = pe->decl.var.v;
 		else {
-		  err_print( pvar->pos, COMP_ERROR_INTERNAL, "statement has no environment." );
+		  err_print( pvar->pos, COMP_ERROR_INTERNAL, "statement has no environment.\n" );
 		  goto foo;
 		}
 	      } else {
-		err_print( pvar->pos, COMP_ERROR_INTERNAL, "statement has no environment." );
+		err_print( pvar->pos, COMP_ERROR_INTERNAL, "environment has no type for %s.\n", pvar->ident );
 		goto foo;
 	      }
 	    } else {
 	      if( statements.plast ) {
 		assert( statements.phead );
-		err_print( (statements.plast)->pos, COMP_ERROR_INTERNAL, "statement has no environment." );
+		err_print( (statements.plast)->pos, COMP_ERROR_INTERNAL, "statement has no environment.\n" );
 	      } else
 		assert( ! statements.phead );
 	    foo:
@@ -290,6 +290,6 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  return pe_pri;  
+  return pe_pri;
 }
 #endif
