@@ -42,10 +42,19 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res
   sprintf( sbuf, "type constraint mismatched " );
   switch( ptychk_res->reason ) {
   case TYCON_WELLTYPED:
-    sprintf( sbuf, "%s", "" );
+    *sbuf = 0;
     break;
   case TYCON_ASGN_TYPEMISMATCH:
-    strcat( sbuf, "on assignment from incompatible type." );
+    {
+      int n = -1;
+      strcat( sbuf, "on assignment from incompatible type." );
+      n = strlen( sbuf );
+      assert( n < ERRMSG_BUF_SIZE );
+      {
+	const int room = ERRMSG_BUF_SIZE - strlen(sbuf);
+	snprintf( sbuf[n], room, );
+      }
+    }
     break;
   case TYCON_UNAEXPR_TYPEMISMATCH:
     strcat( sbuf, "with type of unary expression operand." );
