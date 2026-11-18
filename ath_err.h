@@ -28,7 +28,7 @@ extern void ERRMSG_SUPPRESS ( TYCHK_RESULT_DESC_PTR pres );
     (pres)->suppress = TRUE;			\
   }
 
-#if 1 // *****
+#if 0 // *****
 extern void ERRMSG_TYCON_MISMATCH ( TYCHK_RESULT_DESC_PTR pres, COMPILE_ERROR_FATALITY err_lv, SRC_POS_C pos );
 #define ERRMSG_TYCON_MISMATCH(pres, err_lv, pos) {			\
     assert( (pres) );							\
@@ -38,21 +38,20 @@ extern void ERRMSG_TYCON_MISMATCH ( TYCHK_RESULT_DESC_PTR pres, COMPILE_ERROR_FA
     }									\
   }
 #endif
+
+#define NOAUXMSG_TYCON_MISMATCH ("")
 extern void _ERRMSG_TYCON_MISMATCH ( TYCHK_RESULT_DESC_PTR pres, COMPILE_ERROR_FATALITY err_lv, SRC_POS_C pos, ... );
-#ifdef GNUCPP_TRAIL_COMMA_ELIMINATION
 #define _ERRMSG_TYCON_MISMATCH(pres, err_lv, pos, ...) {		\
     assert( (pres) );							\
-    print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres), ##__VA_ARGS__ ); \
+    print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres) );		\
     if( (!(pres)->suppress) && strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) { \
+      int l = 0;							\
+      l = strlen( (ERRMSG_BUF_NAME) );					\
+      assert( l < ERRMSG_BUF_SIZE );					\
+      {									\
+	const int room = ERRMSG_BUF_SIZE - l;				\
+	snprintf( &ERRMSG_BUF_NAME[l], room, __VA_ARGS__ );		\
+      }									\
       err_print( (pos), (err_lv), "%s", (ERRMSG_BUF_NAME) );		\
     }									\
   }
-#else // needs C++20.
-#define _ERRMSG_TYCON_MISMATCH(pres, err_lv, pos, ...) {		\
-    assert( (pres) );							\
-    print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres) __VA_OPT__(,) __VA_ARGS__ ); \
-    if( (!(pres)->suppress) && strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) { \
-      err_print( (pos), (err_lv), "%s", (ERRMSG_BUF_NAME) );		\
-    }									\
-  }
-#endif

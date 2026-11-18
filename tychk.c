@@ -3,8 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
-#if 0 // *****
-extern char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res );
+char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res ) {
   assert( sbuf );
   assert( ptychk_res );
   sprintf( sbuf, "type constraint mismatched " );
@@ -35,48 +34,6 @@ extern char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR pty
   }
   return sbuf;
 }
-#else
-char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res, ... ) {
-  assert( sbuf );
-  assert( ptychk_res );
-  sprintf( sbuf, "type constraint mismatched " );
-  switch( ptychk_res->reason ) {
-  case TYCON_WELLTYPED:
-    *sbuf = 0;
-    break;
-  case TYCON_ASGN_TYPEMISMATCH:
-    {
-      int n = -1;
-      strcat( sbuf, "on assignment from incompatible type." );
-      n = strlen( sbuf );
-      assert( n < ERRMSG_BUF_SIZE );
-      {
-	const int room = ERRMSG_BUF_SIZE - strlen(sbuf);
-	snprintf( sbuf[n], room, );
-      }
-    }
-    break;
-  case TYCON_UNAEXPR_TYPEMISMATCH:
-    strcat( sbuf, "with type of unary expression operand." );
-    break;
-  case TYCON_UNAEXPR_ILLOPERAND:
-    strcat( sbuf, "with invalid operand in unary expression." );
-    break;
-  case TYCON_BINEXPR_TYPEMISMATCH:
-    strcat( sbuf, "with type of binary expression operands." );
-    break;
-  case END_OF_TYCON_MISMATCH_REASON:
-    /* fall thru. */
-  default:
-    assert( FALSE );
-  }
-  if( ptychk_res->errmsg ) {
-    strcat( sbuf, " " );
-    strcat( sbuf, ptychk_res->errmsg );
-  }
-  return sbuf;
-}
-#endif
 
 static TYPE_CONS_PTR acc_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;

@@ -290,6 +290,11 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
+  {
+    TYCHK_RESULT_DESC_PTR pres = NULL;
+    //_ERRMSG_TYCON_MISMATCH( pres, TYCON_WELLTYPED, pos, NOAUXMSG_TYCON_MISMATCH );
+    _ERRMSG_TYCON_MISMATCH( pres, TYCON_WELLTYPED, pos, "%s", "hello world." );
+  }
   return pe_pri;
 }
 #endif
