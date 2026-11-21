@@ -111,9 +111,13 @@ extern TYPE_CONS_PTR tychk_decl_proc ( PROC_ATTRIB_PTR pproc, SRC_POS_C pos );
 extern TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
 
 /* from par_expr.c */
+extern EXPR_CONS_PTR cons_unary_expr ( EXPR_CONS_PTR pe_ope, int unary_ope, SRC_POS_C pos );
+extern EXPR_CONS_PTR cons_binary_expr ( EXPR_CONS_PTR pe_ope1, EXPR_CONS_PTR pe_ope2, int binary_ope, SRC_POS_C pos );
+#if 0 // *****
 extern EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope, SRC_POS_C pos );
 extern EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos );
 extern EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos );
+#endif
 
 /* from par_decl.c */
 extern VAR_ATTRIB_PTR decl_var_attrib ( VAR_ATTRIB_PTR pvar_attr, char *pvar_name, TYPE_CODE var_type, TYPE_CONS_PTR type_arg, EXPR_CONS_PTR pinit, SRC_POS_C pos );

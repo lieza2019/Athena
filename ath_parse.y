@@ -420,49 +420,148 @@ expression : binary_expr {
 
 binary_expr : expression TK_STAR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+  assert( $3 );
+#if 0 // *****
   $$ = rval_binary_expr( $1, $3, TK_STAR, pos );
+#else
+  $$ = cons_binary_expr( $1, $3, TK_STAR, pos );
+#endif
  }
 | expression TK_SLASH expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+  assert( $3 );
+#if 0 // *****
   $$ = rval_binary_expr( $1, $3, TK_SLASH, pos );
+#else
+  $$ = cons_binary_expr( $1, $3, TK_SLASH, pos );
+#endif
  }
 | expression TK_CROSS expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+  assert( $3 );
+#if 0 // *****
   $$ = rval_binary_expr( $1, $3, TK_CROSS, pos );
+#else
+  $$ = cons_binary_expr( $1, $3, TK_CROSS, pos );
+#endif
  }
 | expression TK_MINUS expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+  assert( $3 );
+#if 0 // *****
   $$ = rval_binary_expr( $1, $3, TK_MINUS, pos );
+#else
+  $$ = cons_binary_expr( $1, $3, TK_MINUS, pos );
+#endif
 }
 | expression TK_ASGN expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+  assert( $3 );
+#if 0 // *****
   $$ = rval_binary_expr( $1, $3, TK_ASGN, pos );
+#else
+  $$ = cons_binary_expr( $1, $3, TK_ASGN, pos );
+#endif
  }
 
 unary_expr : TK_MINUS expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $2 );
+#if 0 // *****
   $$ = rval_unary_expr( $2, TK_MINUS, pos );
+#else
+  $$ = cons_unary_expr( $2, TK_MINUS, pos );
+#endif
  }
 | TK_DECR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $2 );
+#if 0 // *****
   $$ = rval_unary_expr( $2, TK_PREDECR, pos );
+#else
+  $$ = cons_unary_expr( $2, TK_PREDECR, pos );
+#endif
  }
 | expression TK_DECR {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+#if 0 // *****
   $$ = rval_unary_expr( $1, TK_PSTDECR, pos );
+#else
+  $$ = cons_unary_expr( $1, TK_PSTDECR, pos );
+#endif
  }
 | TK_INCR expression {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $2 );
+#if 0 // *****
   $$ = rval_unary_expr( $2, TK_PREINCR, pos );
+#else
+  $$ = cons_unary_expr( $2, TK_PREINCR, pos );
+#endif
  }
 | expression TK_INCR {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+  assert( $1 );
+#if 0 // *****
   $$ = rval_unary_expr( $1, TK_PSTINCR, pos );
+#else
+  $$ = cons_unary_expr( $1, TK_PSTINCR, pos );
+#endif
  };
 
 primary_expr : TK_IDENT {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
+#if 0 // *****
   $$ = rval_primary_expr( $1, pos );
+#else
+  EXPR_CONS_PTR pe_pri = NULL;
+  const char *ident = $1;
+  assert( ident );
+  pe_pri = alloc_expr_cons( pos );
+  if( pe_pri ) {
+    SYM_ENTITY_PTR psym = NULL;
+    pe_pri->pos = pos;
+    pe_pri->mnemonic = MNC_RVALUE;
+    psym = find_symbol( ident );
+    while( psym ) {
+      if( psym->kind == SYM_DECL ) {
+	DECLARATION_PTR pdecl = &psym->u.decl;
+	assert( pdecl->ident );
+	assert( strcmp( pdecl->ident, ident ) == 0 );
+	switch( pdecl->kind ) {
+	case DECL_PROC:
+	  break;
+	case DECL_VAR:
+	  assert( psym->u.decl.u.variable.pvar );
+	  {
+	    VAR_ATTRIB_PTR pvar = pdecl->u.variable.pvar;
+	    assert( pvar->ident );
+	    assert( strcmp( pvar->ident, pdecl->ident ) == 0 );
+	    pe_pri->kids.body.refaddr.var = *pvar;
+	  }
+	  break;
+	case END_OF_DECL_KIND:
+	  /* fall thru. */
+	default:
+	  assert( FALSE );
+	}
+	break;
+      }
+      psym = find_symbol_again( psym, ident );
+    }
+    if( ! psym ) {
+      err_nodef( ident, pos );
+    }
+    $$ = pe_pri;
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+#endif
  }
 | const_int {
   $$ = $1;

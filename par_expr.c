@@ -4,6 +4,48 @@
 #include "athena.h"
 #include "y.tab.h"
 
+EXPR_CONS_PTR cons_binary_expr ( EXPR_CONS_PTR pe_ope1, EXPR_CONS_PTR pe_ope2, int binary_ope, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pe_bin = NULL;
+  assert( pe_ope1 );
+  assert( pe_ope2 );
+  
+  pe_bin = alloc_expr_cons( pos );
+  if( pe_bin ) {
+    switch( binary_ope ) {
+    case TK_STAR:
+      pe_bin->mnemonic = MNC_MUL;
+      pe_bin->kids.pleft = pe_ope1;
+      pe_bin->kids.pright = pe_ope2;
+      break;
+    case TK_SLASH:
+      pe_bin->mnemonic = MNC_DIV;
+      pe_bin->kids.pleft = pe_ope1;
+      pe_bin->kids.pright = pe_ope2;
+      break;
+    case TK_CROSS:
+      pe_bin->mnemonic = MNC_ADD;
+      pe_bin->kids.pleft = pe_ope1;
+      pe_bin->kids.pright = pe_ope2;
+      break;
+    case TK_MINUS:
+      pe_bin->mnemonic = MNC_SUB;
+      pe_bin->kids.pleft = pe_ope1;
+      pe_bin->kids.pright = pe_ope2;
+      break;
+    case TK_ASGN:
+      pe_bin->mnemonic = MNC_ASGN;
+      pe_bin->kids.pleft = pe_ope1;
+      pe_bin->kids.pright = pe_ope2;
+      break;
+    default:
+      assert( FALSE );
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return pe_bin;
+}
+
+#if 0 // *****
 EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope,
 				 SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_bin = NULL;
@@ -74,7 +116,50 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
     ath_abort( pos, ABORT_MEMLACK );
   return pe_bin;
 }
+#endif
 
+EXPR_CONS_PTR cons_unary_expr ( EXPR_CONS_PTR pe_ope, int unary_ope, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pe_una = NULL;
+  assert( pe_ope );
+  
+  pe_una = alloc_expr_cons( pos );
+  if( pe_una ) {
+    pe_una->pos = pos;
+    switch( unary_ope ) {
+    case TK_MINUS:
+      pe_una->mnemonic = MNC_NEG;
+      pe_una->kids.pleft = pe_ope;
+      break;
+    case TK_PREDECR:
+      /* fall thru. */
+    case TK_PSTDECR:
+      if( unary_ope == TK_PSTDECR )
+	pe_una->mnemonic = MNC_PSTDECR;
+      else {
+	assert( unary_ope == TK_PREDECR );
+	pe_una->mnemonic = MNC_PREDECR;
+      }
+      pe_una->kids.pleft = pe_ope;
+      break;
+    case TK_PREINCR:
+      /* fall thru. */
+    case TK_PSTINCR:
+      if( unary_ope == TK_PSTINCR )
+	pe_una->mnemonic = MNC_PSTINCR;
+      else {
+	assert( unary_ope == TK_PREINCR );
+	pe_una->mnemonic = MNC_PREINCR;
+      }
+      break;
+    default:
+      assert( FALSE );
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return pe_una;
+}
+
+#if 0 // *****
 EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_una = NULL;
   assert( pexpr );
@@ -146,7 +231,9 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
     ath_abort( pos, ABORT_MEMLACK );
   return pe_una;
 }
+#endif
 
+#if 0 // *****
 #if 0 // *****
 EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_pri = NULL;
@@ -292,4 +379,5 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
     ath_abort( pos, ABORT_MEMLACK );
   return pe_pri;
 }
+#endif
 #endif
