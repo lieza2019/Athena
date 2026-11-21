@@ -65,7 +65,7 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
 	  goto failed_memalloc;
       }
       if( tychk_res.reason != TYCON_WELLTYPED ) {
-	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos );
+	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos, NOAUXMSG_TYCON_MISMATCH );
       }
     }
     assert( pe_bin->ptype );
@@ -137,7 +137,7 @@ EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C po
 	  goto failed_memalloc;
       }
       if( tychk_res.reason != TYCON_WELLTYPED ) {
-	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos );
+	ERRMSG_TYCON_MISMATCH( &tychk_res, COMP_ERROR_FATAL, pos, NOAUXMSG_TYCON_MISMATCH );
       }
     }
     assert( pe_una->ptype );
@@ -290,11 +290,6 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
     }
   } else
     ath_abort( pos, ABORT_MEMLACK );
-  {
-    TYCHK_RESULT_DESC_PTR pres = NULL;
-    //_ERRMSG_TYCON_MISMATCH( pres, TYCON_WELLTYPED, pos, NOAUXMSG_TYCON_MISMATCH );
-    _ERRMSG_TYCON_MISMATCH( pres, TYCON_WELLTYPED, pos, "%s", "hello world." );
-  }
   return pe_pri;
 }
 #endif

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "athena.h"
 
+#if 0 // *****
 char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res ) {
   assert( sbuf );
   assert( ptychk_res );
@@ -34,6 +35,80 @@ char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res
   }
   return sbuf;
 }
+#else
+char *print_tycon_mismatch_reason ( char *sbuf, TYCHK_RESULT_DESC_PTR ptychk_res ) {
+  const char *errmsg_brief = "type constraint mismatched ";
+  assert( sbuf );
+  assert( ptychk_res );
+  
+  assert( strlen( errmsg_brief ) < ERRMSG_BUF_SIZE );
+#if 0 // *****
+  sprintf( sbuf, "%s", "type constraint mismatched " );
+#else
+  sprintf( sbuf, "%s ", errmsg_brief );
+#endif
+  switch( ptychk_res->reason ) {
+  case TYCON_WELLTYPED:
+    sprintf( sbuf, "%s", "" );
+    break;
+  case TYCON_ASGN_TYPEMISMATCH:
+#if 0 // *****
+    strcat( sbuf, "on assignment from incompatible type." );
+#else
+    {
+      const char *errmsg_more = "on assignment from incompatible type.";
+      assert( (strnlen(sbuf, ERRMSG_BUF_SIZE) + strlen(errmsg_more)) < ERRMSG_BUF_SIZE );
+      strcat( sbuf, errmsg_more );
+    }
+#endif
+    break;
+  case TYCON_UNAEXPR_TYPEMISMATCH:
+#if 0 // *****
+    strcat( sbuf, "with type of unary expression operand." );
+#else
+    {
+      const char *errmsg_more = "with type of unary expression operand.";
+      assert( (strnlen(sbuf, ERRMSG_BUF_SIZE) + strlen(errmsg_more)) < ERRMSG_BUF_SIZE );
+      strcat( sbuf, errmsg_more );
+    }
+#endif
+    break;
+  case TYCON_UNAEXPR_ILLOPERAND:
+#if 0 // *****
+    strcat( sbuf, "with invalid operand in unary expression." );
+#else
+    {
+      const char *errmsg_more = "with invalid operand in unary expression.";
+      assert( (strnlen(sbuf, ERRMSG_BUF_SIZE) + strlen(errmsg_more)) < ERRMSG_BUF_SIZE );
+      strcat( sbuf, errmsg_more );
+    }
+#endif
+    break;
+  case TYCON_BINEXPR_TYPEMISMATCH:
+#if 0 // *****
+    strcat( sbuf, "with type of binary expression operands." );
+#else
+    {
+      const char *errmsg_more = "with type of binary expression operands.";
+      assert( (strnlen(sbuf, ERRMSG_BUF_SIZE) + strlen(errmsg_more)) < ERRMSG_BUF_SIZE );
+      strcat( sbuf, errmsg_more );
+    }
+#endif
+    break;
+  case END_OF_TYCON_MISMATCH_REASON:
+    /* fall thru. */
+  default:
+    assert( FALSE );
+  }
+  if( ptychk_res->errmsg ) {
+    assert( (strnlen(sbuf, ERRMSG_BUF_SIZE) + (strlen(ptychk_res->errmsg) + 1)) < ERRMSG_BUF_SIZE );
+    strcat( sbuf, " " );
+    strcat( sbuf, ptychk_res->errmsg );
+  }
+  assert( strnlen( sbuf, ERRMSG_BUF_SIZE ) < ERRMSG_BUF_SIZE );
+  return sbuf;
+}
+#endif
 
 static TYPE_CONS_PTR acc_tyv ( TYPE_CONS_PTR *pptvs, const char *tv_ident, SRC_POS_C pos ) {
   BOOL found = FALSE;

@@ -19,7 +19,7 @@ extern void err_print ( SRC_POS_C pos, COMPILE_ERROR_FATALITY err_lv, ... );
 #define ERRMSG_BUF_CHRTYPE char
 #define ERRMSG_BUF_NAME msgbuf
 #define ERRMSG_BUF_SIZE 256
-extern ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE];
+extern ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE + 1];
 
 extern void ERRMSG_SUPPRESS ( TYCHK_RESULT_DESC_PTR pres );
 #define ERRMSG_SUPPRESS(pres) {			\
@@ -33,25 +33,23 @@ extern void ERRMSG_TYCON_MISMATCH ( TYCHK_RESULT_DESC_PTR pres, COMPILE_ERROR_FA
 #define ERRMSG_TYCON_MISMATCH(pres, err_lv, pos) {			\
     assert( (pres) );							\
     print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres) );		\
-    if( (!(pres)->suppress) && strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) { \
+    if( (! (pres)->suppress) && strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) { \
+      err_print( (pos), (err_lv), "%s", (ERRMSG_BUF_NAME) );		\
+    }									\
+  }
+#else
+#define NOAUXMSG_TYCON_MISMATCH ("")
+extern void ERRMSG_TYCON_MISMATCH ( TYCHK_RESULT_DESC_PTR pres, COMPILE_ERROR_FATALITY err_lv, SRC_POS_C pos, ... );
+#define ERRMSG_TYCON_MISMATCH(pres, err_lv, pos, ...) {			\
+    int l = 0;								\
+    assert( (pres) );							\
+    print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres) );		\
+    l = strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) );		\
+    assert( l < (ERRMSG_BUF_SIZE) );					\
+    snprintf( &(ERRMSG_BUF_NAME)[l], (ERRMSG_BUF_SIZE - l), __VA_ARGS__ ); \
+    assert( strnlen((ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE)) < (ERRMSG_BUF_SIZE) ); \
+    if( (!((pres)->suppress)) && strnlen((ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE)) > 0 ) { \
       err_print( (pos), (err_lv), "%s", (ERRMSG_BUF_NAME) );		\
     }									\
   }
 #endif
-
-#define NOAUXMSG_TYCON_MISMATCH ("")
-extern void _ERRMSG_TYCON_MISMATCH ( TYCHK_RESULT_DESC_PTR pres, COMPILE_ERROR_FATALITY err_lv, SRC_POS_C pos, ... );
-#define _ERRMSG_TYCON_MISMATCH(pres, err_lv, pos, ...) {		\
-    assert( (pres) );							\
-    print_tycon_mismatch_reason( (ERRMSG_BUF_NAME), (pres) );		\
-    if( (!(pres)->suppress) && strnlen( (ERRMSG_BUF_NAME), (ERRMSG_BUF_SIZE) ) > 0 ) { \
-      int l = 0;							\
-      l = strlen( (ERRMSG_BUF_NAME) );					\
-      assert( l < ERRMSG_BUF_SIZE );					\
-      {									\
-	const int room = ERRMSG_BUF_SIZE - l;				\
-	snprintf( &ERRMSG_BUF_NAME[l], room, __VA_ARGS__ );		\
-      }									\
-      err_print( (pos), (err_lv), "%s", (ERRMSG_BUF_NAME) );		\
-    }									\
-  }

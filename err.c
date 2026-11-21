@@ -25,7 +25,7 @@ char *ath_abort_str[] = {
 };
 #endif
 
-ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE];
+ERRMSG_BUF_CHRTYPE ERRMSG_BUF_NAME[ERRMSG_BUF_SIZE + 1];
 
 #if 1 // *****
 void ath_abort ( SRC_POS_C pos, const ATH_ABORT reason ) {
