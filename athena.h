@@ -113,6 +113,7 @@ extern TYPE_CONS_PTR tychk_decl_var ( STATEMENT_PTR pstmt, SRC_POS_C pos );
 /* from par_expr.c */
 extern EXPR_CONS_PTR cons_unary_expr ( EXPR_CONS_PTR pe_ope, int unary_ope, SRC_POS_C pos );
 extern EXPR_CONS_PTR cons_binary_expr ( EXPR_CONS_PTR pe_ope1, EXPR_CONS_PTR pe_ope2, int binary_ope, SRC_POS_C pos );
+extern EXPR_CONS_PTR tychk_expr ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos );
 #if 0 // *****
 extern EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int binary_ope, SRC_POS_C pos );
 extern EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos );

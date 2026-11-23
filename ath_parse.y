@@ -292,7 +292,29 @@ statement : var_decl TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   assert( $1 );
+#if 0 // *****
   pstmt = expr2_stmt( $1, pos );
+#else
+  TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
+  TYPE_SUBST_PTR psubst = NULL;
+  TYPE_ENV_PTR penv = NULL;
+  EXPR_CONS_PTR pe_inf = NULL;
+  if( statements.plast ) {
+    assert( statements.phead );
+    penv = (statements.plast)->penv;
+  } else {
+    assert( ! statements.phead );
+    penv = alloc_type_env( pos );
+    if( !penv )
+      ath_abort( pos, ABORT_MEMLACK );
+  }
+  assert( penv );
+  pe_inf = tychk_expr( &tychk_res, &psubst, &penv, $1, pos );
+  assert( psubst );
+  assert( penv );
+  assert( pe_inf );
+  pstmt = expr2_stmt( pe_inf, pos );
+#endif
   assert( pstmt );
   $$ = pstmt;
  }
@@ -300,7 +322,29 @@ statement : var_decl TK_SMCL {
   SRC_POS_C pos = { @1.first_line, @1.first_column };
   STATEMENT_PTR pstmt = NULL;
   assert( $2 );
+#if 0 // *****
   pstmt = stmt_return( $2, pos );
+#else
+  TYCHK_RESULT_DESC tychk_res = { TYCON_WELLTYPED };
+  TYPE_SUBST_PTR psubst = NULL;
+  TYPE_ENV_PTR penv = NULL;
+  EXPR_CONS_PTR pe_inf = NULL;
+  if( statements.plast ) {
+    assert( statements.phead );
+    penv = (statements.plast)->penv;
+  } else {
+    assert( ! statements.phead );
+    penv = alloc_type_env( pos );
+    if( !penv )
+      ath_abort( pos, ABORT_MEMLACK );
+  }
+  assert( penv );
+  pe_inf = tychk_expr( &tychk_res, &psubst, &penv, $2, pos );
+  assert( psubst );
+  assert( penv );
+  assert( pe_inf );
+  pstmt = stmt_return( pe_inf, pos );
+#endif
   assert( pstmt );
   $$ = pstmt;
  }

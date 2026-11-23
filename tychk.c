@@ -504,6 +504,7 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
     break;
   case MNC_RVALUE:
     assert( EXAM_RVALUE_EXPR( pexpr ) );
+#if 0 // *****
     pexp_inf = alloc_expr_cons( pos );
     if( pexp_inf ) {
       TYPE_ENV_PTR penv_inf = NULL;
@@ -517,9 +518,36 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       penv_inf = dup_env( *ppenv, pos );
       assert( penv_inf );
       *ppenv = penv_inf;
-      ptychk_res->reason = TYCON_WELLTYPED;      
+      ptychk_res->reason = TYCON_WELLTYPED;
     } else
       goto memlack;
+#else
+    pexp_inf = alloc_expr_cons( pos );
+    if( pexp_inf ) {
+      pexp_inf->pos = pos;
+      pexp_inf->mnemonic = MNC_RVALUE;
+      pexp_inf->kids = pexpr->kids;
+      {
+	TYENV_ELEM_PTR pe = NULL;
+	const char *ident = pexpr->kids.body.refaddr.var.ident;
+	assert( ident );
+	pe = env_lkup( *ppenv, ident );
+#if 0 // *****
+	while( pe ) {
+	  assert( strcmp( pe->decl.var.v.ident, ident ) == 0 );
+	  assert( pe->decl.var.plnk_symtbl );
+	  if( pe->decl.var.plnk_symtbl == &pexpr->kids.body.refaddr.var ) {
+	    ;
+	  }
+	  pe = NULL;
+	  if( penv_last->uplink )
+	    pe = env_lkup( penv_last->uplink, ident );
+	}
+#endif
+      }
+    } else
+      goto memlack;
+#endif
     break;
   case MNC_NEG:
     assert( EXAM_NEG_EXPR( pexpr ) );
@@ -916,7 +944,7 @@ TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR
 
 TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst,
 			       TYPE_ENV_PTR *ppenv, VAR_ATTRIB_PTR pvar_attr, SRC_POS_C pos ) {
-  EXPR_CONS_PTR pvardecl_inf = NULL;
+  EXPR_CONS_PTR pty_inf = NULL;
   EXPR_CONS_PTR pe_lval = NULL;
   TYPE_CONS_PTR r = NULL;
   assert( ptychk_res );
@@ -941,22 +969,28 @@ TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR 
 	pe_asgn->mnemonic = MNC_ASGN;
 	pe_asgn->kids.pleft = pe_lval;
 	pe_asgn->kids.pright = pvar_attr->opts.var_decl.pinitializer;
-	pvardecl_inf = ty_infer( ptychk_res, ppsubst, ppenv, pe_asgn, pos );
-	if( pvardecl_inf ) {
-	  assert( EXAM_ASGN_EXPR( pvardecl_inf ) );
-	  assert( EXAM_LVALUE_EXPR( pvardecl_inf->kids.pleft ) );
-	  assert( pvardecl_inf->ptype );
-	  pvar_attr->ptype = pvardecl_inf->ptype;
-	  pvar_attr->opts.var_decl.pinitializer = pvardecl_inf->kids.pright;
+	pty_inf = ty_infer( ptychk_res, ppsubst, ppenv, pe_asgn, pos );
+	if( pty_inf ) {
+	  assert( EXAM_ASGN_EXPR( pty_inf ) );
+	  assert( EXAM_LVALUE_EXPR( pty_inf->kids.pleft ) );
+	  assert( pty_inf->ptype );
+	  pvar_attr->ptype = pty_inf->ptype;
+	  pvar_attr->opts.var_decl.pinitializer = pty_inf->kids.pright;
+	} else {
+	  /* type error in variable declaration with its initialization. */
+	  ;
 	}
       } else
 	goto failed_memalloc;
     } else {
-      pvardecl_inf = ty_infer( ptychk_res, ppsubst, ppenv, pe_lval, pos );
-      if( pvardecl_inf ) {
-	assert( EXAM_LVALUE_EXPR( pvardecl_inf ) );
-	assert( pvardecl_inf->ptype );
-	pvar_attr->ptype = pvardecl_inf->ptype;
+      pty_inf = ty_infer( ptychk_res, ppsubst, ppenv, pe_lval, pos );
+      if( pty_inf ) {
+	assert( EXAM_LVALUE_EXPR( pty_inf ) );
+	assert( pty_inf->ptype );
+	pvar_attr->ptype = pty_inf->ptype;
+      } else {
+	/* type error on variable declaration with no initialization. */
+	;
       }
     }
     r = pvar_attr->ptype;

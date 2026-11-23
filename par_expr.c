@@ -4,6 +4,47 @@
 #include "athena.h"
 #include "y.tab.h"
 
+EXPR_CONS_PTR cons_unary_expr ( EXPR_CONS_PTR pe_ope, int unary_ope, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pe_una = NULL;
+  assert( pe_ope );
+  
+  pe_una = alloc_expr_cons( pos );
+  if( pe_una ) {
+    pe_una->pos = pos;
+    switch( unary_ope ) {
+    case TK_MINUS:
+      pe_una->mnemonic = MNC_NEG;
+      pe_una->kids.pleft = pe_ope;
+      break;
+    case TK_PREDECR:
+      /* fall thru. */
+    case TK_PSTDECR:
+      if( unary_ope == TK_PSTDECR )
+	pe_una->mnemonic = MNC_PSTDECR;
+      else {
+	assert( unary_ope == TK_PREDECR );
+	pe_una->mnemonic = MNC_PREDECR;
+      }
+      pe_una->kids.pleft = pe_ope;
+      break;
+    case TK_PREINCR:
+      /* fall thru. */
+    case TK_PSTINCR:
+      if( unary_ope == TK_PSTINCR )
+	pe_una->mnemonic = MNC_PSTINCR;
+      else {
+	assert( unary_ope == TK_PREINCR );
+	pe_una->mnemonic = MNC_PREINCR;
+      }
+      break;
+    default:
+      assert( FALSE );
+    }
+  } else
+    ath_abort( pos, ABORT_MEMLACK );
+  return pe_una;
+}
+
 EXPR_CONS_PTR cons_binary_expr ( EXPR_CONS_PTR pe_ope1, EXPR_CONS_PTR pe_ope2, int binary_ope, SRC_POS_C pos ) {
   EXPR_CONS_PTR pe_bin = NULL;
   assert( pe_ope1 );
@@ -117,47 +158,6 @@ EXPR_CONS_PTR rval_binary_expr ( EXPR_CONS_PTR pexpr1, EXPR_CONS_PTR pexpr2, int
   return pe_bin;
 }
 #endif
-
-EXPR_CONS_PTR cons_unary_expr ( EXPR_CONS_PTR pe_ope, int unary_ope, SRC_POS_C pos ) {
-  EXPR_CONS_PTR pe_una = NULL;
-  assert( pe_ope );
-  
-  pe_una = alloc_expr_cons( pos );
-  if( pe_una ) {
-    pe_una->pos = pos;
-    switch( unary_ope ) {
-    case TK_MINUS:
-      pe_una->mnemonic = MNC_NEG;
-      pe_una->kids.pleft = pe_ope;
-      break;
-    case TK_PREDECR:
-      /* fall thru. */
-    case TK_PSTDECR:
-      if( unary_ope == TK_PSTDECR )
-	pe_una->mnemonic = MNC_PSTDECR;
-      else {
-	assert( unary_ope == TK_PREDECR );
-	pe_una->mnemonic = MNC_PREDECR;
-      }
-      pe_una->kids.pleft = pe_ope;
-      break;
-    case TK_PREINCR:
-      /* fall thru. */
-    case TK_PSTINCR:
-      if( unary_ope == TK_PSTINCR )
-	pe_una->mnemonic = MNC_PSTINCR;
-      else {
-	assert( unary_ope == TK_PREINCR );
-	pe_una->mnemonic = MNC_PREINCR;
-      }
-      break;
-    default:
-      assert( FALSE );
-    }
-  } else
-    ath_abort( pos, ABORT_MEMLACK );
-  return pe_una;
-}
 
 #if 0 // *****
 EXPR_CONS_PTR rval_unary_expr ( EXPR_CONS_PTR pexpr, int unary_ope, SRC_POS_C pos ) {
@@ -381,3 +381,29 @@ EXPR_CONS_PTR rval_primary_expr ( const char *ident, SRC_POS_C pos ) {
 }
 #endif
 #endif
+
+EXPR_CONS_PTR tychk_expr ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsubst, TYPE_ENV_PTR *ppenv, EXPR_CONS_PTR pexpr, SRC_POS_C pos ) {
+  EXPR_CONS_PTR pe_inf = NULL;
+  assert( ptychk_res );
+  assert( ppsubst );
+  assert( *ppsubst );
+  assert( ppenv );
+  assert( *ppenv );
+  assert( pexpr );
+  
+  pe_inf = ty_infer( ptychk_res, ppsubst, ppenv, pexpr, pos );
+  if( ! pe_inf ) {
+    assert( ptychk_res->reason != TYCON_WELLTYPED );
+    pexpr->ptype = alloc_type_cons( pos );
+    if( pexpr->ptype ) {
+      (pexpr->ptype)->type.ty = TY_INT;
+      pe_inf = pexpr;
+    } else
+      ath_abort( pos, ABORT_MEMLACK );
+  }
+  assert( pe_inf );
+  if( ptychk_res->reason != TYCON_WELLTYPED ) {
+    ERRMSG_TYCON_MISMATCH( ptychk_res, COMP_ERROR_FATAL, pos, NOAUXMSG_TYCON_MISMATCH );
+  }
+  return pe_inf;
+}
