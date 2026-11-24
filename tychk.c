@@ -501,8 +501,8 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       assert( pexp_inf->kids.body.refaddr.var.ptype );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
 #else
-      assert( pexp_inf->kids.body.refaddr.attr.var.ptype );
-      pexp_inf->ptype = pexp_inf->kids.body.refaddr.attr.var.ptype;
+      assert( (pexp_inf->kids.body.refaddr.attr.pvar)->ptype );
+      pexp_inf->ptype = (pexp_inf->kids.body.refaddr.attr.pvar)->ptype;
 #endif
       penv_inf = dup_env( *ppenv, pos );
       assert( penv_inf );
@@ -976,7 +976,7 @@ TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR 
 #if 0 // *****
     pe_lval->kids.body.refaddr.var = *pvar_attr;
 #else
-    pe_lval->kids.body.refaddr.attr.var = *pvar_attr;
+    pe_lval->kids.body.refaddr.attr.pvar = pvar_attr;
 #endif
     if( pvar_attr->opts.var_decl.pinitializer ) {
       EXPR_CONS_PTR pe_asgn = NULL;

@@ -56,7 +56,7 @@ typedef struct expr_cons {
 #else
       struct {
 	union {
-#if 1 // *****
+#if 0 // *****
 	  VAR_ATTRIB var; // with MNC_LVALUE
 #else	
 	  VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t. v -> t.
@@ -97,10 +97,10 @@ typedef struct expr_cons const *EXPR_CONS_PTR_C;
 #else
 #define EXAM_LVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
-    && (e)->kids.body.refaddr.attr.var.ident )
+    && (e)->kids.body.refaddr.attr.pvar )
 #define EXAM_RVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
-    && (e)->kids.body.refaddr.attr.var.ident )
+    && (e)->kids.body.refaddr.attr.pvar )
 #endif
 #define EXAM_NEG_EXPR( e )						\
   ( ((e)->mnemonic == MNC_NEG) && (((e)->kids.pleft) && !((e)->kids.pright)) )
