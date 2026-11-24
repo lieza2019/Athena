@@ -50,6 +50,7 @@ typedef struct expr_cons {
 	VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t. v -> t.
 #endif
 	PROC_ATTRIB_PTR pproc;
+	struct sym_entity *psym;
       } refaddr;
     } body;
   } kids;

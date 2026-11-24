@@ -587,7 +587,7 @@ primary_expr : TK_IDENT {
 	    VAR_ATTRIB_PTR pvar = pdecl->u.variable.pvar;
 	    assert( pvar->ident );
 	    assert( strcmp( pvar->ident, pdecl->ident ) == 0 );
-	    pe_pri->kids.body.refaddr.var = *pvar;
+	    pe_pri->kids.body.refaddr.psym = psym;
 	  }
 	  break;
 	case END_OF_DECL_KIND:
