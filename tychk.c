@@ -527,12 +527,12 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       pexp_inf->pos = pos;
       pexp_inf->mnemonic = MNC_RVALUE;
       pexp_inf->kids = pexpr->kids;
+#if 0 // *****
       {
 	TYENV_ELEM_PTR pe = NULL;
 	const char *ident = pexpr->kids.body.refaddr.var.ident;
 	assert( ident );
 	pe = env_lkup( *ppenv, ident );
-#if 0 // *****
 	while( pe ) {
 	  assert( strcmp( pe->decl.var.v.ident, ident ) == 0 );
 	  assert( pe->decl.var.plnk_symtbl );
@@ -543,8 +543,8 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
 	  if( penv_last->uplink )
 	    pe = env_lkup( penv_last->uplink, ident );
 	}
-#endif
       }
+#endif
     } else
       goto memlack;
 #endif

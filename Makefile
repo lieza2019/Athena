@@ -6,7 +6,7 @@ MAKE = make
 
 CC = /usr/bin/gcc
 #CFLAGS = -Wall -g -c -DRUNTIME_CONSITENCY_CHECK
-CFLAGS = -Wall -g -c
+CFLAGS = -Wall -Wno-format-zero-length -g -c
 CFLAGS_YACC = -g -c
 LD = /usr/bin/gcc
 LDFLAGS =
