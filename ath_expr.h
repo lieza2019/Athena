@@ -43,6 +43,7 @@ typedef struct expr_cons {
 	struct expr_cons *cdr;
 	struct expr_cons *plast;
       } list;
+#if 0 // *****
       union {
 #if 1 // *****
 	VAR_ATTRIB var; // with MNC_LVALUE
@@ -52,6 +53,19 @@ typedef struct expr_cons {
 	PROC_ATTRIB_PTR pproc;
 	struct sym_entity *psym;
       } refaddr;
+#else
+      struct {
+	union {
+#if 1 // *****
+	  VAR_ATTRIB var; // with MNC_LVALUE
+#else	
+	  VAR_ATTRIB_PTR pvar; // comming from t of environment's mapping s.t. v -> t.
+#endif
+	  PROC_ATTRIB_PTR pproc;
+	} attr;
+	struct sym_entity *psym;
+      } refaddr;
+#endif
     } body;
   } kids;
   TYPE_CONS_PTR ptype;
@@ -62,17 +76,32 @@ typedef struct expr_cons {
 typedef const struct expr_cons EXPR_CONS_C;
 typedef struct expr_cons const *EXPR_CONS_PTR_C;
 
+#if 0 // *****
 #define EXAM_RET_EXPR( e )						\
   ( (((e)->mnemonic == MNC_RET) && (((e)->kids.pleft) && !((e)->kids.pright))) \
     && ((e)->kids.body.refaddr.pproc) )
+#else
+#define EXAM_RET_EXPR( e )						\
+  ( (((e)->mnemonic == MNC_RET) && (((e)->kids.pleft) && !((e)->kids.pright))) \
+    && ((e)->kids.body.refaddr.attr.pproc) )
+#endif
 #define EXAM_ASGN_EXPR( e )						\
   (((e)->mnemonic == MNC_ASGN) && (((e)->kids.pleft) && ((e)->kids.pright)))
+#if 0 // *****
 #define EXAM_LVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && (e)->kids.body.refaddr.var.ident )
 #define EXAM_RVALUE_EXPR( e )						\
   ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
     && (e)->kids.body.refaddr.var.ident )
+#else
+#define EXAM_LVALUE_EXPR( e )						\
+  ( (((e)->mnemonic == MNC_LVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
+    && (e)->kids.body.refaddr.attr.var.ident )
+#define EXAM_RVALUE_EXPR( e )						\
+  ( (((e)->mnemonic == MNC_RVALUE) && ((!((e)->kids.pleft)) && (!((e)->kids.pright)))) \
+    && (e)->kids.body.refaddr.attr.var.ident )
+#endif
 #define EXAM_NEG_EXPR( e )						\
   ( ((e)->mnemonic == MNC_NEG) && (((e)->kids.pleft) && !((e)->kids.pright)) )
 #define EXAM_PREDECR_EXPR( e )						\

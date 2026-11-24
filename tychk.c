@@ -385,7 +385,11 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       assert( pexp_inf->kids.pleft );
       pe_infl = ty_infer( ptychk_res, &psubst_l, &penv_infl, pexp_inf->kids.pleft, pos );
       if( pe_infl ) {
+#if 0 // *****
 	TYPE_CONS_PTR pty_proc = (pexpr->kids.body.refaddr.pproc)->ptype;
+#else
+	TYPE_CONS_PTR pty_proc = (pexpr->kids.body.refaddr.attr.pproc)->ptype;
+#endif
 	assert( pe_infl->ptype );
 	assert( psubst_l );
 	assert( penv_infl );
@@ -493,8 +497,13 @@ EXPR_CONS_PTR ty_infer ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR *ppsub
       pexp_inf->pos = pos;
       pexp_inf->mnemonic = MNC_LVALUE;
       pexp_inf->kids = pexpr->kids;
+#if 0 // *****
       assert( pexp_inf->kids.body.refaddr.var.ptype );
       pexp_inf->ptype = pexp_inf->kids.body.refaddr.var.ptype;
+#else
+      assert( pexp_inf->kids.body.refaddr.attr.var.ptype );
+      pexp_inf->ptype = pexp_inf->kids.body.refaddr.attr.var.ptype;
+#endif
       penv_inf = dup_env( *ppenv, pos );
       assert( penv_inf );
       *ppenv = penv_inf;
@@ -924,7 +933,11 @@ TYPE_CONS_PTR tyinf_decl_proc ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR
 	  pe_ret->pos = pos;
 	  pe_ret->mnemonic = MNC_RET;
 	  pe_ret->kids.pleft = pst_last->u.pexpr;
+#if 0 // *****
 	  pe_ret->kids.body.refaddr.pproc = pproc_attr;
+#else
+	  pe_ret->kids.body.refaddr.attr.pproc = pproc_attr;
+#endif
 	  pretexp_inf = ty_infer( ptychk_res, ppsubst, &pst_last->penv, pe_ret, pos );
 	  if( pretexp_inf ) {
 	    assert( EXAM_RET_EXPR( pretexp_inf ) );
@@ -960,7 +973,11 @@ TYPE_CONS_PTR tyinf_decl_var ( TYCHK_RESULT_DESC_PTR ptychk_res, TYPE_SUBST_PTR 
     pe_lval->mnemonic = MNC_LVALUE;
     pe_lval->kids.pleft = NULL;
     pe_lval->kids.pright = NULL;
+#if 0 // *****
     pe_lval->kids.body.refaddr.var = *pvar_attr;
+#else
+    pe_lval->kids.body.refaddr.attr.var = *pvar_attr;
+#endif
     if( pvar_attr->opts.var_decl.pinitializer ) {
       EXPR_CONS_PTR pe_asgn = NULL;
       pe_asgn = alloc_expr_cons( pos );
